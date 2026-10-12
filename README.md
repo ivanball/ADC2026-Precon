@@ -33,9 +33,9 @@ Minute-by-minute / Talking points / Code + prompts / Transitions / If things go 
 code fence that shows repo content carries a `File:` label verified against the branch it
 targets (see Verification below).
 
-`reference/` holds the three run sheets for blocks the v3 agenda dropped (outbox session,
-extraction finale, failure gallery). They stay for the extraction recording and as branch reference;
-their teaching content was folded into Lab 3, the wrap, and S9.
+The three run sheets for blocks the v3 agenda dropped (outbox session, extraction finale,
+failure gallery) are not in this repo; their teaching content was folded into Lab 3, the wrap,
+and S9.
 
 ## Built assets (2026-09-20)
 
@@ -45,15 +45,17 @@ their teaching content was folded into Lab 3, the wrap, and S9.
 | Snapshot branch chain | `lab1-end` -> `lab2-end` -> `lab3-end` -> `lab4-end` -> `lab5-end` -> `lab6-end` -> `lab7-end` -> `main` (17 tests, 6 layer rules); demo branches `lab5-violation`, `lab6-fault`, `lab8-demo`; historical `session4-end`, `session6-end`; `docs/branches.md` on `main` lists them all |
 | Starter kit repo (30 files; published 2026-10-07, public, MIT, `main` only, commit authors rewritten to the GitHub noreply address before the first push; backup tag deleted afterwards) | `C:\Projects\MMCA\Workshops\ADC2026\agentic-dotnet-starter-kit`, origin <https://github.com/ivanball/agentic-dotnet-starter-kit> |
 | Lab handouts 1-8 (printable, AI + manual paths) | `handouts/lab1.md` .. `lab8.md` |
-| Slide deck (100 slides, v3.3 2026-10-06, SOLID mapping slide added in Lab 3, break and lunch slides added 2026-10-11 (each arms its countdown on `T`), self-contained HTML, works offline, letterboxed 16:9 stage) with speaker notes on every slide. Visuals: 3D cube turn between blocks, depth push inside a block, flip-in reveals, extruded lab numerals and an isometric layer stack on title cards, syntax-coloured code panels; `M` toggles motion off (also honors the OS reduced-motion setting), `?static` in the URL starts with motion off. Keys: `S` speaker view in a second window (MUST SAY, ENGAGE, cues, next slide, block pacing against the agenda clock), `N` notes overlay for single-screen rehearsal, `T` lab timer (arms from the slide's minutes; `Shift+T` resets, `+`/`-` a minute), `B` blackout, `G` number `Enter` jump, `?` help; add `?reveal` to the URL to show every build step at once. Earlier versions (v3.1, v3.2): `slides/_backup/` | `slides/adc2026-precon-slides.html` |
+| Slide deck (100 slides, v3.3 2026-10-06, SOLID mapping slide added in Lab 3, break and lunch slides added 2026-10-11 (each arms its countdown on `T`), self-contained HTML, works offline, letterboxed 16:9 stage) with speaker notes on every slide. Visuals: 3D cube turn between blocks, depth push inside a block, flip-in reveals, extruded lab numerals and an isometric layer stack on title cards, syntax-coloured code panels; `M` toggles motion off (also honors the OS reduced-motion setting), `?static` in the URL starts with motion off. Keys: `S` speaker view in a second window (MUST SAY, ENGAGE, cues, next slide, block pacing against the agenda clock), `N` notes overlay for single-screen rehearsal, `T` lab timer (arms from the slide's minutes; `Shift+T` resets, `+`/`-` a minute), `B` blackout, `G` number `Enter` jump, `?` help; add `?reveal` to the URL to show every build step at once. Earlier versions (v3.1, v3.2) are not in this repo | `slides/adc2026-precon-slides.html` |
 | Attendee email with the embedded setup scripts | `comms/attendee-email.md` |
+| Workshop A welcome email (draft v2, 2026-10-10; attach both setup checkers) | `comms/welcome-email-workshop-a-2026-10-10.md` |
+| Mac and Windows setup addendum email (draft, 2026-10-12; send only if the welcome email already went out, after the starter kit's `fix/mac-and-windows-setup-checks` branch is merged) | `comms/os-setup-addendum-email-2026-10-12.md` |
 | Setup checker (SDK, Docker, SQL image, port 14330, port 5000, HTTPS dev certificate, EF tools, Git, gh, gh signed in, Aspire CLI with agent commands, Aspire templates, Node, IDE, Claude Code optional; Windows adds Git Bash, 16 checks; macOS adds zsh interactivecomments and, on Apple Silicon, Rosetta 2, up to 17; the macOS port-5000 hint names AirPlay Receiver). Mirrored in the starter kit under setup/ | `comms/check-setup.ps1`, `comms/check-setup.sh` |
-| Listing copy (Sessionize / TicketLeap, and the atldevcon.com page) | `comms/listing-v2.md`, `comms/listing-v3-site-page.md` |
-| Organizer logistics, TA briefing, workshop-selection email | `comms/organizer-logistics.md`, `comms/ta-briefing.md`, `comms/workshop-selection-email.md` |
+| Listing copy (the atldevcon.com page) | `comms/listing-v3-site-page.md` |
+| Organizer logistics, TA briefing | `comms/organizer-logistics.md`, `comms/ta-briefing.md` |
 
 Still on the instructor (the Aspire CLI on this machine is 13.6.0 as of 2026-10-06, so that
 item is done): the `aspire run` and MCP Inspector rehearsal, commit and merge the starter kit's
-`fix/author-name-and-aspire-version` branch, push both repos public and fill the kit README link, set the `ANTHROPIC_API_KEY`
+`fix/author-name-and-aspire-version` branch, set the `ANTHROPIC_API_KEY`
 secret and branch protection on the public reference repo and pre-open the `lab5-violation`
 pull request, record the three-terminal extraction clip for the wrap, USB sticks, and the
 workshop-credits conversation. The Lab 6 deploy has no recording: it is talked through, or run
@@ -83,20 +85,20 @@ the decisions and review the diffs, and every lab has a manual path.
       already built and green (`docs/branches.md` on `main`).
 - [ ] Run `comms/check-setup.ps1` on the projector machine until every line is OK (the Aspire
       CLI there must be 13.6+; this machine is on 13.6.0 since 2026-10-06).
-- [ ] Push the reference solution to a fresh public repo (e.g. `<you>/adc-helpdesk-workshop`),
-      turn on branch protection per `docs/shipping.md`, add the `ANTHROPIC_API_KEY` secret, and
-      open the `lab5-violation` pull request so it is waiting on the day.
+- [ ] On the public reference repo (github.com/ivanball/adc2026-helpdesk, published
+      2026-10-07): turn on branch protection per `docs/shipping.md`, add the `ANTHROPIC_API_KEY`
+      secret, and open the `lab5-violation` pull request so it is waiting on the day.
 - [x] Push the starter kit public and replace the `<workshop repo link: TODO before the
       conference>` placeholder in its README. The wrap slide links it; the link must work day-of.
       Done 2026-10-07: kit at github.com/ivanball/agentic-dotnet-starter-kit, link filled in
       `e1cfc6d`, pointing at github.com/ivanball/adc2026-helpdesk.
 - [ ] Record the three-minute extraction clip (`10-s9-field-report-and-wrap.md`, wrap beat;
       commands in `main`'s README). The Lab 6 deploy is not recorded.
-- [ ] Optional: validate `aspire deploy` once on your own subscription (`07-lab6-run-it.md`,
+- [x] Optional: validate `aspire deploy` once on your own subscription (`07-lab6-run-it.md`,
       Step 5, "Optional: validate"), on a scratch branch and into a NEW resource group (the
       prompt suggests existing ones; never accept one). About 16 min to deploy and about 19 to
       delete; `az group delete` only on that dedicated group. Validated 2026-10-11.
-- [ ] Confirm the conference listing matches `comms/listing-v2.md` (prerequisites, Claude
+- [ ] Confirm the conference listing matches `comms/listing-v3-site-page.md` (prerequisites, Claude
       subscription as nice to have, public GitHub repo, Aspire CLI, Node). Ask about workshop
       credits for stragglers as an accelerator, not a requirement.
 
