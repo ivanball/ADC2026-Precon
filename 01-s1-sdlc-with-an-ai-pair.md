@@ -6,7 +6,7 @@ fast new hire that onboards off the same rules humans do. Everything after this 
 that model. Fifteen minutes, then hands on keyboards.
 
 **You need:** the ten S1 slides (title, show-of-hands poll, lifecycle map, the day, the new
-hire, the honest thing, agent failure bingo, "not today", what moved this year, how today
+hire, the honest thing, bingo, "not today", what moved this year, how today
 works), whiteboard/marker, and a small prize for the bingo winner (awarded in S9). Nothing
 running on your side: the room's only terminal moment is the `claude --version` / `docker ps`
 check on the last slide; the first real terminal work of the day opens in Lab 1.
@@ -19,7 +19,7 @@ check on the last slide; the first real terminal work of the day opens in Lab 1.
 | 9:02 | The day's map: the lifecycle slide (ten blocks: a map, then nine lifecycle phases), then the day by the clock |
 | 9:06 | The agent is a very fast new hire (the load-bearing beat) |
 | 9:10 | The honest thing: it will be confidently wrong today, and that is why we build gates |
-| 9:12 | Agent failure bingo (45 s), then "Not today": building agents INTO software, and where to go for that |
+| 9:12 | Bingo (45 s), then "Not today": building agents INTO software, and where to go for that |
 | 9:13 | What moved this year, and where it shows up today (90 s) |
 | 9:14 | How today works: hands-on rules, Manual mode, the thumbs-up check; hand off to Lab 1 |
 
@@ -99,14 +99,24 @@ can afford: small diffs, a green build, a fitness test, a required check. Every 
 today exists because the claim and the artifact are different things. S9 collects the ones that
 bit me in production.
 
-### Agent failure bingo (45 s)
+### Bingo: catch it in the act (45 s)
 
-Bridge from the honest thing: "So let us make a game of it." Phones up, photo of the slide:
-eight real failure modes (phantom fix, the test that changed, confident wrong API, helpful
-bulldozer, invented config key, scope creep with a reason, vacuous test, quiet drift) plus the
-free square. Spot one in your own session, note the square and the time; a full row with the
-evidence still on screen wins at the 4:50 debrief in S9. When one happens on the projector
-today, call it: "That is a square."
+Bridge from the honest thing: "So let us make a game of watching for it." Phones up, photo of
+the slide. Eight squares, each one built into a lab so everyone who does the labs sees it:
+red before green (Labs 2, 3), an unasked extra (Lab 1 plan), it asked, not
+guessed (Labs 3, 7), build green, rule red (Lab 4), red X on your PR (Lab 5), a 204
+that lied (Lab 6), no tool for that (Lab 7), a FLAG you checked (Lab 8), and in the centre,
+zero warnings (Lab 1: `0 Warning(s), 0 Error(s)`). No free square: the centre is earned in
+the first lab. Mark a square when it happens on your own screen and note the
+time; a screenshot counts. Any full line (across, down or diagonal) wins at the 4:50 bingo
+slide in S9: everyone with a line stands, draw one name. Manual-path attendees can win too:
+the left column, middle row, bottom row and top-left diagonal need no agent. When one happens
+on the projector, call it: "That is a square." Each run sheet marks the moment with a
+"Bingo:" line.
+
+The slippery failure modes (phantom fix, the test that changed, confident wrong API, helpful
+bulldozer, quiet drift) are deliberately not squares: they do not happen on cue. They are the
+S9 field-report stories.
 
 ### Not today: building agents INTO software (1 min)
 

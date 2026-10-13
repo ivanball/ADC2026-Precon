@@ -368,6 +368,8 @@ contain a definition for 'AddChildTask'` (and for `CompleteChildTask` and `Close
 `Passed!` line for Helpdesk.ArchitectureTests is the other test project, not theirs. The fourth
 test guards the lecture's `Create` and goes green as soon as the file compiles.
 
+**Bingo:** the red run is the "red before green" square.
+
 Then they commit the red tests (and the lecture code), so Step 3's `git diff --stat HEAD` can
 show the agent touched only `Ticket.cs`:
 

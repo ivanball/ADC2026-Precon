@@ -526,23 +526,23 @@ Maintain + improve   S9      4:20   the field report</pre>
 
 <section class="slide" data-session="S1">
   <p class="eyebrow">All day / snap a photo of this slide</p>
-  <h1>Agent failure bingo</h1>
+  <h1>Bingo: catch it in the act</h1>
   <div class="bingo">
-    <div><b>Phantom fix</b>"Fixed!" with no build output anywhere near it</div>
-    <div><b>The test that changed</b>An assertion edited until it passed</div>
-    <div><b>Confident wrong API</b>A method or package that does not exist</div>
-    <div><b>Helpful bulldozer</b>A 400-line diff for a 5-line fix</div>
-    <div class="free"><b>FREE</b>"You're absolutely right!"</div>
-    <div><b>Invented config key</b>Plausible, shaped right, does nothing</div>
-    <div><b>Scope creep, with a reason</b>Touched a file you never named</div>
-    <div><b>Vacuous test</b>Green forever, because it can never fail</div>
-    <div><b>Quiet drift</b>A late edit undoes an early decision</div>
+    <div><b>Red before green</b>A test you saw fail, then pass. Labs&nbsp;2,&nbsp;3</div>
+    <div><b>An unasked extra</b>A step in the plan nobody requested. Lab&nbsp;1</div>
+    <div><b>It asked, not guessed</b>The agent stops to ask you. Labs&nbsp;3,&nbsp;7</div>
+    <div><b>Build green, rule red</b>Compiles; a fitness test says no. Lab&nbsp;4</div>
+    <div><b>Zero warnings</b>0 Warning(s), 0 Error(s), first try or not. Lab&nbsp;1</div>
+    <div><b>A 204 that lied</b>API says closed; ticket says Open. Lab&nbsp;6</div>
+    <div><b>Red X on your PR</b>CI refuses a change that compiles. Lab&nbsp;5</div>
+    <div><b>No tool for that</b>Nobody wrote the tool, so it stops. Lab&nbsp;7</div>
+    <div><b>A FLAG you checked</b>A verdict you opened the file for. Lab&nbsp;8</div>
   </div>
-  <div class="note">Spot one in your own session: note the square and the time. A full row, with the evidence still on your screen, wins at 4:50.</div>
+  <div class="note">Mark a square when it happens on your own screen and note the time; a screenshot counts. Any full line, across, down or diagonal, wins at 4:50.</div>
   <aside class="notes">
-    <div class="must"><p>Snap a photo of this slide. Every square is a real failure mode, and every one of them has a gate on today's agenda.</p><p>A full row, with the evidence on screen, wins at the 4:50 debrief.</p></div>
-    <p class="ask">Phones up, photo now. Who thinks they will fill a row before lunch?</p>
-    <ul><li>Bring a prize (book, stickers, first pick of anything). Award it on the "Bingo debrief" slide in S9.</li><li>When one happens on the projector, call it: "That is a square." Keeps the callback alive all day.</li><li>Lab mapping, if asked: phantom fix and quiet drift (S9), test that changed (Labs 2, 3, 5), vacuous test (Lab 4), bulldozer (Lab 1 plan review).</li></ul>
+    <div class="must"><p>Snap a photo of this slide. Every square is built into a lab: if you do the labs, you will see them.</p><p>Any full line wins at 4:50. Mark it the moment it happens.</p></div>
+    <p class="ask">Phones up, photo now. Which lab do you think gets you your first square?</p>
+    <ul><li>Bring a prize (book, stickers, first pick of anything). Award it on the bingo slide in S9: everyone with a line stands, draw one name; name anyone with a full card.</li><li>When one happens on the projector, call it: "That is a square." Each run sheet marks the moment with a "Bingo:" line.</li><li>Manual path can win too: the left column, the middle row, the bottom row and the top-left diagonal need no agent (Inspector shows "no tool for that" as a missing button; the Lab 8 neighbour swap produces FLAGs).</li><li>The hard-to-catch failure modes (phantom fix, the test that changed, confident wrong API, bulldozer, quiet drift) are not squares; they are the S9 field-report stories.</li></ul>
     <p class="cue"><strong>Time:</strong> 9:12 (45 s) &nbsp; <strong>Bridge:</strong> One more boundary before we start: what today is NOT.</p>
   </aside>
 </section>
@@ -2031,7 +2031,7 @@ Top 10 sessions, as a share of the month                   32.2%</pre>
 </section>
 
 <section class="slide" data-session="S9">
-  <h1>Bingo debrief: five ways it goes wrong</h1>
+  <h1>Bingo, then five ways it goes wrong</h1>
   <ol>
     <li><strong>The phantom fix</strong>: "fixed!", never compiled. Tell: success claims with no command output.</li>
     <li><strong>The test that passes because it changed.</strong> Tell: test files in a diff that should not touch them.</li>
@@ -2042,7 +2042,7 @@ Top 10 sessions, as a share of the month                   32.2%</pre>
   <div class="note">Every countermeasure was on today's syllabus: tests first, fitness rules, scope fences, context files, verify-then-commit. Nothing extra to buy.</div>
   <aside class="notes">
     <div class="must"><p>Every countermeasure was on today's syllabus: tests first, fitness rules, scope fences, context files, verify-then-commit. Nothing extra to buy.</p></div>
-    <p class="ask">Bingo check: anyone fill a row today? Show the evidence, collect the prize. Then hands for each as I count, one to five: which bit you this year?</p>
+    <p class="ask">Bingo: everyone with a full line, stand up. Draw one name for the prize; any full cards? Then hands for each as I count, one to five: which bit you this year?</p>
     <ul><li>Recap only, 30 s maximum: a block of failures reads as a disclaimer.</li><li>Point at each line and name where you told it: phantom fix (skills), wrong API (docs), bulldozer (waves), quiet drift (context).</li><li>Number 2, the test that changed, is the one story not yet told. Tell it on the next slide, where it motivates the review rule.</li></ul>
     <p class="cue"><strong>Time:</strong> about 30 s borrowed from the 4:50 delegation slot (run sheet S9, 4:50) &nbsp; <strong>Bridge:</strong> Number two decides what you can safely delegate.</p>
   </aside>

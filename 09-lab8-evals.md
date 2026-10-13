@@ -655,7 +655,7 @@ Done check at a table (the handout's "Verification" section, five items):
 - A scored table, five rows, a `path:line` on every row.
 - At least one row that is not a 2, examined rather than argued with.
 - **At least one FLAG or DRIFTED verdict the attendee personally opened the file for.** This
-  is the actual completion criterion for the lab.
+  is the actual completion criterion for the lab, and the "a FLAG you checked" bingo square.
 - A sixth rule in their own words, with its "does not count" line filled in.
 - A total, computed by them, with today's date beside it.
 

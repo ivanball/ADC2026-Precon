@@ -587,6 +587,7 @@ Then, with the agent connected and without mentioning the fixture, ask it:
 **Watch it stall.** The agent has three tools and none of them enumerates anything. Expect it
 to say it has no way to list tickets and ask for the ids, without guessing. Let the pause
 happen; the room should see the agent being blocked by an absence rather than by a rule.
+**Bingo:** two squares at once, "no tool for that" and "it asked, not guessed".
 
 It may not stall cleanly. An agent that also has Bash may read the `sa` password from
 `docker-compose.yml`, ask to run `docker exec ... sqlcmd`, and keep offering to query the

@@ -444,6 +444,8 @@ step list), and the step log names the offender:
    Public handlers found: Helpdesk.Tickets.Application.Tickets.CreateTicketHandler
 ```
 
+**Bingo:** the red X is the "red X on your PR" square.
+
 That is the manual-path wording from the Lab 4 reference tests. If your Lab 4 tests came from
 the AI path, the class, method and message are your agent's, for example
 `ArchitectureRulesTests.Rule4_Command_and_query_handlers_are_internal` with "Command and query

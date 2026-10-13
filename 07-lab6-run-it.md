@@ -670,7 +670,7 @@ Live, in this order:
 
    The close returns `204 No Content`. The read back says `"status":"Open"`. Close it a second
    time: `204` again, where Lab 3's test says it must be `400 Tickets.AlreadyClosed`. **The
-   client is being lied to, politely, three times.**
+   client is being lied to, politely, three times.** **Bingo:** "a 204 that lied".
 
 3. Show the agent's connection to the running app. It is already committed on the branch
    (attendees following along copy it onto their own `main` in handout step 4.6):

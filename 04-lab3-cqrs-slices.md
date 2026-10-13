@@ -600,7 +600,8 @@ Tickets.Validation.TitleTooLong, and return 201 Created with the body { "id": "<
 The last sentence pins the response contract, so an AI-path repo answers exactly like the
 manual path and the `CloseTicketTests.cs` paste in 3b works on either. If an agent asks
 whether to create `tests/Helpdesk.ApiTests` (SKILL.md step 6 points there), the answer is "not
-yet, 3b creates it"; the handout says the same.
+yet, 3b creates it"; the handout says the same. An agent that asks is the "it asked, not
+guessed" bingo square.
 
 The point to land while they run it: the long prompt is now a file in the repo, under review,
 in version control, shared by the whole team. A prompt somebody retypes from memory drifts; a
@@ -966,7 +967,7 @@ dotnet test Helpdesk.slnx
 ```
 
 It fails at `/tickets/{id}/close` with a 404, because the route does not exist. That 404 is the
-goalposts.
+goalposts. **Bingo:** "red before green", for anyone who missed it in Lab 2.
 
 Fact one also reads the ticket back through `GET /tickets/{id}`, which does not exist yet
 either, so Step 5 is TWO slices, both required: anyone treating the GET as optional ends 3b

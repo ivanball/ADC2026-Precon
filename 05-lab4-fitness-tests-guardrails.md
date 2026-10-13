@@ -272,6 +272,7 @@ Two acceptable outcomes, both wins; name them beforehand so attendees know what 
    type (for example `EF Core leaked into Domain: Helpdesk.Tickets.Domain.TicketQueries`).
    The agent reports the failure, possibly offering to revert. **The gate worked, and it
    worked where the compiler could not**: valid C#, wrong architecture. Say that sentence.
+   **Bingo:** "build green, rule red" (the manual path gets it too).
 2. The agent refuses or pushes back, citing CLAUDE.md's layer rules or the "never add a NuGet
    package without asking" line. **The context file worked.** (Then have them insist once, to
    see outcome 1.)

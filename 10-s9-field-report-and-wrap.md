@@ -461,9 +461,10 @@ packaged with the framework and the measurement contradicted it.
 
 ## 4:50 Delegation rules of thumb (2 min)
 
-**Bingo debrief first (about 30 s, its own slide, "Bingo debrief: five ways it goes
-wrong").** Ask who has a full row with the evidence still on screen, check one square against
-the screen, and hand over the prize promised in S1. Then the delegation slide.
+**Bingo first (about 30 s, its own slide, "Bingo, then five ways it goes wrong").** Everyone
+with a full line stands; glance at one screenshot or noted time, draw one name for the prize,
+and name anyone with a full card. Then the five stories on that slide, then the delegation
+slide.
 
 One slide, two columns, then one sentence.
 

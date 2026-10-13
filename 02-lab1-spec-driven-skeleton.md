@@ -307,6 +307,8 @@ Coach from the front while they work:
 
 - **Read the plan before approving.** Look for invented extras (a Dockerfile you did not ask
   for, an extra package). Reject and say why; the revision is the lesson.
+- **Bingo:** an unrequested step in the plan is the "an unasked extra" square.
+  Call it when one shows up on the projector.
 - **Check the layout against the spec.** CLAUDE.md names the four layers, not the folders: it
   never mentions `tests/`, the test project names, or Host -> Presentation, so the spec names
   every path and reference. Without them the agent guesses. Send the plan back if it differs.
@@ -489,7 +491,7 @@ git add -A && git commit -m "Walking skeleton"
 ```
 
 The build must be green with zero warnings, or you are not done, and the placeholder tests
-must pass.
+must pass. **Bingo:** `0 Warning(s), 0 Error(s)` is the centre square, "zero warnings".
 
 Rule to state once and repeat all day: **the agent's claim is not the verification; the build
 is.** Green build, then commit, so every lab starts from a known-good point.
