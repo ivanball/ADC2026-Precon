@@ -93,11 +93,12 @@ and an agent that follows your rules."
 Before anyone types, say the terminal rule (handout Step 1 prints it): on Windows, Git Bash for
 every command today. Command Prompt fails on `rm`, on `<owner>` placeholders (read as a file
 redirect) and on Lab 5's heredoc; PowerShell fails on the heredoc. A 2026-10-07 run in cmd.exe
-hit all three. On a Mac, the stock Terminal (zsh) runs everything, after one line:
-`setopt interactivecomments` (the handout has the `~/.zshrc` form). Without it zsh hands the
-trailing `# comment` words to the command: the very next block's
-`docker compose up -d   # SQL Server 2022; ...` dies with `no such service: #`, and later
-`dotnet build Helpdesk.slnx # green ...` with `MSB1008`. Also on a Mac: AirPlay Receiver owns
+hit all three. On a Mac, the stock Terminal (zsh) runs everything as printed; the handouts no
+longer carry trailing comments (removed after the 2026-10-12 Mac run). Still recommend one line,
+`setopt interactivecomments` (the handout has the `~/.zshrc` form), for commands copied from
+elsewhere: without it zsh hands trailing `# comment` words to the command, so
+`docker compose up -d   # SQL Server` dies with `no such service: #` and
+`dotnet build Helpdesk.slnx # green` with `MSB1008`. Also on a Mac: AirPlay Receiver owns
 port 5000, the API's port from Lab 3 on; ask Mac users to switch it off now (the check script
 flags it). Ctrl+C stops a running host on both OSes (Control, not Command, on a Mac).
 
@@ -537,8 +538,9 @@ Walk your own freshly scaffolded solution:
 ## If things go wrong
 
 - Mac, `no such service: #` from `docker compose up -d`, `MSB1008: Only one project can be
-  specified` from `dotnet build`, or `zsh: command not found: nothing`: zsh is reading the
-  trailing `# comment` as arguments (and the `;` inside it as a second command). Fix:
+  specified` from `dotnet build`, or `zsh: command not found: nothing`: the pasted command had
+  a trailing `# comment` (none in the handouts; copied from elsewhere or typed), and zsh reads
+  it as arguments (and a `;` inside it as a second command). Fix:
   `echo 'setopt interactivecomments' >> ~/.zshrc`, new terminal window, rerun the block.
 - Apple Silicon, the SQL container exits seconds after `docker compose up -d` (`docker ps`
   shows nothing, `docker compose logs sql` ends abruptly): Docker Desktop's Rosetta setting is

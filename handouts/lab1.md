@@ -45,9 +45,10 @@ it from the Start menu, or as a Windows Terminal or VS Code terminal profile). T
 printed for Bash: PowerShell runs most of them, Command Prompt (cmd.exe) does not, and Lab 5's
 branch-protection call runs only in Bash.
 
-**macOS: the stock Terminal (zsh) runs every command as printed, after one setting.** Some
-commands end in a `# comment`, and zsh passes those words to the command as arguments unless
-interactive comments are on. Run this once, then open a new terminal window:
+**macOS: the stock Terminal (zsh) runs every command as printed, plus one safety setting.** No
+command in these handouts ends in a `# comment`, but commands you copy from elsewhere (docs,
+your agent's suggestions) often do, and zsh passes those words to the command as arguments
+unless interactive comments are on. Run this once, then open a new terminal window:
 `echo 'setopt interactivecomments' >> ~/.zshrc`. Also switch off **AirPlay Receiver**
 (System Settings > General > AirDrop & Handoff): on a Mac it listens on port 5000, the port
 your API uses from Lab 3 on. The setup check script flags both.
