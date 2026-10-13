@@ -397,14 +397,19 @@ written down, checked into the repo, shared by the whole team:
       {
         "matcher": "Bash|PowerShell",
         "hooks": [
-          { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/block-dangerous.sh" },
-          { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/confirm-merge.sh" }
+          { "type": "command", "command": "\"${CLAUDE_PROJECT_DIR}\"/.claude/hooks/block-dangerous.sh" },
+          { "type": "command", "command": "\"${CLAUDE_PROJECT_DIR}\"/.claude/hooks/confirm-merge.sh" }
         ]
       }
     ]
   }
 }
 ```
+
+The escaped quotes around `${CLAUDE_PROJECT_DIR}` are deliberate. Unquoted, a project path with a
+space splits, the hook exits 127, and Claude Code treats that as a non-blocking error, so the
+command runs. The 2026-10-12 Mac dry run proved it in a real session: the bare form let
+`git reset --hard origin/...` through, the quoted form blocked it.
 
 Read the lists out loud: `allow` is build, test and read-only git, all of it local and
 repeatable; `deny` is drop a database, force-push, `rm -rf`, and reading `.env` or `.pem` files

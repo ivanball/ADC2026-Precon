@@ -233,14 +233,18 @@ indicator instead, because the extension does not read a project's `defaultMode`
       {
         "matcher": "Bash|PowerShell",
         "hooks": [
-          { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/block-dangerous.sh" },
-          { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/confirm-merge.sh" }
+          { "type": "command", "command": "\"${CLAUDE_PROJECT_DIR}\"/.claude/hooks/block-dangerous.sh" },
+          { "type": "command", "command": "\"${CLAUDE_PROJECT_DIR}\"/.claude/hooks/confirm-merge.sh" }
         ]
       }
     ]
   }
 }
 ```
+
+The escaped quotes around `${CLAUDE_PROJECT_DIR}` keep the hooks working when your project path
+contains a space. Without them the hook fails to start, and Claude Code treats a hook that
+fails to start as a non-blocking error: the command it should have stopped runs anyway.
 
 Every rule appears twice, once for `Bash` and once for `PowerShell`, and the hook matcher is
 `Bash|PowerShell`. On Windows, Claude Code has a native PowerShell tool next to Bash, and a

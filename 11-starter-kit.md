@@ -160,8 +160,8 @@ on native Windows it does nothing. To add it to your own repo, list every comman
 reach outside in `excludedCommands`.
 
 **Taught in** Lab 4. **Came from** `lab4-end`; the settings file is the one the attendees end
-Lab 4 with, except that the kit quotes the placeholder in the two hook paths
-(`"${CLAUDE_PROJECT_DIR}"`), so a project path with spaces still works.
+Lab 4 with. Both quote the placeholder in the two hook paths (`"${CLAUDE_PROJECT_DIR}"`), so a
+project path with spaces still works.
 
 **File: `kit:.claude/settings.json` (new file)**
 
