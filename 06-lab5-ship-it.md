@@ -25,6 +25,23 @@ registry. Red-to-green on a public repository is about three minutes of queue pl
 the talking points AROUND that wait rather than staring at it: the supply-chain beat and the
 least-privilege beat both fit inside one CI run.
 
+## Rescue: starting from the snapshot (the handout prints this under its snapshot line)
+
+**Starting from the snapshot instead of your own work?** Clone it into a new folder and make
+it your `main` (a plain `git checkout lab4-end` leaves your next commits on a branch named
+`lab4-end`):
+
+```sh
+git clone --branch lab4-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab5
+cd helpdesk-lab5
+git switch -c main --track origin/lab4-end
+dotnet tool restore
+```
+
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins (from `lab3-end` on
+the repository carries a tool manifest, and `dotnet ef` refuses to run until it is restored,
+even with the global tool installed).
+
 ## Minute-by-minute
 
 | Time | Beat | Min |
@@ -60,7 +77,7 @@ agent; on the AI path the agent writes the two workflows from the prompts below.
 
 Test count is unchanged from `lab4-end`: 11 green on `dotnet test` (Domain 4, Architecture 5,
 Api 2). Nothing in this block adds a test; it adds the machine that runs the tests you already
-have. The published image is about 103 MB compressed (367 MB on disk), which is worth saying
+have. The published image is about 103 MB compressed (a few hundred MB on disk), which is worth saying
 out loud when it lands.
 
 The two files on `lab5-violation` are NOT part of the 19: that branch exists only to be the
@@ -758,10 +775,13 @@ docker run --rm --platform linux/amd64 -p 8080:8080 ghcr.io/<owner>/helpdesk:v0.
 
 `--platform linux/amd64` changes nothing on a Windows laptop. On an Apple Silicon Mac it
 asks for the amd64 image the CI runner built and runs it under Rosetta; without it Docker looks
-for an arm64 image, finds only amd64 plus a build attestation, and stops with
-`no matching manifest for linux/arm64/v8`.
+for an arm64 image, finds only amd64 plus a build attestation, and, depending on your Docker
+version, either stops with `no matching manifest for linux/arm64/v8` or pulls the amd64 image
+anyway with a platform-mismatch warning (Docker 29.8 on the 2026-10-12 Mac run). The flag makes
+both behave the same.
 
-About 103 MB compressed (367 MB on disk, which is what `docker image ls` shows after the pull).
+About 103 MB compressed (a few hundred MB on disk after the pull: `docker image ls` showed 367 MB
+on Windows and 250 MB on the Mac, Docker 29.8; quote the compressed number).
 Say the number, it lands better than any slide about layer caching. The container starts
 without a database and answers `/health`; the ticket endpoints need a database the container
 can reach (the baked-in connection string says `localhost,14330`, which inside the container
@@ -838,7 +858,8 @@ dashboard that shows you a trace through a create-ticket call. The image exists;
 
 ## If things go wrong
 
-- **Apple Silicon: `no matching manifest for linux/arm64/v8` on `docker pull`.** The command
+- **Apple Silicon: `no matching manifest for linux/arm64/v8` on `docker pull`** (older Docker;
+  Docker 29.8 pulls with a platform warning instead). The command
   lost its `--platform linux/amd64` (the release builds amd64 only, plus an attestation entry).
   Add the flag to the pull and the run. If the container then exits at once, Docker Desktop's
   Rosetta setting is off; the Lab 1 fix applies.

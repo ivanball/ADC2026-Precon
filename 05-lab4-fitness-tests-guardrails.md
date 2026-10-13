@@ -14,6 +14,23 @@ rushed human and a confident agent; tool-side guardrails (permission modes, deny
 hooks) are the same idea one level up; and the credentials you hand the agent in CI are
 the same idea one level up again.
 
+## Rescue: starting from the snapshot (the handout prints this under its snapshot line)
+
+**Starting from the snapshot instead of your own work?** Clone it into a new folder and make
+it your `main` (a plain `git checkout lab3-end` leaves your next commits on a branch named
+`lab3-end`):
+
+```sh
+git clone --branch lab3-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab4
+cd helpdesk-lab4
+git switch -c main --track origin/lab3-end
+dotnet tool restore
+```
+
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins (from `lab3-end` on
+the repository carries a tool manifest, and `dotnet ef` refuses to run until it is restored,
+even with the global tool installed).
+
 ## Minute-by-minute
 
 | Time | Beat | Min |
@@ -47,7 +64,8 @@ agent (highlighted in red in the web version); on the AI path the agent writes t
 
 Test count on `lab4-end`: 11 green (Domain 4, Architecture 5, Api 2). Say the number out loud
 after Lab 4a; attendees with 12 skipped the `PlaceholderTests.cs` delete, attendees with 10
-lost a rule.
+lost a rule. Two red Api tests with a `SqlException` means the compose SQL container is down
+(typical on a fresh rescue clone): `docker compose up -d`, then rerun. The handout prerequisite says so.
 
 Not listed (deliberately): `bin/`, `obj/`, and the project file itself. The
 `NetArchTest.Rules` package reference already ships in the Lab 1 skeleton's

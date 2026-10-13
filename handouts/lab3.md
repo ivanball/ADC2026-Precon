@@ -5,6 +5,16 @@ Prerequisite: `lab2-end` plus everything pasted during the Lab 3 lecture. ALL pa
 material is in this handout so you can catch up standalone. Paste sections A-D first if you
 have not already; they are lecture material, not the lab.
 
+**Starting from the snapshot instead of your own work?** Clone it into a new folder and make
+it your `main` (a plain `git checkout lab2-end` leaves your next commits on a branch named
+`lab2-end`):
+
+```sh
+git clone --branch lab2-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab3
+cd helpdesk-lab3
+git switch -c main --track origin/lab2-end
+```
+
 **Goal:** ship three vertical slices, all driven by the `/slice` Agent Skill the repo ships
 (the old supplied prompt is still here as the manual path, and it is the fallback if the skill
 does not fire). 3a is `POST /tickets`. 3b is `POST /tickets/{id}/close`, written test-first at

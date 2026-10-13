@@ -28,6 +28,24 @@ designated cut, and it is the LAST beat precisely so cutting it costs nothing el
 **Never run the AppHost from a background or headless shell.** It stalls at control-plane
 initialization and looks like a hang. Real terminal, foreground, every time.
 
+## Rescue: starting from the snapshot (the handout prints this under its snapshot line)
+
+**Starting from the snapshot instead of your own work?** Your Lab 5 repository has no snapshot
+branches, so add the workshop repository as a second remote (skip the `remote add` line if
+you already have it), commit or stash your own work, and switch to the snapshot:
+
+```sh
+git remote add workshop https://github.com/ivanball/adc2026-helpdesk.git
+git fetch workshop
+git switch -c lab5-end --track workshop/lab5-end
+dotnet tool restore
+```
+
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins; `dotnet ef` refuses
+to run until it is restored, even with the global tool installed. No repository of your own?
+Clone instead: `git clone --branch lab5-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab6`, `cd helpdesk-lab6`, then
+`dotnet tool restore`.
+
 ## Files this session touches
 
 `lab5-end` -> `lab6-end`. That is the whole of `git diff --stat lab5-end lab6-end`: 20 files,
@@ -697,7 +715,7 @@ Live, in this order:
    `~/.claude/settings.json`, so it runs after every tool call in every Claude Code session.
    The 2026-10-12 Mac dry run verified that `ASPIRE_CLI_TELEMETRY_OPTOUT=true` does not stop
    the install (the CLI applies the opt-out when it publishes). Undo: delete that `hooks`
-   entry and `~/.agents/skills/aspire*`. Show `aspire agent --help` first, on
+   entry, `~/.agents/skills/aspire*` and the `~/.aspire/hooks/` folder. Show `aspire agent --help` first, on
    screen: it proves the CLI is new enough (`init` and `mcp`). Then `/mcp` in Claude Code shows
    the aspire server's tools: `list_resources`, `list_structured_logs`, `list_traces` and
    friends. That tool list is the answer to "what can the agent actually see". VS Code reads

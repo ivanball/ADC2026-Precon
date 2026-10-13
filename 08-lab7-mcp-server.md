@@ -11,7 +11,7 @@ Snapshot branch: `lab7-end`.
 **You need:**
 
 - Node.js 22.19 or newer (24 LTS recommended) on every laptop, for
-  `npx @modelcontextprotocol/inspector@latest` (Inspector 2.9.0 declares `node >=22.19.0`; an
+  `npx @modelcontextprotocol/inspector@latest` (Inspector 2.9.0 and the current 2.10.1 declare `node >=22.19.0`; an
   older 22.x prints `npm warn EBADENGINE` and still ran in the dry run). It is in the setup
   clinic checklist; the room check is one line at 3:00, not at 3:32.
 - The SQL container up (`docker compose up -d`) and the host running on port 5000
@@ -22,8 +22,11 @@ Snapshot branch: `lab7-end`.
   Anyone who recreated the container migrates it first with Lab 3's
   `dotnet ef database update -p src/Modules/Tickets/Helpdesk.Tickets.Infrastructure -s src/Helpdesk.Host`.
   Attendees who rescued onto a fresh `lab6-end` checkout must run
-  `dotnet build Helpdesk.slnx` before any `dotnet ef` command (NETSDK1004 otherwise). Both
-  notes are in the handout prerequisite.
+  `dotnet tool restore` and `dotnet build Helpdesk.slnx` before any `dotnet ef` command (the
+  snapshot pins dotnet-ef in a tool manifest; NETSDK1004 without the build). A pre-login
+  handshake error right after `docker compose up -d` is SQL still starting (seen at about 3 s
+  on the 2026-10-12 Mac run): rerun the update. All of it is in the handout prerequisite and
+  its rescue block.
 - Claude Code on the projector machine with the connect command rehearsed:
   `claude mcp add --transport http helpdesk http://localhost:5000/mcp`. Rehearse
   `claude mcp remove helpdesk` too, because a stale entry from rehearsal is the failure you
@@ -40,6 +43,24 @@ left out.
 **This is the last thing the room does to the application.** Lab 8 scores it, S9 is a field
 report, the wrap is five minutes. So this block is allowed to end on a flourish, and the
 injection demo is that flourish: do not cut it.
+
+## Rescue: starting from the snapshot (the handout prints this under its snapshot line)
+
+**Starting from the snapshot instead of your own work?** Your Lab 5 repository has no snapshot
+branches, so add the workshop repository as a second remote (skip the `remote add` line if
+you already have it), commit or stash your own work, and switch to the snapshot:
+
+```sh
+git remote add workshop https://github.com/ivanball/adc2026-helpdesk.git
+git fetch workshop
+git switch -c lab6-end --track workshop/lab6-end
+dotnet tool restore
+```
+
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins; `dotnet ef` refuses
+to run until it is restored, even with the global tool installed. No repository of your own?
+Clone instead: `git clone --branch lab6-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab7`, `cd helpdesk-lab7`, then
+`dotnet tool restore`.
 
 ## Files this session touches
 
@@ -462,7 +483,8 @@ skills and MCP config"; then `git add -A` and commit "MCP server with three tool
 npx @modelcontextprotocol/inspector@latest
 ```
 
-It opens a browser tab on a **Servers** page (Inspector 2.9.0). **Add Servers**, **+ Add
+It opens a browser tab on a **Servers** page (click path verified on Inspector 2.9.0; `@latest` was 2.10.1 on 2026-10-12, so walk
+it once on the projector before the day). **Add Servers**, **+ Add
 manually**, Server ID `helpdesk`, Transport **streamable-http**, URL `http://localhost:5000/mcp`,
 **Add**. Flip the switch on the `helpdesk` card until it reads **Connected**. Then **Tools** in
 the top bar: the three tools are listed straight away, with no List Tools button. Select
@@ -866,7 +888,7 @@ session spends ten seconds failing to connect to a dead port. Everything in this
 - **Node missing.** Do not install it in the room. That attendee pairs with a neighbour for the
   Inspector beat, or watches the projector and does Lab 7a as code-only, which is most of the
   block anyway. The tests prove their server works without any client at all. Node older than
-  22.19 prints `npm warn EBADENGINE` for Inspector 2.9.0 and still ran in the dry run; let it
+  22.19 prints `npm warn EBADENGINE` for Inspector 2.9 and later and still ran in the dry run; let it
   run and tell them to upgrade later.
 - **The poisoned demo "works" against you**, in the sense that the agent asks for an id and
   refuses to guess, and nothing dramatic happens. That IS the lesson, so say it that way rather

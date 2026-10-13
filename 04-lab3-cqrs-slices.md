@@ -16,6 +16,18 @@ update`, the 3a curl and the 3b API tests all need it.
 **This block runs straight into lunch at 12:05.** It is the last block of the morning, so
 overrun costs the room its break, not a later session: the outbox mention is the part to cut.
 
+## Rescue: starting from the snapshot (the handout prints this under its snapshot line)
+
+**Starting from the snapshot instead of your own work?** Clone it into a new folder and make
+it your `main` (a plain `git checkout lab2-end` leaves your next commits on a branch named
+`lab2-end`):
+
+```sh
+git clone --branch lab2-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab3
+cd helpdesk-lab3
+git switch -c main --track origin/lab2-end
+```
+
 ## Minute-by-minute
 
 | Time | Beat |

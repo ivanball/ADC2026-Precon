@@ -7,6 +7,21 @@ runs the image). Everything below runs from the
 repository root. Replace `<owner>` with your GitHub account name in LOWER CASE: container
 registry names must be lower case, and the same string comes back in step 6.
 
+**Starting from the snapshot instead of your own work?** Clone it into a new folder and make
+it your `main` (a plain `git checkout lab4-end` leaves your next commits on a branch named
+`lab4-end`):
+
+```sh
+git clone --branch lab4-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab5
+cd helpdesk-lab5
+git switch -c main --track origin/lab4-end
+dotnet tool restore
+```
+
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins (from `lab3-end` on
+the repository carries a tool manifest, and `dotnet ef` refuses to run until it is restored,
+even with the global tool installed).
+
 **Goal:** a public repository whose `main` is protected by a required check, an agent-authored
 CI workflow that restores in locked mode and runs build plus three test tiers, one pull request
 that goes red on a fitness test and green on a fix, and a container image published from a tag.
@@ -297,7 +312,8 @@ terminal cuts it short, so `gh run list` is the reliable place to read it. Or sk
 Predict which gate catches it before you look. Not the compiler: it compiles. Not the unit
 tests: the domain is untouched. Not the API tests: `POST /tickets` still returns 201 (in CI
 the API step shows skipped, because the architecture step failed first; run it locally to see
-the 201). In the run's step list the architecture test step has the red X and the API test
+the 201, with the SQL container up, and if the first run right after `docker compose up -d`
+fails to connect, rerun it: SQL Server takes a few seconds to start). In the run's step list the architecture test step has the red X and the API test
 step is skipped (the reference workflow calls them `Architecture (fitness) tests` and
 `API integration tests`; on the AI path your agent named them). The step log names the
 offender:
@@ -500,11 +516,13 @@ docker run --rm --platform linux/amd64 -p 8080:8080 ghcr.io/<owner>/helpdesk:v0.
 
 `--platform linux/amd64` changes nothing on a Windows laptop. On an Apple Silicon Mac it
 asks for the amd64 image the CI runner built and runs it under Rosetta; without it Docker looks
-for an arm64 image, finds only amd64 plus a build attestation, and stops with
-`no matching manifest for linux/arm64/v8`.
+for an arm64 image, finds only amd64 plus a build attestation, and, depending on your Docker
+version, either stops with `no matching manifest for linux/arm64/v8` or pulls the amd64 image
+anyway with a platform-mismatch warning (Docker 29.8 on the 2026-10-12 Mac run). The flag makes
+both behave the same.
 
-About 103 MB compressed (367 MB on disk, the size `docker image ls` reports once it is
-unpacked). It starts without a database and answers `/health` on port 8080; the ticket
+About 103 MB compressed (a few hundred MB on disk once it is unpacked: `docker image ls`
+reported 367 MB on Windows and 250 MB on a Mac, depending on Docker's image store). It starts without a database and answers `/health` on port 8080; the ticket
 endpoints need a database the container can reach (the baked-in connection string says
 `localhost,14330`, which inside the container is the container itself), and wiring that up is
 exactly what Lab 6 stops doing by hand.
@@ -563,7 +581,8 @@ after the fix, and the `docker pull` succeeds.
 
 ## Troubleshooting
 
-- **Apple Silicon: `no matching manifest for linux/arm64/v8` on `docker pull`.** The command
+- **Apple Silicon: `no matching manifest for linux/arm64/v8` on `docker pull`** (older Docker;
+  newer Docker pulls with a platform warning instead). The command
   lost its `--platform linux/amd64`; the release builds amd64 only. Add the flag to the pull and
   the run. If the container then exits at once, turn on Docker Desktop's Rosetta setting
   (Settings > General > "Use Rosetta for x86_64/amd64 emulation on Apple Silicon").

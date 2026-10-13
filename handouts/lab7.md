@@ -7,10 +7,27 @@ for MCP Inspector, the SQL container up (`docker compose up -d`; if you recreate
 first with Lab 3's
 `dotnet ef database update -p src/Modules/Tickets/Helpdesk.Tickets.Infrastructure -s src/Helpdesk.Host`;
 on a fresh rescue checkout that has never been built, run `dotnet build Helpdesk.slnx` before
-it, because `dotnet ef` needs the build output),
+it, because `dotnet ef` needs the build output; a "pre-login handshake" error right after
+`docker compose up -d` means SQL Server is still starting: wait a few seconds and rerun the update),
 and the host running on port 5000 (`dotnet run --project src/Helpdesk.Host`). Run the host
 directly for this lab, not through `aspire run`: the AppHost runs its own SQL container, while
 the tests below use the compose database on 14330.
+
+**Starting from the snapshot instead of your own work?** Your Lab 5 repository has no snapshot
+branches, so add the workshop repository as a second remote (skip the `remote add` line if
+you already have it), commit or stash your own work, and switch to the snapshot:
+
+```sh
+git remote add workshop https://github.com/ivanball/adc2026-helpdesk.git
+git fetch workshop
+git switch -c lab6-end --track workshop/lab6-end
+dotnet tool restore
+```
+
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins; `dotnet ef` refuses
+to run until it is restored, even with the global tool installed. No repository of your own?
+Clone instead: `git clone --branch lab6-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab7`, `cd helpdesk-lab7`, then
+`dotnet tool restore`.
 
 **Goal:** give the Tickets module a second kind of client. An MCP server, hosted inside the
 same process, over streamable HTTP, serving `create_ticket`, `close_ticket` and `get_ticket` to
@@ -586,7 +603,7 @@ git add -A && git commit -m "MCP endpoint tests"
   another port. Added while the session was open means restart the session: clients read their
   server list at startup.
 - **`npm warn EBADENGINE` when Inspector starts.** Your Node.js is older than 22.19, which
-  Inspector 2.9 declares. On 22.16 it still ran in the dry run, so carry on today, but install
+  Inspector declares (2.9 and later). On 22.16 it still ran in the dry run, so carry on today, but install
   22.19 or newer.
 - **No Node.js.** Skip Inspector, pair with a neighbour, or stop after step 3. The curl in step
   3 and the tests in the verification section prove your server works with no client at all.

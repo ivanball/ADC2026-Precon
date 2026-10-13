@@ -74,6 +74,21 @@ because a wrong score becomes the record and everybody inherits it.
   saved to a slide. The scorer takes about ninety seconds and the verifier about two minutes;
   if yours ran longer, cut the volunteers at 4:02 and decide that now, not at 4:11.
 
+## Rescue: starting from the snapshot (the handout prints this under its snapshot line)
+
+**Starting from the snapshot instead of your own work?** Your Lab 5 repository has no snapshot
+branches, so add the workshop repository as a second remote (skip the `remote add` line if
+you already have it), commit or stash your own work, and switch to the snapshot:
+
+```sh
+git remote add workshop https://github.com/ivanball/adc2026-helpdesk.git
+git fetch workshop
+git switch -c lab7-end --track workshop/lab7-end
+```
+
+No repository of your own? Clone instead:
+`git clone --branch lab7-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab8`, then `cd helpdesk-lab8`.
+
 ## Minute-by-minute
 
 | Time | Beat | Min |

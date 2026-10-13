@@ -9,6 +9,18 @@ Snapshot branch: `lab2-end`. Prerequisite (as on the handout): `lab1-end` state.
 domain events raised where the fact happens, and "the agent is dramatically better when the
 test comes first."
 
+## Rescue: starting from the snapshot (the handout prints this under its snapshot line)
+
+**Starting from the snapshot instead of your own work?** Clone it into a new folder and make
+it your `main` (a plain `git checkout lab1-end` leaves your next commits on a branch named
+`lab1-end`):
+
+```sh
+git clone --branch lab1-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab2
+cd helpdesk-lab2
+git switch -c main --track origin/lab1-end
+```
+
 ## Minute-by-minute
 
 | Time | Beat |

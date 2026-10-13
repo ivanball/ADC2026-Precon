@@ -2,7 +2,23 @@
 
 Snapshot branch if you get stuck: `lab4-end`
 Prerequisite: `lab3-end` plus your Lab 3 work (pull the branch if your solution diverged
-during the morning).
+during the morning), and the SQL container up (`docker compose up -d`): two of the 11 tests are
+API tests against it, and they fail with a `SqlException` without it.
+
+**Starting from the snapshot instead of your own work?** Clone it into a new folder and make
+it your `main` (a plain `git checkout lab3-end` leaves your next commits on a branch named
+`lab3-end`):
+
+```sh
+git clone --branch lab3-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab4
+cd helpdesk-lab4
+git switch -c main --track origin/lab3-end
+dotnet tool restore
+```
+
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins (from `lab3-end` on
+the repository carries a tool manifest, and `dotnet ef` refuses to run until it is restored,
+even with the global tool installed).
 
 **Goal:** turn the layer rules into executable tests, prove each test can fail, then ask the
 agent to violate a rule on purpose and watch the gates hold.

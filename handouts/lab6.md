@@ -10,6 +10,22 @@ templates write a 13.0 AppHost that the 13.6 CLI and its MCP server cannot see),
 container from the earlier labs can stay up: the AppHost starts a second SQL container on a
 different port by design.
 
+**Starting from the snapshot instead of your own work?** Your Lab 5 repository has no snapshot
+branches, so add the workshop repository as a second remote (skip the `remote add` line if
+you already have it), commit or stash your own work, and switch to the snapshot:
+
+```sh
+git remote add workshop https://github.com/ivanball/adc2026-helpdesk.git
+git fetch workshop
+git switch -c lab5-end --track workshop/lab5-end
+dotnet tool restore
+```
+
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins; `dotnet ef` refuses
+to run until it is restored, even with the global tool installed. No repository of your own?
+Clone instead: `git clone --branch lab5-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab6`, `cd helpdesk-lab6`, then
+`dotnet tool restore`.
+
 **Goal:** one command starts the database, the API and a dashboard that shows you what they
 did; then your agent reads that dashboard over MCP and finds a bug the API response hides.
 
@@ -526,7 +542,8 @@ over the break, or tonight. Either way, read it now.
    `~/.claude/settings.json` that runs `~/.aspire/hooks/track-telemetry.sh` after every tool
    call, in every Claude Code session, to report Aspire skill and MCP usage. Setting
    `ASPIRE_CLI_TELEMETRY_OPTOUT=true` stops the reporting, not the install. To undo it, delete
-   that `hooks` entry from `~/.claude/settings.json` and remove `~/.agents/skills/aspire*`.
+   that `hooks` entry from `~/.claude/settings.json`, remove `~/.agents/skills/aspire*`, and
+   remove the `~/.aspire/hooks/` folder (`track-telemetry.sh` and `.ps1`).
 
    **File: `.mcp.json` (new file)**
 

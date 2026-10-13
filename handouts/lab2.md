@@ -3,6 +3,16 @@
 Snapshot branch if you get stuck: `lab2-end`
 Prerequisite: `lab1-end` state.
 
+**Starting from the snapshot instead of your own work?** Clone it into a new folder and make
+it your `main` (a plain `git checkout lab1-end` leaves your next commits on a branch named
+`lab1-end`):
+
+```sh
+git clone --branch lab1-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab2
+cd helpdesk-lab2
+git switch -c main --track origin/lab1-end
+```
+
 ## The lecture code (paste along during the lecture)
 
 The lecture pastes three files before the lab starts. `Result.cs` holds `Result`, `Result<T>`

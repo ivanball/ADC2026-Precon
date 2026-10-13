@@ -5,6 +5,19 @@ Prerequisite: your own repository at the end of Lab 7, plus the starter kit repo
 it (step 1 shows how) or open in a browser tab. Nothing here needs the application running or the SQL container. The
 agent path needs your agent's usual network access; the manual path needs nothing.
 
+**Starting from the snapshot instead of your own work?** Your Lab 5 repository has no snapshot
+branches, so add the workshop repository as a second remote (skip the `remote add` line if
+you already have it), commit or stash your own work, and switch to the snapshot:
+
+```sh
+git remote add workshop https://github.com/ivanball/adc2026-helpdesk.git
+git fetch workshop
+git switch -c lab7-end --track workshop/lab7-end
+```
+
+No repository of your own? Clone instead:
+`git clone --branch lab7-end https://github.com/ivanball/adc2026-helpdesk.git helpdesk-lab8`, then `cd helpdesk-lab8`.
+
 **Goal:** turn "is this codebase still the shape we said it was" into a question with a
 checkable answer. You write one rule of your own, you score a repository against five rules
 where every score has to point at a `path:line`, and then a second agent tries to break every
