@@ -135,10 +135,9 @@ Domain, Application, Infrastructure, Presentation. Composition root is Helpdesk.
   from a parent folder or from user settings.
 ```
 
-Create `AGENTS.md` - the same rules under the name other tools look for. Codex, the GitHub
-Copilot coding agent and Cursor read AGENTS.md (Gemini CLI when configured to); Claude Code
-reads CLAUDE.md, and reads AGENTS.md itself only when there is no CLAUDE.md. One contract,
-every agent. (In your own repo, the drift-proof version is one line in CLAUDE.md: `@AGENTS.md`.) Copy the body of CLAUDE.md below the preamble and keep the two in sync:
+Create `AGENTS.md` - the same rules under the name other tools look for (Codex, GitHub Copilot
+coding agent, Cursor). In your own repo, the drift-proof version is one line in CLAUDE.md:
+`@AGENTS.md`. Here, copy the body of CLAUDE.md below the preamble and keep the two in sync:
 
 **File: `AGENTS.md` (new file)**
 
@@ -196,8 +195,7 @@ Create `Directory.Build.props`:
 ## Step 2 (solo): the spec
 
 This step is **spec-driven development**: requirements and design written down first, the agent
-executes the spec, and the spec is what you review when the output looks wrong (GitHub Spec Kit
-and AWS Kiro are the tools that formalise it; we do the lightweight version by hand).
+executes the spec, and the spec is what you review when the output looks wrong.
 
 Create `docs/lab1-spec.md`:
 
@@ -243,16 +241,15 @@ you want to see every permission prompt; in VS Code, pick Manual in the mode ind
 > Read CLAUDE.md and docs/lab1-spec.md, then scaffold the solution exactly as specified.
 
 **Read the plan before approving it.** Reject anything you did not ask for (extra packages,
-Dockerfiles, CI files) and say why. The spec names every project path and every allowed
-reference, so check the plan's project paths and references against the spec (and the Target
-structure and Dependency rule at the top of this page); if they differ, say so and let it
-revise. Approve with **Yes, manually approve edits** (NOT the first option, "Yes,
+Dockerfiles, CI files) and say why. Check the plan's project paths and references against the
+spec (and the Target structure and Dependency rule at the top of this page); if they differ,
+say so and let it revise. Approve with **Yes, manually approve edits** (NOT the first option, "Yes,
 and use auto mode", which switches the session to auto mode and the prompts stop). Then watch
 the permission prompts: each one is a chance to catch a step you did not intend.
 
 When it finishes, it may offer to commit or to create a branch (for example `lab1-scaffold`).
-Say no: Lab 1 stays on `main`, and the commit is yours, in Step 4,
-after the build and tests pass.
+Say no: Lab 1 stays on `main`, and the commit is yours, in Step 4, after the build and tests
+pass.
 
 ## Step 3, manual path (no Claude Code)
 

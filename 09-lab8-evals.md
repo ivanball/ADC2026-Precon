@@ -33,15 +33,14 @@ because a wrong score becomes the record and everybody inherits it.
   arrives and make `CloseTicketHandler` public:
   `src/Modules/Tickets/Helpdesk.Tickets.Application/Tickets/CloseTicket.cs:9`, change
   `internal sealed class` to `public sealed class`. It still compiles, the fitness test
-  `Rule4_Handlers_are_internal` goes red, and rubric rule 3 is now a 0 with a citation. Alternative if you would
-  rather move a different rule: delete the "API integration tests" step from
-  `.github/workflows/ci.yml` and watch rule 4 drop from 2 to 1.
+  `Rule4_Handlers_are_internal` goes red, and rubric rule 3 is now a 0 with a citation.
+  Alternative if you would rather move a different rule: delete the "API integration tests"
+  step from `.github/workflows/ci.yml` and watch rule 4 drop from 2 to 1.
 
   `lab8-demo` must also hold the three step 1 files, because the prompt reads
   `evals/rubric.md` and the agents from the repository. The published `workshop/lab8-demo`
-  has the planted change but not `evals/` or `.claude/agents/` (and it was cut from an older
-  `main`), so either run step 1 on it after checking it out, or cut it from a `main` that
-  already has them. In a practice repo at the end of Lab 8 step 1, that is
+  has the planted change but not `evals/` or `.claude/agents/`, so either run step 1 on it
+  after checking it out, or cut it from a `main` that already has them. In a practice repo at the end of Lab 8 step 1, that is
   (*Instructor only: prep before the room arrives.*):
 
   ```sh
@@ -52,8 +51,8 @@ because a wrong score becomes the record and everybody inherits it.
   Lab 5 practice repo after its Step 2). On a fresh clone of the workshop repository, `origin`
   is the reference repo, whose `main` is unprotected until the prep-checklist item is done: the
   agents' `gh api` call returns 404 `Branch not protected`, rules 1 to 4 come back FLAG with
-  null scores, and the verifier calls the CLAUDE.md required-check line false (2026-10-12 Mac
-  run). Check before the room arrives:
+  null scores, and the verifier calls the CLAUDE.md required-check line false. Check before
+  the room arrives:
   `gh api repos/<owner>/<repo>/branches/main/protection --jq '.required_status_checks.contexts'`
   must print `["build-and-test"]`. Attendees who caught up from a rescue clone will see exactly
   those flags; handout step 3 tells them that is the rubric working.
@@ -104,10 +103,9 @@ No repository of your own? Clone instead:
 
 ## Files this session touches
 
-Nothing in the attendee repository changes during this block. The three files come from the
-**starter kit**, and the instruction is to copy them into your own repository, not to type
-them. That is why every fence below is labelled `kit:`: the source is the kit, the
-destination is the attendee's repo.
+Beyond the three copied files (and the optional `lab8-demo` scratch branch), nothing in the
+attendee repository changes. Every fence below is labelled `kit:`: the source is the starter
+kit, the destination is the attendee's repo.
 
 | Source (starter kit) | Destination | What it is |
 |------|--------|---------|
@@ -117,9 +115,8 @@ destination is the attendee's repo.
 
 ### Step 1: copy the three files into your repo
 
-What attendees run first (handout lab8, "Step 1: copy the three files into your repo"). Two
-moves, both from the root of their own repository in Git Bash (Terminal on a Mac). First they clone the kit as a
-sibling of their repository, with the URL on the screen:
+Handout step 1 covers it. Two moves, both from the root of their own repository in Git Bash
+(Terminal on a Mac). First they clone the kit as a sibling, with the URL on the screen:
 
 ```bash
 git clone https://github.com/ivanball/agentic-dotnet-starter-kit.git ../agentic-dotnet-starter-kit
@@ -145,8 +142,7 @@ ls evals .claude/agents
 
 **In Command Prompt (cmd.exe) instead?** `mkdir -p` answers `The syntax of the command is
 incorrect.` and nothing is created. Use backslashes and `copy` there, still from the root of
-the repository (the prompt ends in the repository's folder name, not its parent). The handout
-prints the same block right under its copy block:
+the repository (the prompt ends in the repository's folder name, not its parent):
 
 ```bat
 mkdir evals .claude\agents
@@ -161,8 +157,7 @@ The failures you will see from the floor, in order of frequency:
 - `The syntax of the command is incorrect.` The attendee is in Command Prompt, not Git Bash,
   and usually one folder too high as well (the prompt ends in the parent, not the repository).
   Nothing was created. Point them at the cmd.exe block above (in the handout, right under the
-  copy block), after a `cd` into the repository. Seen in the 2026-10-07 and 2026-10-11
-  rehearsals.
+  copy block), after a `cd` into the repository.
 - `cp: ... No such file or directory`: the kit was cloned somewhere other than next to the
   repository (inside it, or in the home folder). `ls ..` from the repository root must show
   `agentic-dotnet-starter-kit` beside it.
@@ -170,24 +165,18 @@ The failures you will see from the floor, in order of frequency:
 Anyone without git takes the handout's browser path: view each file raw in the kit and save it
 at the same path.
 
-Then they commit (handout lab8, under the copy step's file table, word for word):
-
-Commit the three files before any agent runs, so `git status` afterwards shows anything the
-judge or the adversary wrote:
+Then they commit, so `git status` afterwards shows anything the judge or the adversary wrote:
 
 ```bash
 git add -A && git commit -m "Eval rubric and grading agents"
 ```
 
-After the copy, attendees must start a FRESH `claude` session. Their repo had no
-`.claude/agents/` folder before the copy, and Claude Code only watches agent folders that
-existed when the session started, so the session that did the copy answers "Agent type
-'rubric-scorer' not found" (seen in the 2026-09-28 rehearsal). The handout says so right under the copy step; repeat it from the front.
+After the copy, attendees must start a FRESH `claude` session: Claude Code only watches agent
+folders that existed when the session started, so the session that did the copy answers
+"Agent type 'rubric-scorer' not found". The handout says so; repeat it from the front.
 
-Right after the fresh-session note, handout step 1 shows three kit excerpts, in this order:
-the scale, then the two frontmatters. The room sees the same three on the projector (the scale
-at 3:59, the scorer frontmatter at 4:04, the verifier frontmatter at 4:10); these are the
-handout's copies, word for word:
+Handout step 1 then shows three kit excerpts, which the room sees on the projector (the scale
+at 3:59, the scorer frontmatter at 4:04, the verifier frontmatter at 4:10):
 
 **File: `kit:evals/rubric.md` (excerpt: the scale, identical for all five rules)**
 
@@ -284,8 +273,7 @@ six months of decisions inherit it.
 ### Step 2: read the five rules, then write a sixth
 
 Put the rubric on screen. Read the scale out loud, all three rows, then the paragraph under
-it, which is the whole design in three lines (the scale excerpt under "Files this session
-touches" above; attendees met it in handout step 1).
+it, which is the whole design in three lines (the scale excerpt above).
 
 Land the 1-versus-2 line hard, it is the sentence that makes the rubric worth running: a rule
 everybody follows and nobody enforces is a 1, forever, no matter how disciplined the team is
@@ -404,27 +392,18 @@ the repository", "### AI path", word for word): "Dispatch the scorer. Paste this
 > under bin/ or obj/. Do not write, edit or commit any file. You are done when all five rows
 > are returned; return the rows and nothing else.
 
-Then the same handout section tells attendees that rule 4 depends on their machine: FLAG with
-a null score when the scorer cannot ask GitHub (no `gh`, not signed in, or the Bash call
-declined), a CONFIRMED 2 with "gh api shows ..." in a justification when `gh` is signed in,
-and a third, wrong outcome: a CONFIRMED 2 citing their own `CLAUDE.md`, which they are told to
-mark for step 4. A fourth bullet covers attendees scoring a fresh workshop clone (404
-`Branch not protected`, rules 1-4 FLAG; correct for that clone). Either way they settle it
-with the Lab 5 command, which should print `["build-and-test"]`:
+Handout step 3 then explains the four ways rule 4 comes back on their machine (FLAG without
+`gh`; a CONFIRMED 2 via `gh api`; a wrong CONFIRMED 2 citing `CLAUDE.md`; rules 1-4 FLAG on a
+fresh workshop clone). Either way they settle it with the Lab 5 command, which should print
+`["build-and-test"]`:
 
 ```bash
 gh api repos/<owner>/helpdesk/branches/main/protection --jq '.required_status_checks.contexts'
 ```
 
-The handout adds a caveat for rescue branches: that command answers for `main`, and a rescue
-branch (`lab6-end` or `lab7-end`) shares no commits with the attendee's `main`, so the
-protected check never ran on the code being scored. They weigh that for every rule whose 2
-rests on "the required check runs it" (rules 1, 3 and 4 at least); the verifier in step 4 tends
-to raise it too.
-(The handout's paragraph on the six fields matches the "While it runs" beat below.)
-
-The handout then lets attendees plant the same weakness on their own code, on a scratch branch
-cut from their `main`:
+The handout also warns that on a rescue branch the protected check never ran on the code
+being scored, then lets attendees plant the same weakness on a scratch branch cut from their
+`main`:
 
 ```bash
 git switch -c lab8-demo
@@ -437,13 +416,12 @@ git commit -am "Plant a weakness: CloseTicketHandler public"
 (the edit between the two: `internal sealed class CloseTicketHandler` becomes `public`). They
 never push it and `git switch main` afterwards.
 
-What the agent should produce: five rows, a `path:line` on every row, no total. On `lab8-demo`:
-rule 3 `0` citing `CloseTicket.cs:9` CONFIRMED, rule 4 `null` FLAG, rule 2 `1` or `2`
-(rehearsed 2026-10-06: 33 s). On an attendee's `lab7-end`: rule 1 `2`, rule 5 `0`, rules 2-3 `2`,
-rule 4 FLAG (31 s). The 2026-10-07 rehearsal, on a laptop with `gh` signed in, returned rule 4
-as `2` CONFIRMED instead (30 s): the scorer ran the branch-protection query itself and said so
-in rule 1's justification. Spot-check one anchor: the rehearsal scorer cited `Result.cs:12-13`, which
-are constructor `throw` guards, as evidence that failures are not thrown.
+What the agent should produce: five rows, a `path:line` on every row, no total, in about 30 s.
+On `lab8-demo`: rule 3 `0` citing `CloseTicket.cs:9` CONFIRMED, rule 4 `null` FLAG (or `2`
+CONFIRMED when `gh` is signed in), rule 2 `1` or `2`. On an attendee's `lab7-end`: rule 1 `2`,
+rule 5 `0`, rules 2-3 `2`, rule 4 FLAG. Spot-check one anchor: a scorer has cited
+`Result.cs:12-13`, which are constructor `throw` guards, as evidence that failures are not
+thrown.
 
 While it runs, say what that prompt is: the six fields that make a brief executable. Goal,
 where the evidence lives, what is out of scope, the exact return shape, when it is done, how
@@ -454,7 +432,7 @@ for "a summary of the architecture" does not.
 *Instructor only (not in the handout).*
 
 Expected return on `lab8-demo`, roughly (yours will differ in the line numbers, not in the
-shape). The `LayerRulesTests.cs` anchors below are `lab8-demo` lines; on an attendee's
+shape; this one had `gh` signed in, so rule 4 is a CONFIRMED 2 instead of a null FLAG). The `LayerRulesTests.cs` anchors below are `lab8-demo` lines; on an attendee's
 `lab7-end` the rule 1 test is at `:13` and `Rule4_Handlers_are_internal` at `:51`:
 
 ```
@@ -467,11 +445,11 @@ shape). The `LayerRulesTests.cs` anchors below are `lab8-demo` lines; on an atte
 Total: not computed (the rubric assigns that to the human).
 ```
 
-Rule 4 comes back one of three ways. The first two are the agent doing its job. "Required" lives in
-GitHub branch protection, not in `ci.yml`, and the scorer is told not to assume it. When it
-cannot query GitHub it returns FLAG with a null score (the 2026-10-06 rehearsal). When `gh` is
-signed in it has the Bash tool to run the query and may return a CONFIRMED 2 (the 2026-10-07
-rehearsal). If you get the second, name it in the room: the deciding fact is real but has no
+Rule 4 comes back one of three ways. The first two are the agent doing its job. "Required"
+lives in GitHub branch protection, not in `ci.yml`, and the scorer is told not to assume it.
+When it cannot query GitHub it returns FLAG with a null score. When `gh` is signed in it has
+the Bash tool to run the query and may return a CONFIRMED 2. If you get the second, name it in
+the room: the deciding fact is real but has no
 `path:line`, so the verifier at 4:10 cannot test it, which is a small preview of why evidence
 has to be something a second reader can open. Either way, adjudicate it with the Lab 5 output
 of `gh api repos/<owner>/helpdesk/branches/main/protection --jq '.required_status_checks.contexts'`
@@ -479,10 +457,8 @@ of `gh api repos/<owner>/helpdesk/branches/main/protection --jq '.required_statu
 
 There is a third way, and it is a scorer error, not the agent doing its job: rule 4 as a
 CONFIRMED 2 citing `CLAUDE.md`, because the repository's CLAUDE.md says `build-and-test` is
-"the required check on main". The 2026-10-11 rehearsal (a practice repo built through the AI
-path; the scorer did not run `gh`) returned exactly that, with the justification admitting "the repo itself
-doesn't show that build-and-test is the required check; only CLAUDE.md:9 says so", and rule 1
-leaning on the same line. The rubric excludes it in words ("A statement in a README ... does
+"the required check on main", often with rule 1 leaning on the same line. The rubric excludes
+it in words ("A statement in a README ... does
 not count"), and the scorer's own definition says to read the required check "rather than
 assuming"; the right return was FLAG with a null score. Attendees whose CLAUDE.md gained that
 line after Lab 5 will see the same. If it happens on the projector, use it: a document that
@@ -491,13 +467,10 @@ after. If the verifier lets it stand, adjudicate it yourself at step 5 with the 
 output; a scorer and a verifier agreeing on a documentation claim is still a documentation
 claim.
 
-What the 2026-10-11 verifier did with it, given the scorer's own claims: rule 4 DRIFTED, but
-only on the line number (the sentence is at `CLAUDE.md:10`; `:9` is the Run line). It did not
-say a CLAUDE.md sentence is not evidence. It ran `gh api` on branch protection itself, found
-`build-and-test` required, and let the 2 hold on that. So the score was right and the citation
-still is not evidence: at step 5, keep the 2, cite the `gh api` output, and strike the
-`CLAUDE.md` line. The same run also reported `enforce_admins: false` on `main`, an admin can
-merge without the check passing. That is Lab 5's deliberate setting (handout lab5 says why),
+Expect the verifier to correct only the line number, run `gh api` itself, and let the 2 hold.
+The score is then right and the citation still is not evidence: at step 5, keep the 2, cite
+the `gh api` output, and strike the `CLAUDE.md` line. It may also report
+`enforce_admins: false` on `main`: an admin can merge without the check passing. That is Lab 5's deliberate setting (handout lab5 says why),
 and it is a fair step 5 question: does "a check enforces it on every merge" hold when the
 admin can skip it?
 
@@ -530,15 +503,9 @@ find out whether your evidence column is written well enough for somebody else t
 - During the instructor's scorer run they check the returned table against their own hand
   scores as it appears, and mark any row where they disagree.
 
-What manual-path attendees do (handout lab8, "Step 3: score the repository", "### Manual path",
-word for word): "Score the five rules yourself against your own repository, one column at a
-time, using the rubric's evidence rules rather than your memory of the code. Write the
-`path:line` next to each score; if you cannot produce one, the score is not a score yet." The
-handout's rule 1 evidence adds `ci.yml:16` (the `build-and-test` job that protects the branch:
-"Both halves are needed; the test alone is a 1"), and it ends: "Keep your five scores in front
-of you. When the instructor's scorer run comes up on the projector, mark every row where you
-disagree with it." (Rehearsed by hand on `lab7-end`: 2 / 2 / 2 / 2 / 0, about 6 minutes with an
-editor and grep.)
+Handout step 3, manual path, covers it (rule 1 also cites `ci.yml:16`, the `build-and-test`
+job). By hand on `lab7-end` the result is 2 / 2 / 2 / 2 / 0, about 6 minutes with an editor
+and grep.
 
 ## 4:10 Instructor run 2: the verifier (5 min)
 
@@ -591,12 +558,11 @@ that row cited exactly as the scorer wrote it, and nothing from its justificatio
 > 4. Rule 4 scores [score], evidence [...].
 > 5. Rule 5 scores [score], evidence [...].
 
-Example of filled-in lines, from the 2026-10-06 rehearsal on the workshop's `lab8-demo` (its
-verdicts are in the instructor-only block below). Do not paste these: they match that one run's
-line numbers and that branch's files. Pasted into any other repository (the 2026-10-11
-rehearsal pasted them into a practice repo with no `LayerRulesTests.cs` and no Notifications
-module), the verifier correctly returns DRIFTED and FLAG on claims your scorer never made, and
-whatever your scorer actually got wrong goes untested:
+Example of filled-in lines, from one run on the workshop's `lab8-demo` (its verdicts are in
+the instructor-only block below). Do not paste these: they match that run's line numbers and
+that branch's files. Pasted into any other repository, the verifier correctly returns DRIFTED
+and FLAG on claims your scorer never made, and whatever your scorer actually got wrong goes
+untested:
 
 ```text
 1. Rule 1 scores 2, evidence Helpdesk.Tickets.Domain.csproj:4 and LayerRulesTests.cs:14, enforced by ci.yml:56.
@@ -625,29 +591,24 @@ paths, and nothing else:"
 > 2. <rule 2 score, its path:line>
 > ... and so on for all five.
 
-Then, from the same handout section: "What you withheld is the point. The verifier gets claims
-and paths, never the justification and never a pasted file body. Hand it the argument and it
-grades the argument, and you have built a machine that emits CONFIRMED forever while feeling
-like rigor. If your first verifier run confirms all five with no counter-evidence anywhere,
-assume that is what happened." And: "Your prompt goes to the main session, which writes its own
-brief for the verifier. Press ctrl+o after the run (or open the transcript) and read the Agent
-call: if "do not re-score" or "you have not been given the reasoning" is missing, that is why it
-drifted."
+Handout step 4 follows it with the ctrl+o check: the main session writes its own brief for
+the verifier, so read the Agent call and look for "do not re-score" and "you have not been
+given the reasoning".
 
 What the agent should produce: one verdict line per claim, each with its own `path:line`, and
-counter-evidence on every non-CONFIRMED line. On `lab8-demo` the rehearsal returned 1 FLAG,
-2 FLAG, 3 CONFIRMED, 4 CONFIRMED (the FLAG stands), 5 DRIFTED at `LayerRulesTests.cs:86`
-(64 s); on `lab7-end`, 1 CONFIRMED, 2-4 FLAG, 5 CONFIRMED (74 s). In both runs the main session
-rewrote the brief and dropped "You have not been given the reasoning behind these scores" (one
-run also dropped "Do not re-score the rubric", and its verifier re-scored claim 2), which is
-exactly the ctrl+o check.
+counter-evidence on every non-CONFIRMED line, in about 60-75 s. On `lab8-demo` one run returned
+1 FLAG, 2 FLAG, 3 CONFIRMED, 4 CONFIRMED (the FLAG stands), 5 DRIFTED at
+`LayerRulesTests.cs:86`; on `lab7-end`, 1 CONFIRMED, 2-4 FLAG, 5 CONFIRMED. Expect the main
+session to drop "You have not been given the reasoning behind these scores" (sometimes "Do not
+re-score the rubric" too, and then the verifier re-scores), which is exactly the ctrl+o check.
 
 Two sentences on what that prompt withholds, because it is the whole gate: the verifier gets
 the claims and the paths, never the justifications and never a pasted file body. Hand it the
 argument and it grades the argument, which is how this turns into a machine that emits
 CONFIRMED forever and feels like rigor.
 
-Show one of each. A CONFIRMED with its own re-read evidence, so the room sees the verifier did
+Show one of each (the sample below verifies the scorer table above, not the run just
+described). A CONFIRMED with its own re-read evidence, so the room sees the verifier did
 not take the scorer's word for the line number, and one that did not survive:
 
 *Instructor only (not in the handout).*
@@ -660,8 +621,8 @@ not take the scorer's word for the line number, and one that did not survive:
 ```
 
 Lines 4 and 5 are true of `lab8-demo`: there is no `continue-on-error` or `if:` anywhere in
-its workflows, so do not improvise one, and the rule 5 gap at `LayerRulesTests.cs:86` is the
-one the 2026-10-06 rehearsal verifier found on its own.
+its workflows, so do not improvise one, and the rule 5 gap at `LayerRulesTests.cs:86` is one
+a verifier finds on its own.
 
 Then say the sentence, slowly, and let it sit: **a PASS means "I found nothing". It does not
 mean "there is nothing", and it authorises nothing.** That applies to every green check they
@@ -673,13 +634,9 @@ have built today, and it is the most portable idea in the block.
   never your reasoning, and try to break theirs. Same gate, run on humans, and it fails in
   exactly the same way if you let the argument travel with the claim.
 
-What manual-path attendees do (handout lab8, "Step 4: try to break the scores", "### Manual
-path", word for word): "Swap with a neighbour. Give them one score and its `path:line`, and
-**not** your reasoning for it. Their job is to open that file and try to disprove the claim:
-wrong line, right line but the check is not in the required job, the rule holds in this file
-and breaks in the one next to it. They return CONFIRMED, DRIFTED or FLAG with a `path:line` of
-their own. Then swap roles." (Rehearsed: given only "Rule 2 = 2, Ticket.cs:14-15,54", the
-neighbour returned DRIFTED, because `Ticket.cs:14-15` is an Error declaration, not a return.)
+Handout step 4, manual path, covers it. An example to give the room: given only "Rule 2 = 2,
+Ticket.cs:14-15,54", a neighbour returns DRIFTED, because `Ticket.cs:14-15` is an Error
+declaration, not a return.
 
 ## 4:15 Adjudicate, and what production adds (3 min)
 
@@ -738,9 +695,8 @@ somebody who has to live with the answers."
   for it; if any rationale reached you, ignore it and say so." Then name what just happened, on
   purpose: a rubber-stamp verifier is the failure this design exists to prevent.
 - **The verifier re-scores a claim** ("the score of 1 looks too low"). Your prompt went to the
-  main session, which wrote its own brief for the verifier, and in the 2026-10-06 rehearsal
-  that relay dropped "you have not been given the reasoning" and "do not re-score the rubric".
-  Press ctrl+o (or open the transcript), read the Agent call's prompt, and if either line is
+  main session, which wrote its own brief for the verifier, and that relay can drop "you have
+  not been given the reasoning" and "do not re-score the rubric". Press ctrl+o (or open the transcript), read the Agent call's prompt, and if either line is
   missing, say so to the room: that is why it drifted.
 - **The tool cannot spawn subagents** (no agent support, or the dispatch is refused). Run the
   scorer prompt inline as an ordinary prompt: everything except the isolation still works and
@@ -758,8 +714,8 @@ somebody who has to live with the answers."
   five rules and no more, a top mark that requires a merge gate, evidence rules per rule, a
   scorer, an adversary that never sees the scorer's reasoning, and a human at the end.
 - **Running long.** In this order: drop the volunteer readings at 4:02 to one, then cut the
-  adjudication walk-through to the rule 5 DRIFTED item only, then compress the production bullets to
-  the first and third. The verifier run is never cut, and neither is the sentence about what a
+  adjudication walk-through to the rule 5 DRIFTED item only, then compress the production
+  bullets to the first and third. The verifier run is never cut, and neither is the sentence about what a
   PASS means; without them the block is a scoring robot, the opposite of the lesson.
 - **Running short.** Take the sixth rule from a volunteer, put it on screen, and ask the room
   to score their own repository against it right there. It takes exactly as long as you have

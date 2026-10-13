@@ -7,23 +7,22 @@ the agent is pointed at that running application over MCP and finds a planted fa
 telemetry instead of from the code. Payoff line: "you just watched it debug something the
 client could not see, and it never guessed." Snapshot branch: `lab6-end`.
 
-**You need:** Aspire CLI 13.6 or newer on the projector machine (13.6 is current, released
-2026-09-29, and the only CLI proven against the 13.6.0 AppHost; 13.2 renamed `aspire mcp` to `aspire agent`, and the 13.0 line has neither, and the closed loop is the whole block,
-so update before rehearsal, not on the day), plus the 13.6 templates
-(`dotnet new install Aspire.ProjectTemplates::13.6.0`). The branch AppHost (`lab6-fault`,
-`lab6-end` and later) must be `Aspire.AppHost.Sdk/13.6.0` with `Aspire.Hosting.SqlServer`
-13.6.0 and `AspireUseCliBundle` true, or the MCP loop sees nothing: a 13.6 CLI runs a 13.0.0
-AppHost but `aspire ps` and the MCP server's `list_apphosts` find no AppHost (found live
-2026-10-07); check `lab6-fault` before rehearsal. Docker running. The `docker compose` container from
-labs 1 to 5 may stay up: the AppHost starts a second SQL container by design and they do not
-collide. `lab6-fault` fetched and ready to check out on the projector machine. An Azure subscription
+**You need:** Aspire CLI 13.6 or newer on the projector machine (before 13.2 there is no
+`aspire agent`, and the closed loop is the whole block, so update before the day, not on it),
+plus the 13.6 templates (`dotnet new install Aspire.ProjectTemplates::13.6.0`). The branch
+AppHost (`lab6-fault`, `lab6-end` and later) must be `Aspire.AppHost.Sdk/13.6.0` with
+`Aspire.Hosting.SqlServer` 13.6.0 and `AspireUseCliBundle` true, or the MCP loop sees nothing:
+a 13.6 CLI runs a 13.0.0 AppHost but `aspire ps` and `list_apphosts` find no AppHost; check
+`lab6-fault` before the day. Docker running. The `docker compose` container from labs 1 to 5
+may stay up: the AppHost starts a second SQL container by design and they do not collide.
+`lab6-fault` fetched and ready to check out on the projector machine. An Azure subscription
 only if you run the live-deploy variant, and it is the instructor's subscription, never an
 attendee's.
 
-**Room note:** this is the densest 30 minutes of the day and it is the only block whose parts
-are all new. The order below is load-bearing: the AppHost must exist before the dashboard means
-anything, and the dashboard must be familiar before the agent reads it. The deploy is the
-designated cut, and it is the LAST beat precisely so cutting it costs nothing else.
+**Room note:** the densest 30 minutes of the day. The order below is load-bearing: the AppHost
+must exist before the dashboard means anything, and the dashboard must be familiar before the
+agent reads it. The deploy is the designated cut, and it is the LAST beat so cutting it costs
+nothing else.
 
 **Never run the AppHost from a background or headless shell.** It stalls at control-plane
 initialization and looks like a hang. Real terminal, foreground, every time.
@@ -148,10 +147,9 @@ lifetime / data volume / `AddDatabase("Tickets", "HelpdeskTickets")` / `api` wit
 `WithReference`, `WaitFor` and `Migrations__ApplyOnStartup=true`, no host port;
 `RestorePackagesWithLockFile=false` with no AppHost `packages.lock.json`; in the Host,
 `AddServiceDefaults`, `AddDbContextCheck<TicketsDbContext>("tickets-db")`,
-`MapDefaultEndpoints` and the gated `MigrateAsync`; build 0/0 and 13 green (rehearsed
-2026-10-06: 1m36s, every named contract item met; that run hand-wrote the AppHost without the
-template and added `NoWarn ASPIRE010`, which is why the prompt now names the templates and
-forbids suppressing warnings, so check for both in the diff).
+`MapDefaultEndpoints` and the gated `MigrateAsync`; build 0/0 and 13 green (about 1m36s).
+Check the diff for a hand-written AppHost (no template) and a `NoWarn ASPIRE010`; the prompt
+forbids both, and agents have done both.
 
 #### Step 1, manual path: create the projects, paste the files
 
@@ -166,12 +164,9 @@ dotnet new aspire-servicedefaults -o src/Helpdesk.ServiceDefaults
 dotnet sln add src/Helpdesk.AppHost src/Helpdesk.ServiceDefaults
 ```
 
-The AppHost project file goes in before `AppHost.cs`, because `AppHost.cs` needs what it adds
-(`AddSqlServer` from `Aspire.Hosting.SqlServer`, `Projects.Helpdesk_Host` from the Host project
-reference). Attendees replace the generated file with this one and delete
-`src/Helpdesk.AppHost/packages.lock.json` if a restore already wrote one. The handout also tells
-them to check the generated `Sdk` line first: an old template writes `13.0.0`, and this file
-sets `13.6.0` and the bundle property either way.
+The AppHost project file goes in before `AppHost.cs`, which needs what it adds. Attendees
+replace the generated file with this one and delete `src/Helpdesk.AppHost/packages.lock.json`
+if a restore already wrote one (handout step 1 also has them check the generated `Sdk` line).
 
 **File: `src/Helpdesk.AppHost/Helpdesk.AppHost.csproj` (new file)**
 
@@ -226,7 +221,7 @@ One more sentence, on `RestorePackagesWithLockFile=false`, because skipping it t
 attendee's CI red on the Lab 6 push: the AppHost's dashboard package is per-platform, so a lock
 file made on a laptop names `win-x64` or `osx-arm64` and the Linux runner's locked restore
 fails with `NU1004`. The AppHost never ships, so it opts out; everything that ships stays
-locked. (Found by the 2026-09-28 attendee rehearsal, whose CI went red exactly there.)
+locked.
 
 Then attendees replace the generated `AppHost.cs` with this. Narrate it line by line:
 
@@ -282,8 +277,7 @@ Three things to say out loud while it is on screen, in this order:
 
 `Extensions.cs` is 111 lines and mostly template material (OTLP exporters, resilience, service
 discovery). Attendees change two things in the generated file. First, the health endpoints,
-mapped in every environment (not shown on screen here; its two endpoints are the liveness
-beat):
+mapped in every environment (do not dwell; step 3 is the liveness beat):
 
 **File: `src/Helpdesk.ServiceDefaults/Extensions.cs` (excerpt: the health endpoints, mapped in every environment)**
 
@@ -347,8 +341,7 @@ dotnet add src/Helpdesk.Host package Microsoft.Extensions.Diagnostics.HealthChec
 
 Then the code, about ten lines of real change. The handout prints the whole file, so a literal
 paste keeps `app.MapTicketEndpoints();`, `app.Run();` and the `public partial class Program { }`
-tail from Lab 3 (the old fragment, pasted over the file, dropped the ticket endpoints and
-`app.Run()`, and every API test would fail):
+tail from Lab 3:
 
 **File: `src/Helpdesk.Host/Program.cs` (edit)**
 
@@ -416,10 +409,9 @@ same at the end of step 1; build 0/0 and 13 green either way, and Lab 7 touches 
   is written by the 13.6 template and is absent on `lab6-end`. Every command passes
   `--apphost`, so nothing reads it.
 - The AppHost `Properties/launchSettings.json` has random ports and no
-  `ASPIRE_DASHBOARD_MCP_ENDPOINT_URL`, which `lab6-end` still carries. Aspire.Hosting 13.4 and
-  later no longer contains that variable name at all (13.0 and 13.2 do; checked in the
-  13.0.0 to 13.6.0 package binaries), so it is dead configuration on `lab6-end`; the closed loop
-  runs through `aspire agent mcp`.
+  `ASPIRE_DASHBOARD_MCP_ENDPOINT_URL`, which `lab6-end` still carries. Aspire 13.6 no longer
+  reads it, so it is dead configuration on `lab6-end`; the closed loop runs through
+  `aspire agent mcp`.
 - `Helpdesk.ServiceDefaults.csproj`: the template pins `OpenTelemetry.*` 1.17.0 and
   `Microsoft.Extensions.Http.Resilience` / `ServiceDiscovery` 10.10.0; `lab6-end` has 1.19.0 and
   10.0.0. The 1.19.0 SQL client instrumentation on top of the 1.17.0 core restores and builds
@@ -458,8 +450,6 @@ Then drive the dashboard from the front while they follow:
    `'\' is an invalid start of a property name`). Single-quote the body instead,
    `-d '{"title":"Printer on fire"}'`, and type `curl.exe` on Windows PowerShell 5.1, where
    `curl` means `Invoke-WebRequest`.
-   (Verified 2026-10-07 on PowerShell 7.6: the backslash form returned 400, the single-quoted
-   form 201.)
 
    Open **Traces**, click the newest. Two levels: the `POST /tickets` ASP.NET Core span,
    which is what the caller waited for, and an `INSERT` span from the SQL client directly
@@ -532,8 +522,7 @@ public sealed class ApiCollection : ICollectionFixture<HelpdeskApiFactory>
 Move the Lab 3 tests onto it: in `CloseTicketTests.cs`, add one attribute line above the class
 declaration and delete `: IClassFixture<HelpdeskApiFactory>` from the end of it. Nothing else
 in the file changes: the `using` lines, the namespace, the opening brace and every test method
-stay as they are. The handout shows it as a before/after pair of the file's first eight lines,
-because the bare two-line replacement read as a puzzle in the 2026-10-11 rehearsal.
+stay as they are. The handout shows it as a before/after pair of the file's first eight lines.
 
 **File: `tests/Helpdesk.ApiTests/CloseTicketTests.cs` (edit: the top of the file)**
 
@@ -563,11 +552,6 @@ public class CloseTicketTests(HelpdeskApiFactory factory)
 {
     private readonly HttpClient _client = factory.CreateClient();
 ```
-
-The `: IClassFixture<HelpdeskApiFactory>` part goes because the collection now supplies the
-factory: xUnit still fills the `factory` constructor parameter, from the one shared instance.
-With a class fixture each test class would get its own factory, and two of them would drop and
-re-create the same test database under each other.
 
 Then the two health tests; readiness is the liveness test's twin against `/health`:
 
@@ -607,9 +591,8 @@ public class HealthEndpointsTests(HelpdeskApiFactory factory)
 }
 ```
 
-Attendees run them before they commit (handout lab6, end of Step 3; added after the 2026-10-11
-rehearsal, which had the commit with no test run before it). Put it on screen with the two
-warnings. First: stop the AppHost (Ctrl+C), because while it runs the API locks its bin folder
+Attendees run them before they commit (handout lab6, end of Step 3). Put it on screen with the
+two warnings. First: stop the AppHost (Ctrl+C), because while it runs the API locks its bin folder
 (MSB3027).
 
 ```bash
@@ -647,8 +630,6 @@ Live, in this order:
    and no more: "one file changed, and the endpoint still returns 204." Then let the test run
    say the rest: two red (both `CloseTicketTests`), two green (health). Line for the room: "CI
    would have caught this. What CI cannot tell you is why; that is what the telemetry is for."
-   Added after the 2026-10-11 rehearsal: until then no step ran the tests while the fault was
-   present, so the "red to green" in step 7 claimed a red nobody had seen.
 
    *Instructor only (not in the handout).*
 
@@ -709,14 +690,13 @@ Live, in this order:
 
    `aspire agent init --mcp` writes exactly this for the agent you pick (without `--mcp` it
    installs skills only and leaves MCP unconfigured). Say out loud that attendees do not need
-   it: the repository ships `.mcp.json`. It also writes OUTSIDE the repository, which the
-   handout now discloses: seven skills in `~/.agents/skills/`, and a `PostToolUse` hook
+   it: the repository ships `.mcp.json`. It also writes OUTSIDE the repository, and the
+   handout discloses it: seven skills in `~/.agents/skills/`, and a `PostToolUse` hook
    (matcher `*`, `bash ~/.aspire/hooks/track-telemetry.sh`) in the user-level
    `~/.claude/settings.json`, so it runs after every tool call in every Claude Code session.
-   The 2026-10-12 Mac dry run verified that `ASPIRE_CLI_TELEMETRY_OPTOUT=true` does not stop
-   the install (the CLI applies the opt-out when it publishes). Undo: delete that `hooks`
-   entry, `~/.agents/skills/aspire*` and the `~/.aspire/hooks/` folder. Show `aspire agent --help` first, on
-   screen: it proves the CLI is new enough (`init` and `mcp`). Then `/mcp` in Claude Code shows
+   `ASPIRE_CLI_TELEMETRY_OPTOUT=true` does not stop the install (the CLI applies the opt-out
+   when it publishes). Undo: delete that `hooks` entry, `~/.agents/skills/aspire*` and the
+   `~/.aspire/hooks/` folder. Show `aspire agent --help` first, on screen: it proves the CLI is new enough (`init` and `mcp`). Then `/mcp` in Claude Code shows
    the aspire server's tools: `list_resources`, `list_structured_logs`, `list_traces` and
    friends. That tool list is the answer to "what can the agent actually see". VS Code reads
    `.vscode/mcp.json` in a different shape (a top-level `servers` key and `"type": "stdio"` on
@@ -743,9 +723,9 @@ Live, in this order:
    pulls the structured logs, filters to Error, finds the exception, follows the stack trace to
    the handler, and only THEN opens `CloseTicket.cs`. Say it plainly: it did not guess from the
    code, it read production-shaped signals and the code second. That is the difference between
-   an agent that debugs and an agent that pattern-matches. In the live rehearsal it then
-   restarted the `api` resource itself through the MCP server (`execute_resource_command`) and
-   checked its fix with curl; let it.
+   an agent that debugs and an agent that pattern-matches. It may then restart the `api`
+   resource itself through the MCP server (`execute_resource_command`) and check its fix with
+   curl; let it.
 
 6. Read the proposed fix out loud before approving. A good fix awaits the save inside the
    request and deletes the catch that swallowed the failure. A bad fix keeps the background
@@ -792,8 +772,7 @@ Live, in this order:
 
 A hand fix must also delete what only the background write used: the `logger` constructor
 parameter, the `WriteDelay` field and `using Microsoft.Extensions.Logging;`. A leftover `logger`
-parameter fails the build with `CS9113` (parameter is unread). The live rehearsal's agent
-removed all three on its own.
+parameter fails the build with `CS9113` (parameter is unread).
 
 7. Re-verify against both gates, in this order. Stop the run first (Ctrl+C): while the AppHost
    runs, the API process locks its `bin` folder and the test build fails with `MSB3027`.
@@ -835,8 +814,7 @@ removed all three on its own.
 
    Say why in one sentence: `main` is the history they pushed in Lab 5 and the one their
    required check guards, and Lab 8 scores rule 4 against exactly that; the workshop's
-   `lab6-end` shares no commits with their repository. (Until the 2026-10-07 rehearsal the
-   handout sent them to `lab6-end`, and the Lab 8 verifier caught the disconnect.)
+   `lab6-end` shares no commits with their repository.
 
    Then the one thing that bites in Lab 7. `.mcp.json` is committed on `lab6-fault`, not on
    their `main`, hence the third line. And `git restore .` only reverts tracked files, so
@@ -849,7 +827,7 @@ removed all three on its own.
    ```
 
    Skip it, and Lab 7's first `git add -A` commits about 90 files under "MCP server with three
-   tools", where the Lab 7 change is 7 (the 2026-10-07 practice run did exactly that). The
+   tools", where the Lab 7 change is 7. The
    untracked-files part applies to the projector clone too if you ran `aspire agent init` there
    rather than only `aspire agent --help`.
 
@@ -860,8 +838,7 @@ removed all three on its own.
 **This is the first thing to shrink if you are behind.** If it is 2:43, say one sentence and
 move on.
 
-Talk it through. A live run takes about 16 minutes (measured; see the optional validation
-below), so it never fits this slot from a standing start. The only live variant: kick it off
+Talk it through. A live run takes about 16 minutes, so it never fits this slot from a standing start. The only live variant: kick it off
 before the lab, with the environment added to `AppHost.cs`, on the instructor's subscription
 and never on workshop wifi, and show it finishing here:
 
@@ -886,19 +863,16 @@ src/Helpdesk.AppHost --list-steps` lists one empty `deploy` step, so a plain `as
 does nothing. To validate the live variant before the day, on a scratch branch of the
 practice repo:
 
-1. Add the integration, pinned to the AppHost's Aspire version (an unpinned `aspire add`
-   picked 13.6.1 against the 13.6.0 SDK in the rehearsal):
+1. Add the integration, pinned to the AppHost's Aspire version (unpinned, `aspire add` picks
+   the newest patch and splits the AppHost across two versions):
 
    ```sh
    git switch -c lab6-deploy
    aspire add azure-appcontainers --version 13.6.0 --apphost src/Helpdesk.AppHost
    ```
 
-2. Declare the target in `AppHost.cs`. Its own step on purpose: the package alone declares
-   nothing, and in the 2026-10-11 rehearsal going straight from `aspire add` to `--list-steps`
-   skipped these edits and listed one empty step. The whole file (the Step 1 AppHost plus three
-   lines marked `// NEW`), as the handout prints it, because two fragments were hard to place
-   in the same rehearsal:
+2. Declare the target in `AppHost.cs`; the package alone declares nothing. The whole file (the
+   Step 1 AppHost plus three lines marked `// NEW`), as the handout prints it:
 
    **File: `src/Helpdesk.AppHost/AppHost.cs` (whole file after the edit)**
 
@@ -944,7 +918,7 @@ practice repo:
    handout's; they add the same three lines in the same two places rather than pasting the
    whole file.
 
-3. Offline check, verified in the rehearsal:
+3. Offline check:
 
    ```sh
    aspire deploy --apphost src/Helpdesk.AppHost --list-steps
@@ -964,16 +938,13 @@ practice repo:
 
    **Type a new resource group name at the prompt; do not accept the suggestion.** The prompt
    lists the groups that already exist, and the instructor's subscription also hosts
-   production workloads: in the 2026-10-11 rehearsal the only suggestion was the production
-   group, it was accepted, and the demo landed beside production (additive only, nothing
-   existing was changed, but the one-command teardown was then off the table). Use a dedicated
-   `helpdesk-demo-rg`. The deploy saves its answers as deployment state, so a re-run after a
-   wrong pick needs `--clear-cache` to ask again.
+   production workloads: the suggestion can be the production group, and accepting it lands
+   the demo beside production and takes the one-command teardown off the table. Use a
+   dedicated `helpdesk-demo-rg`. The deploy saves its answers as deployment state, so a re-run
+   after a wrong pick needs `--clear-cache` to ask again.
 
-   Measured in the rehearsal: 28 steps, 16m 9s, of which `provision-env` (the Container Apps
-   environment) was 14m 35s with no output. That rules out starting a live run inside the
-   3-minute Step 5 slot; a live variant has to be kicked off before the lab and only shown
-   finishing.
+   Measured: 28 steps, about 16 min, of which `provision-env` (the Container Apps environment)
+   is about 14.5 min with no output.
 
 5. Verify, with the `api` URL the deploy printed:
 
@@ -983,8 +954,8 @@ practice repo:
    ```
 
    `/health` answers `Healthy` (the API reached SQL and the migrations ran in the cloud), then
-   close and read back the ticket. Verified live in the rehearsal at the default container
-   sizes: `/health` and `/alive` both `Healthy`, create returned the new id, close `204`, read
+   close and read back the ticket. Expected at the default container sizes: `/health` and
+   `/alive` both `Healthy`, create returned the new id, close `204`, read
    back `"status":"Closed"`, second close `400`. SQL Server ran fine as a container app with
    no size override.
 
@@ -1031,15 +1002,13 @@ stops reading about the helpdesk and starts using it."
 - **Apple Silicon: the `sql` resource keeps restarting or exits.** Docker Desktop's Rosetta
   setting is off and the amd64-only SQL Server image cannot run. Settings > General > "Use
   Rosetta for x86_64/amd64 emulation on Apple Silicon", restart Docker, run the AppHost again.
-- **Aspire CLI too old.** `Unrecognized command or argument 'agent'` means a pre-13.2 CLI. The
-  commands moved from `aspire mcp` to `aspire agent` in 13.2 (2026-03-23), so an older install
-  has one spelling, the other, or neither. Update the CLI; there is no manual substitute for
-  the MCP half, which is why the clinic checks it and why the projector machine gets updated
-  before rehearsal rather than on the day.
+- **Aspire CLI too old.** `Unrecognized command or argument 'agent'` means a pre-13.2 CLI.
+  Update the CLI; there is no manual substitute for the MCP half, which is why the clinic
+  checks it and the projector machine gets updated before the day.
 - **Docker not running.** The AppHost cannot start SQL and `api` never leaves Waiting. Start
   Docker Desktop and re-run; the persistent container lifetime makes the second start seconds.
-- **`sql` and `Tickets` stuck at Running (Unhealthy), `api` stuck at Waiting.** Caught in the
-  2026-10-11 rehearsal. `docker logs --tail 5 helpdesk-aspire-sql` repeats `Login failed for
+- **`sql` and `Tickets` stuck at Running (Unhealthy), `api` stuck at Waiting.**
+  `docker logs --tail 5 helpdesk-aspire-sql` repeats `Login failed for
   user 'sa'. Reason: Password did not match`. The SQL data volume survived from an earlier run
   (anyone who rehearsed Lab 6 at home, then rebuilt or recloned the AppHost): the new AppHost
   generated a new `sa` password into its user secrets, but SQL Server only applies

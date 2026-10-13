@@ -16,8 +16,7 @@ git switch -c main --track origin/lab2-end
 ```
 
 **Goal:** ship three vertical slices, all driven by the `/slice` Agent Skill the repo ships
-(the old supplied prompt is still here as the manual path, and it is the fallback if the skill
-does not fire). 3a is `POST /tickets`. 3b is `POST /tickets/{id}/close`, written test-first at
+(a plain prompt is the fallback if the skill does not fire). 3a is `POST /tickets`. 3b is `POST /tickets/{id}/close`, written test-first at
 the API level together with the required `GET /tickets/{id}` read-back its test needs: the
 integration test comes before the slices.
 
@@ -260,8 +259,7 @@ internal sealed class TicketRepository(TicketsDbContext db) : ITicketRepository
 }
 ```
 
-`.../TicketsModule.cs` (module registration; the `main` branch evolves this into IModule for
-the recorded extraction clip):
+`.../TicketsModule.cs` (module registration):
 
 **File: `src/Modules/Tickets/Helpdesk.Tickets.Infrastructure/TicketsModule.cs` (new file)**
 
@@ -714,11 +712,9 @@ public sealed class HelpdeskApiFactory : WebApplicationFactory<Program>, IAsyncL
 }
 ```
 
-`WebApplicationFactory<Program>` has to see the host's `Program` class. On the .NET 10 SDK the
-class generated from top-level statements is already accessible, so this builds as is; older
-SDKs (.NET 8 and 9) failed here with CS0122 ("Program is inaccessible due to its protection
-level"). Add the two lines at the BOTTOM of the host file anyway: they are harmless and state
-explicitly what the tests rely on.
+`WebApplicationFactory<Program>` has to see the host's `Program` class. On .NET 10 it already
+can, but add the two lines at the BOTTOM of the host file anyway: they state explicitly what
+the tests rely on.
 
 **File: `src/Helpdesk.Host/Program.cs` (append)**
 

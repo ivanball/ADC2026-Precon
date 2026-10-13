@@ -36,14 +36,13 @@ git switch -c main --track origin/lab1-end
 ## Files this session touches
 
 Everything `lab1-end` -> `lab2-end` changes. "Content" says where the exact text lives. Bold
-**manual path** citations mark content needed only by attendees not using an agent
-(highlighted in red in the web version).
+**manual path** citations mark content needed only by attendees not using an agent.
 
 | File | Change | Content |
 |------|--------|---------|
 | `src/Helpdesk.SharedKernel/Result.cs` | new | below, lecture part 1 (same block in handout lab2, "The lecture code") |
 | `src/Helpdesk.SharedKernel/Entity.cs` | new | below, lecture part 2 (same block in handout lab2, "The lecture code") |
-| `src/Modules/Tickets/Helpdesk.Tickets.Domain/Ticket.cs` | new | below, lecture part 2, down to `Create` (includes `TicketErrors.NotFound`, which Lab 3 uses); the three lab methods are in handout lab2, **"Manual path / reference implementation"** (reprinted below, "Manual path reference"); the handout's "The lecture code" block is identical to this one and byte-exact with `lab2-end` before the three methods |
+| `src/Modules/Tickets/Helpdesk.Tickets.Domain/Ticket.cs` | new | below, lecture part 2, down to `Create` (includes `TicketErrors.NotFound`, which Lab 3 uses); the three lab methods are in handout lab2, **"Manual path / reference implementation"** (reprinted below, "Manual path reference") |
 | `tests/Helpdesk.Tickets.Domain.Tests/TicketCloseTests.cs` | new | handout lab2, Step 1 (attendees write, model inline below); the other three tests reprinted below, Lab 2 Step 1 |
 | `tests/Helpdesk.Tickets.Domain.Tests/PlaceholderTests.cs` | deleted | no content needed; `TicketCloseTests.cs` replaces it. Leaving it in place still compiles and passes, since `ModuleInfo` survives |
 
@@ -117,8 +116,7 @@ both arms:
 
 *Instructor only (not in the handout).*
 
-**Slide excerpt (not a file in the repo; C# 15 syntax as shipped in .NET 11 Preview 2 and stable
-in RC1, GA at .NET Conf, November 10-12, 2026):**
+**Slide excerpt (not a file in the repo; C# 15, .NET 11, GA at .NET Conf, November 10-12, 2026):**
 
 ```csharp
 // A closed set of case types, declared once.
@@ -143,8 +141,7 @@ Three talking points, then move on:
   aggregate, and the pipeline still decides which status code a failure maps to. A language
   feature moves the ceremony, not the design decision.
 
-What attendees read (handout lab2, "The lecture code", sidebar between `Result.cs` and
-`Entity.cs`, word for word):
+What attendees read (handout, between `Result.cs` and `Entity.cs`):
 
 > **Sidebar: C# 15 unions.** In .NET 11 (RC1 now, GA at .NET Conf in November),
 > `public union TicketOutcome(Ticket, Error);` lets a method say "a ticket or an error"
@@ -294,11 +291,8 @@ cannot close while any child task is not done.**
 
 Moment: Lab 2 Step 1, the model test the handout gives first; the other three follow it below.
 
-Step 1: attendees first delete the Lab 1 `PlaceholderTests.cs` (the real tests replace it),
-then write these tests THEMSELVES in `Helpdesk.Tickets.Domain.Tests`, file `TicketCloseTests.cs` (handout
-shows the first as a model, they write the rest: the other three are
-`Close_with_all_child_tasks_done_succeeds_and_raises_TicketClosed`, `Close_when_already_closed_fails`
-and `Create_with_blank_title_fails`):
+Attendees delete the Lab 1 `PlaceholderTests.cs`, then write `TicketCloseTests.cs` in
+`Helpdesk.Tickets.Domain.Tests` THEMSELVES; the handout gives the first test as a model:
 
 **File: `tests/Helpdesk.Tickets.Domain.Tests/TicketCloseTests.cs` (new file)**
 
@@ -327,9 +321,8 @@ public class TicketCloseTests
 Moment: Lab 2 Step 1, the three attendee-written tests (compare after writing), added inside the
 model file's class above.
 
-The other three (write first, then compare). They go INSIDE the `TicketCloseTests` class,
-before its closing `}`; pasted after the last `}` the file fails to compile for the wrong
-reason (CS1519) and hides the red you want to see:
+The other three go INSIDE the `TicketCloseTests` class, before its closing `}`; pasted after
+the last `}` the file fails to compile for the wrong reason (CS1519) and hides the red:
 
 **File: `tests/Helpdesk.Tickets.Domain.Tests/TicketCloseTests.cs` (edit)**
 
@@ -370,16 +363,13 @@ reason (CS1519) and hides the red you want to see:
     }
 ```
 
-Then the red run (handout, end of Step 1): `dotnet test Helpdesk.slnx` must FAIL with
-`error CS1061: 'Ticket' does not contain a definition for 'AddChildTask'` (and for
-`CompleteChildTask` and `Close`). The `Passed!` line for Helpdesk.ArchitectureTests is the
-other test project, not theirs. The fourth test guards the lecture's `Create` and goes green as
-soon as the file compiles; the other three are the red ones.
+Then the red run: `dotnet test Helpdesk.slnx` must FAIL with `error CS1061: 'Ticket' does not
+contain a definition for 'AddChildTask'` (and for `CompleteChildTask` and `Close`). The
+`Passed!` line for Helpdesk.ArchitectureTests is the other test project, not theirs. The fourth
+test guards the lecture's `Create` and goes green as soon as the file compiles.
 
-Once they have seen the red run, they commit (handout lab2, end of Step 1, word for word):
-
-Commit the red tests (and the lecture code) now, so Step 3 can check with `git diff --stat HEAD`
-that the agent touched only `Ticket.cs`:
+Then they commit the red tests (and the lecture code), so Step 3's `git diff --stat HEAD` can
+show the agent touched only `Ticket.cs`:
 
 ```bash
 git add -A && git commit -m "Close-rule tests (red)"
@@ -387,7 +377,7 @@ git add -A && git commit -m "Close-rule tests (red)"
 
 ### Step 2, AI path: the prompt
 
-What attendees do (handout lab2, "Step 2, AI path: the prompt", word for word):
+What attendees paste (handout Step 2):
 
 > Run the tests in Helpdesk.Tickets.Domain.Tests and make the failing ones pass by
 > implementing AddChildTask, CompleteChildTask, and Close on the Ticket aggregate, following
@@ -399,44 +389,29 @@ What attendees do (handout lab2, "Step 2, AI path: the prompt", word for word):
 > other rule. Do not modify the tests. Do not touch any project other than
 > Helpdesk.Tickets.Domain.
 
-What attendees read next (handout lab2, word for word):
-
-Your agent's code will not be character-for-character the reference at the end of this page,
-and that is fine: `Find` instead of `FirstOrDefault`, or `Exists` instead of `Any`, is style.
-What must match is the contract the prompt pins: the three signatures, the existing
-`TicketErrors`, and no extra rules. If your agent returns `Result<ChildTask>`, adds a new error
-code, or invents a rule (say, rejecting an empty description), reject the diff and point it at
-the prompt's "Keep exactly these signatures and rules" sentence.
+The handout's next paragraph covers style vs contract: `Find`/`Exists` instead of
+`FirstOrDefault`/`Any` is fine; `Result<ChildTask>`, a new error code, or an invented rule means
+reject the diff.
 
 What the agent should produce: one changed file, `Helpdesk.Tickets.Domain/Ticket.cs` (about 30
-added lines: `AddChildTask`, `CompleteChildTask`, `Close`), tests untouched, `Passed: 4`. Proven
-2026-10-07 with this pinned prompt: two headless runs matched the reference's signatures, error
-codes and rules exactly; the only differences were `Find`/`Exists` for `FirstOrDefault`/`Any`.
+added lines: `AddChildTask`, `CompleteChildTask`, `Close`), tests untouched, `Passed: 4`.
 
-Why the prompt pins the contract (say it if someone asks why it is so long): with the shorter
-prompt ("implement ... do not modify the tests"), rehearsals came back with `Result<ChildTask>`
-from `AddChildTask`, a new `EmptyChildTaskDescription` error, a closed-ticket guard on
-`CompleteChildTask`, and description trimming. All of that compiled and passed the four tests,
-which is the lesson: a test pins what it asserts and nothing more, so anything you care about
-that no test asserts has to be in the spec. Same reason Lab 3a's prompt pins its error codes and
-response body.
+Why the prompt pins the contract (say it if someone asks why it is so long): with a shorter
+prompt ("implement ... do not modify the tests"), agents return `Result<ChildTask>` from
+`AddChildTask`, add an `EmptyChildTaskDescription` error, guard `CompleteChildTask` on closed
+tickets, trim descriptions. All of that compiles and passes the four tests, which is the lesson:
+a test pins what it asserts and nothing more, so anything you care about that no test asserts
+has to be in the spec. Same reason Lab 3a's prompt pins its error codes and response body.
 
 ### Step 2, manual path (no agent)
 
-What attendees do (handout lab2, "Step 2, manual path (no agent)", word for word):
+Handout Step 2 manual path: write the three methods inside `Ticket` after `Create` until all
+four tests pass; the reference is the last section of the handout, after Step 4 (reprinted at the
+end of this sheet, "Manual path reference").
 
-Write `AddChildTask`, `CompleteChildTask` and `Close` yourself, inside `Ticket` after `Create`,
-and run `dotnet test Helpdesk.slnx` until all four tests in Helpdesk.Tickets.Domain.Tests pass.
-Try it from the tests first; if you are stuck, the reference implementation is the last section
-of this page, after Step 4:
-[Manual path / reference implementation](#reference-implementation). Step 3's review questions
-apply to your own diff too.
-
-Coach: the reference block is printed at the end of this run sheet under "Manual path
-reference" (the link above jumps there too). Say out loud where it is: an attendee on the
-2026-10-07 run read Step 2 and missed it, because it sits after Step 4; `Failure` / `Success` come from the `using static Helpdesk.SharedKernel.Result;` line
-the lecture code already has. Before this step existed, a literal manual-path attendee committed
-code that did not compile (re-run 2026-10-07): make sure nobody reaches Step 4 red.
+Coach: say out loud where the reference is, because it sits after Step 4 and is easy to miss.
+`Failure` / `Success` come from the `using static Helpdesk.SharedKernel.Result;` line the
+lecture code already has. Make sure nobody reaches Step 4 red.
 
 ### Step 3: review the diff
 
@@ -446,15 +421,10 @@ Checklist on the handout:
 - Is `TicketClosed` raised inside `Close`, only on success?
 - Did it leak anything public that should be internal (`ChildTask.MarkDone`)?
 - Did it touch only the Domain project?
-
-The handout's fifth item, word for word: "Did it touch the tests? (`git diff --stat HEAD` should
-list only `Ticket.cs`. If a test file shows up: revert, tighten the prompt, rerun. Tell the
-instructor; you just met, in person, the S9 field-report story about the test that passes
-because it changed.)" The Step 1 commit is what makes that one command enough.
+- Did it touch the tests? (`git diff --stat HEAD` should list only `Ticket.cs`; the Step 1
+  commit is what makes that one command enough.)
 
 ### Step 4: verify, commit (both paths)
-
-`dotnet test Helpdesk.slnx`, commit.
 
 ```bash
 dotnet test Helpdesk.slnx
@@ -475,8 +445,8 @@ grep -c PackageReference src/Modules/Tickets/Helpdesk.Tickets.Domain/*.csproj
   In PowerShell: `(Select-String PackageReference src/Modules/Tickets/Helpdesk.Tickets.Domain/*.csproj).Count   # 0`
 
   "The most important project in the system has no package dependencies and one project
-  reference, the shared kernel, and its tests run in milliseconds with no database. That is not an accident; this afternoon we make it a rule the
-  build enforces."
+  reference, the shared kernel, and its tests run in milliseconds with no database. That is
+  not an accident; this afternoon we make it a rule the build enforces."
 - Hand off to Lab 3 at 11:10, straight on: "Next these domain calls get an entrance: commands,
   queries, and a pipeline that gives every one of them validation and logging for free. Then we
   break for lunch."
@@ -493,9 +463,6 @@ grep -c PackageReference src/Modules/Tickets/Helpdesk.Tickets.Domain/*.csproj
 <a id="reference-implementation"></a>
 
 ## Manual path reference (what attendees without an agent paste)
-
-The handout's "Manual path / reference implementation" section: the manual path's fallback at
-Step 2, and for AI-path attendees a peek after committing.
 
 Moment: Lab 2 manual path, the three methods added to the lecture-part-2 `Ticket.cs` above.
 

@@ -16,9 +16,9 @@ git switch -c main --track origin/lab3-end
 dotnet tool restore
 ```
 
-`dotnet tool restore` installs the `dotnet ef` version the snapshot pins (from `lab3-end` on
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins. From `lab3-end` on,
 the repository carries a tool manifest, and `dotnet ef` refuses to run until it is restored,
-even with the global tool installed).
+even with the global tool installed.
 
 **Goal:** turn the layer rules into executable tests, prove each test can fail, then ask the
 agent to violate a rule on purpose and watch the gates hold.
@@ -132,23 +132,22 @@ public class LayerRulesTests
 }
 ```
 
-Rule 5 is honestly vacuous today: it scans only `Helpdesk.SharedKernel`, which references no
-other project, and making SharedKernel reference Tickets.Infrastructure would be a project
-cycle, so this test cannot fail yet. It becomes a real gate when a second module arrives (the
-comment at its end). Spotting that is what reviewing the tests is for.
+Rule 5 is vacuous today: it scans only `Helpdesk.SharedKernel`, which references no other
+project (a reference to Tickets.Infrastructure would be a cycle), so it cannot fail yet. It
+becomes a real gate when a second module arrives. Spotting that is what reviewing tests is for.
 
-Delete the Lab 1 `tests/Helpdesk.ArchitectureTests/PlaceholderTests.cs` (the five rules
-replace it; on the AI path too, since agents do not delete it unprompted). Then run the
-suite, 11 green (Domain 4, Architecture 5, Api 2):
+Delete the Lab 1 `tests/Helpdesk.ArchitectureTests/PlaceholderTests.cs` (on the AI path too;
+agents do not delete it unprompted). Then run the suite, 11 green (Domain 4, Architecture 5,
+Api 2):
 
 ```bash
 dotnet test Helpdesk.slnx
 ```
 
-Then prove test 1 can fail: add
-`using Microsoft.EntityFrameworkCore;` plus a `DbContext` field anywhere in Domain (it will
-not even compile without a reference, which is the compiler enforcing rule 1 before the test
-can). Prove test 4 instead: make `CreateTicketHandler` public, run, watch red, revert.
+Then prove a test can fail. Adding `using Microsoft.EntityFrameworkCore;` plus a `DbContext`
+field in Domain does not even compile without a package reference (the compiler enforces rule 1
+before the test can), so prove test 4 instead: make `CreateTicketHandler` public, run, watch
+red, revert.
 
 With every prove-it edit reverted and the suite green again, commit, so THE FLIP's
 `git checkout -- .` below lands back on these tests:
@@ -168,18 +167,15 @@ Ask the agent, verbatim:
 
 Two outcomes, both wins:
 
-1. It makes the change, the build stays green, and the fitness tests go red: rules 1 and 2
-   fail with the new Domain type named in the message (for example
-   `EF Core leaked into Domain: Helpdesk.Tickets.Domain.TicketQueries`). It reports the
-   failure. **The gate worked**, and it worked where the compiler could not: the code is
-   perfectly valid C#, only the architecture is wrong.
+1. It makes the change, the build stays green, and rules 1 and 2 go red naming the new Domain
+   type (for example `EF Core leaked into Domain: Helpdesk.Tickets.Domain.TicketQueries`).
+   **The gate worked**, where the compiler could not: valid C#, wrong architecture.
 2. It refuses, citing CLAUDE.md's layer rules or its "never add a NuGet package without
    asking" line. **The context file worked.** Insist once to see outcome 1.
 
-**Manual path:** make the same change by hand. Pin EF Core to the version your
-Infrastructure project already uses (10.0.10 on the snapshot branches; check
-`Helpdesk.Tickets.Infrastructure.csproj`), because an unpinned add pulls a newer patch and the
-build stops on NU1605 package-downgrade errors before any test runs:
+**Manual path:** make the same change by hand. Pin EF Core to the version Infrastructure
+already uses (10.0.10; check `Helpdesk.Tickets.Infrastructure.csproj`): an unpinned add pulls a
+newer patch and the build stops on NU1605 package-downgrade errors before any test runs:
 
 ```bash
 dotnet add src/Modules/Tickets/Helpdesk.Tickets.Domain package Microsoft.EntityFrameworkCore --version 10.0.10
@@ -199,23 +195,20 @@ git checkout -- .
 git clean -f src/
 ```
 
-The first line restores tracked files only (the Domain `.csproj`); the class the agent added is a
-new, untracked file (`TicketQueries.cs` on the manual path; the agent may pick another name), so
-`git status` keeps listing it until the second line deletes it. The second line removes every
-untracked file under `src/` (build output is ignored, so it stays), whatever the file is called.
-`git status` then reports a clean tree, and `dotnet test Helpdesk.slnx` is 11 green again.
+The first line restores tracked files (the Domain `.csproj`); the second deletes the new,
+untracked class file under `src/`, whatever the agent named it. `git status` then reports a
+clean tree, and `dotnet test Helpdesk.slnx` is 11 green again.
 
 ## Step 4: Guardrails (create the files)
 
-Fitness tests gate the CODE. These gate the AGENT'S ACTIONS. Create the four files below (paste
-them; their content matches `lab4-end`), so your repo matches the snapshot branch before Lab 5.
-If you checked out `lab4-end` instead, the branch already records the executable bit on both
-hooks, so you can skip the executable-bit block below.
+Fitness tests gate the CODE. These gate the AGENT'S ACTIONS. Paste the four files below so your
+repo matches `lab4-end` before Lab 5. (If you checked out `lab4-end` instead, skip the
+executable-bit block below; the branch already records it.)
 
 They take effect the next time you start `claude` in this repo. From now on start plain
-`claude`, with no `--permission-mode` flag: the file's `defaultMode: acceptEdits` then sets the
-starting mode, and a CLI flag would override it. VS Code users pick the mode in the mode
-indicator instead, because the extension does not read a project's `defaultMode`.
+`claude`, with no `--permission-mode` flag, so the file's `defaultMode: acceptEdits` applies (a
+CLI flag would override it). VS Code users pick the mode in the mode indicator; the extension
+does not read a project's `defaultMode`.
 
 **File: `.claude/settings.json` (new file)**
 
@@ -261,21 +254,18 @@ indicator instead, because the extension does not read a project's `defaultMode`
 ```
 
 The escaped quotes around `${CLAUDE_PROJECT_DIR}` keep the hooks working when your project path
-contains a space. Without them the hook fails to start, and Claude Code treats a hook that
-fails to start as a non-blocking error: the command it should have stopped runs anyway.
+contains a space. Without them the hook fails to start, which Claude Code treats as a
+non-blocking error: the command it should have stopped runs anyway.
 
-Every rule appears twice, once for `Bash` and once for `PowerShell`, and the hook matcher is
-`Bash|PowerShell`. On Windows, Claude Code has a native PowerShell tool next to Bash, and a
-`Bash(...)` rule or a `Bash` hook does not see a command it runs there. A Bash deny rule
-normally switches the PowerShell tool off, but any `PowerShell(...)` rule switches it back on,
-and Claude Code writes one into your `settings.local.json` every time you answer "Yes, and
-don't ask again" to a PowerShell command. Covering both shells is what keeps these guardrails
-true on every laptop in the room.
+Every rule appears twice, for `Bash` and `PowerShell`, and the hook matcher is
+`Bash|PowerShell`. On Windows, Claude Code has a native PowerShell tool that `Bash(...)` rules
+and `Bash` hooks do not see. A Bash deny rule normally switches it off, but any
+`PowerShell(...)` rule switches it back on, and answering "Yes, and don't ask again" to a
+PowerShell command writes one into your `settings.local.json`.
 
 A deny list is policy inside the tool. A hook runs outside the model: it sees the command
-before it happens and can refuse it. The jq fallback in both scripts is deliberate, since jq
-is not installed everywhere and a guardrail that errors out is a guardrail that stopped
-guarding.
+before it happens and can refuse it. The jq fallback in both scripts is deliberate: jq is not
+installed everywhere, and a guardrail that errors out has stopped guarding.
 
 **File: `.claude/hooks/block-dangerous.sh` (new file)**
 
@@ -349,12 +339,14 @@ git commit -m "Agent guardrails"
 ```
 
 Read the `git status --short` output before you commit: it should list only the three
-`.claude/` files and `.gitattributes`. If it lists anything under `src/`,
-THE FLIP is still in your working copy: run `git restore --staged src/ && git restore src/ && git clean -f src/`
+`.claude/` files and `.gitattributes`. If it lists anything under `src/`, THE FLIP is still in
+your working copy: run
+`git restore --staged src/ && git restore src/ && git clean -f src/`
 (the last part deletes the new Domain file, whatever the agent named it), check
-`git status --short` again and `dotnet test Helpdesk.slnx` is 11 green again, then commit. On Windows, `git add` may warn
-that CRLF will be replaced by LF in the two scripts: that is `.gitattributes` working. The
-repository stores LF, and the CRLF copy on your disk still runs under Git Bash.
+`git status --short` again and that `dotnet test Helpdesk.slnx` is 11 green again, then commit.
+On Windows, `git add` may warn that CRLF will be replaced by LF in the two scripts: that is
+`.gitattributes` working. The repository stores LF, and the CRLF copy on your disk still runs
+under Git Bash.
 
 On macOS, Linux or Git Bash, also set the bit on your working copy (there is no `chmod` in
 PowerShell, and Windows does not need it):
@@ -367,34 +359,29 @@ chmod +x .claude/hooks/block-dangerous.sh .claude/hooks/confirm-merge.sh
 nothing else matches: `default` (Manual) prompts on every edit and command; `acceptEdits`
 (used here) applies edits and simple file commands without prompting while still gating other
 commands; `plan` reads, runs exploration commands and proposes a plan, but blocks source edits
-until you approve it; `auto` lets a second model, a classifier,
-review each action instead of you (and since Claude Code v2.1.283 it is the starting mode for
-interactive sessions, which is why this morning began with `--permission-mode default`);
-`dontAsk` runs only pre-approved tools and denies the rest, for CI and scripts;
-`bypassPermissions` asks nothing, which is fine in a throwaway container and reckless on a
-laptop signed into production. A project file can set any mode except `auto` and
+until you approve it; `auto` lets a classifier model review each action instead of you (it is
+the default starting mode for interactive sessions, which is why this morning began with
+`--permission-mode default`); `dontAsk` runs only pre-approved tools and denies the rest, for
+CI and scripts; `bypassPermissions` asks nothing, which is fine in a throwaway container and
+reckless on a laptop signed into production. A project file can set any mode except `auto` and
 `bypassPermissions`. The rule to take home: gate on reversibility and on whether the action
 leaves your machine, not on how weighty it feels.
 
 Claude Code also has a `sandbox` setting that runs Bash under OS-level filesystem and network
-isolation (Seatbelt on macOS, bubblewrap on Linux and WSL2; native Windows has none and runs
-commands unsandboxed). This repo deliberately leaves it off. On macOS it is enforced strictly
-enough to break today's agent work: the agent's `dotnet build` and `dotnet test` hang and then
-fail because the sandbox blocks MSBuild's local connections, and `dotnet restore` and `gh` cannot
-reach NuGet or GitHub. When you turn it on in your own repos, list the commands that must reach
-outside in `excludedCommands`, and remember it still lets commands READ anywhere unless you add
-`sandbox.filesystem.denyRead` entries. Today the guardrails are the permission prompts, the deny
-rules and the hooks: read each command before you approve it.
+isolation (Seatbelt on macOS, bubblewrap on Linux and WSL2; native Windows has none). This repo
+leaves it off: on macOS it blocks MSBuild's local connections, so the agent's `dotnet build` and
+`dotnet test` hang and fail, and `dotnet restore` and `gh` cannot reach the network. In your own
+repos, list such commands in `excludedCommands`, and remember it still lets commands READ
+anywhere unless you add `sandbox.filesystem.denyRead` entries. Today the guardrails are the
+permission prompts, the deny rules and the hooks: read each command before you approve it.
 
 **Least-privilege tokens in CI (Lab 5 demos this).** The agent-review workflow declares its
-own scoped `permissions` block, `contents: read`, `pull-requests: write`, `id-token: write`,
-which is enough to read the code and comment on the PR and nothing more; the model API key is
-a repository secret, never a personal token in a committed file. That workflow token is minted
-per run and expires with the job, so a leak is worthless minutes later, while a personal
-access token in a file stays valid until somebody revokes it and carries every permission its
-owner has. Same idea in your settings file: `Read(./.env)` and `Read(./**/*.pem)` on the deny
-list keep the agent from pulling secrets into its context in the first place (both are in the
-settings file above).
+own scoped `permissions` block, `contents: read`, `pull-requests: write`, `id-token: write`:
+enough to read the code and comment on the PR, nothing more. The model API key is a repository
+secret, never a personal token in a committed file. The workflow token expires with the job, so
+a leak is worthless minutes later; a personal access token stays valid until revoked and
+carries every permission its owner has. Same idea in your settings file: `Read(./.env)` and
+`Read(./**/*.pem)` on the deny list keep secrets out of the agent's context.
 
 ## What just happened
 

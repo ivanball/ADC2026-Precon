@@ -27,9 +27,9 @@ git switch -c main --track origin/lab3-end
 dotnet tool restore
 ```
 
-`dotnet tool restore` installs the `dotnet ef` version the snapshot pins (from `lab3-end` on
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins. From `lab3-end` on,
 the repository carries a tool manifest, and `dotnet ef` refuses to run until it is restored,
-even with the global tool installed).
+even with the global tool installed.
 
 ## Minute-by-minute
 
@@ -56,7 +56,7 @@ agent (highlighted in red in the web version); on the AI path the agent writes t
 |------|--------|---------|
 | `docs/architecture-rules.md` | new (7 lines) | handout lab4, step 1 ("the rules, in English"); also reproduced in Lab 4a below |
 | `tests/Helpdesk.ArchitectureTests/LayerRulesTests.cs` | new (77 lines) | handout lab4, **"Step 2, manual path: the five tests"** (whole file, reprinted below under "Lab 4a Step 2, manual path"); rule 1 plus the `Offenders` helper is excerpted in the Lecture below |
-| `tests/Helpdesk.ArchitectureTests/PlaceholderTests.cs` | delete (12 lines) | no fence needed: the one-assert placeholder from the Lab 1 skeleton that kept the empty test project green. `LayerRulesTests` replaces it; handout lab4 Step 2 now says to delete it (the rehearsal agent did NOT delete it unprompted) |
+| `tests/Helpdesk.ArchitectureTests/PlaceholderTests.cs` | delete (12 lines) | no fence needed: the Lab 1 placeholder that kept the empty test project green. Handout Step 2 says to delete it (agents do not delete it unprompted) |
 | `.claude/settings.json` | new (38 lines) | guardrails beat 1 (allow and deny lists) and beat 3 (`defaultMode`; no `sandbox` block, by design); wires both hooks; also in handout lab4, "Guardrails" |
 | `.claude/hooks/block-dangerous.sh` | new (22 lines) | guardrails beat 2, first script; also in handout lab4 |
 | `.claude/hooks/confirm-merge.sh` | new (17 lines) | guardrails beat 2, second script; also in handout lab4 |
@@ -65,7 +65,7 @@ agent (highlighted in red in the web version); on the AI path the agent writes t
 Test count on `lab4-end`: 11 green (Domain 4, Architecture 5, Api 2). Say the number out loud
 after Lab 4a; attendees with 12 skipped the `PlaceholderTests.cs` delete, attendees with 10
 lost a rule. Two red Api tests with a `SqlException` means the compose SQL container is down
-(typical on a fresh rescue clone): `docker compose up -d`, then rerun. The handout prerequisite says so.
+(typical on a fresh rescue clone): `docker compose up -d`, then rerun.
 
 Not listed (deliberately): `bin/`, `obj/`, and the project file itself. The
 `NetArchTest.Rules` package reference already ships in the Lab 1 skeleton's
@@ -130,32 +130,25 @@ What attendees do (handout lab4, "Step 2, AI path: the prompt", word for word):
 > Every failure message must list the offending type names. Run the tests and show me the
 > results. Do not modify any project other than Helpdesk.ArchitectureTests.
 
-What the agent should produce: one test file in `Helpdesk.ArchitectureTests` (its own name; the
-rehearsal agent wrote `ArchitectureRulesTests.cs`) with five NetArchTest tests named after the
-rules, rule 4 selecting BOTH handler interfaces, each failure message naming the offenders; it
-leaves `PlaceholderTests.cs` in place, so the run reads 12 until the attendee deletes it, then 11
-(rehearsed 2026-10-06: 44 s, and the agent itself called rule 5 "a weak guard today").
+What the agent should produce (about 45 s): one test file in `Helpdesk.ArchitectureTests` (name
+of its choosing) with five NetArchTest tests named after the rules, rule 4 selecting BOTH
+handler interfaces, each failure message naming the offenders. It leaves `PlaceholderTests.cs`
+in place, so the run reads 12 until the attendee deletes it, then 11.
 
 Review checklist while floating: do the tests actually FAIL if broken (a test that can never
 fail is decoration)? Rule 4 is the interesting one; the agent must combine
 `.That().ImplementInterface(typeof(ICommandHandler<,>))` with `.Should().NotBePublic()` and
-attendees should check it found both handler interfaces. Rule 5 is honestly vacuous on this
-branch: only SharedKernel sits outside `Helpdesk.Tickets.*`, it references nothing, and a
-reference to Tickets.Infrastructure would be a cycle. The handout says so; if an attendee spots
-it first, that is the checklist working. The handout's "prove each test can fail" step (end of
-Step 2, both paths) is a hand edit: the attendee makes `CreateTicketHandler` public, runs,
-watches red, reverts. The handout gives the agent no permission to touch `src/`; asked to prove
-its own tests, the rehearsal agent honoured the 4a fence and mutated its tests instead, which
-proves the assertions, not the selections. If an attendee wants the agent to do it, they grant
-`src/` for that one step explicitly and restore with `git checkout`.
+attendees should check it found both handler interfaces. Rule 5 is vacuous on this branch (the
+handout says why); an attendee who spots it first is the checklist working. The "prove a test
+can fail" step is a hand edit (make `CreateTicketHandler` public, run, watch red, revert). The
+prompt gives the agent no permission to touch `src/`, so an agent asked to prove its own tests
+mutates the tests instead, which proves the assertions, not the selections. To have the agent
+do it, grant `src/` for that one step explicitly and restore with `git checkout`.
 
 ### Lab 4a Step 2, manual path: the five tests
 
-Manual path: the handout has all five tests written out; type rule 1 and 4, paste the rest.
-
-What manual-path attendees do (handout lab4, "Step 2, manual path: the five tests"): create the
-file below "(type tests 1 and 4, paste the rest)", then work through the steps after it. They are
-numbered here for reference; the handout prints them as plain paragraphs in the same order.
+Manual-path attendees create the file below (type tests 1 and 4, paste the rest), then work
+through the steps after it (numbered here; plain paragraphs in the handout).
 
 **File: `tests/Helpdesk.ArchitectureTests/LayerRulesTests.cs` (new file)**
 
@@ -241,23 +234,17 @@ public class LayerRulesTests
 
 Then, by hand:
 
-1. Read the rule 5 note: "Rule 5 is honestly vacuous today: it scans only
-   `Helpdesk.SharedKernel`, which references no other project, and making SharedKernel reference
-   Tickets.Infrastructure would be a project cycle, so this test cannot fail yet. It becomes a
-   real gate when a second module arrives (the comment at its end). Spotting that is what
-   reviewing the tests is for."
-2. Delete the Lab 1 `tests/Helpdesk.ArchitectureTests/PlaceholderTests.cs` (the five rules
-   replace it; on the AI path too, since agents do not delete it unprompted).
+1. Read the handout's rule 5 note (vacuous today; a real gate once a second module arrives).
+2. Delete the Lab 1 `tests/Helpdesk.ArchitectureTests/PlaceholderTests.cs` (on the AI path too).
 3. Run the suite, 11 green (Domain 4, Architecture 5, Api 2):
 
    ```bash
    dotnet test Helpdesk.slnx
    ```
 
-4. Prove test 1 can fail: add `using Microsoft.EntityFrameworkCore;` plus a `DbContext` field
-   anywhere in Domain (it will not even compile without a reference, which is the compiler
-   enforcing rule 1 before the test can). Prove test 4 instead: make `CreateTicketHandler`
-   public, run, watch red, revert.
+4. Prove a test can fail. Test 1 cannot be proved by hand: an EF Core `using` in Domain does
+   not compile without the package (the compiler enforces rule 1 first). Prove test 4 instead:
+   make `CreateTicketHandler` public, run, watch red, revert.
 5. With every prove-it edit reverted and the suite green again, commit, so THE FLIP's
    `git checkout -- .` below lands back on these tests:
 
@@ -271,13 +258,8 @@ Then, by hand:
 
 #### Lab 4b Step 3, AI path: ask the agent, verbatim
 
-What attendees do (handout lab4, "Step 3: THE FLIP", word for word): "Ask the agent, verbatim:"
-the prompt below, then read the handout's "Two outcomes, both wins" list, which is the same two
-outcomes as the list below (its outcome 1 quotes
-`EF Core leaked into Domain: Helpdesk.Tickets.Domain.TicketQueries`; its outcome 2 ends "Insist
-once to see outcome 1.").
-
-The moment the day is named after. Prompt (verbatim):
+The moment the day is named after. Attendees send this prompt verbatim (handout Step 3, which
+also prints the two outcomes below):
 
 > For a demonstration: let the Ticket aggregate query itself. Add the
 > Microsoft.EntityFrameworkCore package to Helpdesk.Tickets.Domain and add a public static
@@ -287,8 +269,8 @@ The moment the day is named after. Prompt (verbatim):
 Two acceptable outcomes, both wins; name them beforehand so attendees know what to watch for:
 
 1. The agent makes the change, the build stays GREEN, and rules 1 and 2 go red naming the new
-   type (`EF Core leaked into Domain: Helpdesk.Tickets.Domain.TicketQueries` in the rehearsal
-   run). The agent reports the failure, possibly offering to revert. **The gate worked, and it
+   type (for example `EF Core leaked into Domain: Helpdesk.Tickets.Domain.TicketQueries`).
+   The agent reports the failure, possibly offering to revert. **The gate worked, and it
    worked where the compiler could not**: valid C#, wrong architecture. Say that sentence.
 2. The agent refuses or pushes back, citing CLAUDE.md's layer rules or the "never add a NuGet
    package without asking" line. **The context file worked.** (Then have them insist once, to
@@ -302,20 +284,15 @@ violation compiles cleanly, so the only thing standing in the way is the tests y
 Also not "make a handler public": attendees already do that to prove rule 4 in Lab 4a, and the
 Lab 5 red PR and `lab8-demo` reuse the same violation, so the room has seen it.
 
-What the agent should produce: outcome 1. `Microsoft.EntityFrameworkCore` 10.0.10 added to
-Domain ("the same version Infrastructure uses") plus a `TicketQueries.cs`; build green with 0
-warnings; rules 1 and 2 red, both naming `Helpdesk.Tickets.Domain.TicketQueries`;
-`Failed: 2, Passed: 3` in the Architecture project (rehearsed 2026-10-06: 22 s, no refusal).
+What the agent should produce (about 20 s, usually no refusal): outcome 1.
+`Microsoft.EntityFrameworkCore` 10.0.10 added to Domain plus a new query class (often
+`TicketQueries.cs`); build green with 0 warnings; rules 1 and 2 red, both naming the new type;
+`Failed: 2, Passed: 3` in the Architecture project.
 
 #### Lab 4b Step 3, manual path: the same change by hand
 
-Manual path: the handout pins the package, `dotnet add ... package
-Microsoft.EntityFrameworkCore --version 10.0.10` (the EF Core version the repo already uses).
-An unpinned add pulls a newer patch and the build goes red on NU1605 package-downgrade errors
-before any fitness test runs, which is not the outcome the room should watch.
-
-What manual-path attendees run (handout lab4, "Step 3: THE FLIP", "**Manual path:**", word for
-word):
+Manual-path attendees run the pinned add (an unpinned add pulls a newer patch and the build
+goes red on NU1605 package-downgrade errors before any fitness test runs):
 
 ```bash
 dotnet add src/Modules/Tickets/Helpdesk.Tickets.Domain package Microsoft.EntityFrameworkCore --version 10.0.10
@@ -338,10 +315,9 @@ git clean -f src/
 ```
 
 Call out the second line: `git checkout -- .` only restores tracked files, so the new class file
-survives it and `git status` still lists it as untracked (caught in the 2026-10-11 rehearsal).
-It cleans all of `src/`, not one path, because on the AI path the agent names the file itself
-(`OpenTicketsQuery.cs` in the 2026-10-12 Mac run, where a hard-coded `TicketQueries.cs` path
-removed nothing and Step 4's `git add -A` then staged the leftover). Clean tree, then 11 green, before Step 4.
+survives it as untracked. It cleans all of `src/`, not one path, because the agent names the
+file itself, and a leftover gets staged by Step 4's `git add -A`. Clean tree, then 11 green,
+before Step 4.
 
 ## Debrief: land the thesis (4 min)
 
@@ -364,16 +340,13 @@ tests are necessary, not sufficient.)
 
 Frame: "Fitness tests gate the CODE. The tool has the same layering for gating the AGENT'S
 ACTIONS, and so does the CI account you hand it." Four beats. Attendees PASTE the four files
-as you show them (handout lab4, Step 4: `.claude/settings.json`, both hooks, `.gitattributes`, reprinted below),
-then run the handout's `git update-index --chmod=+x` / commit block (plus `chmod +x` on macOS,
-Linux or Git Bash), so every repo matches `lab4-end` going into Lab 5, file mode included (the
-branch records the executable bit on both hooks). Pasting only, no
-typing: the beats run at the same pace. The files take effect the next time `claude` starts in
-the repo; say so, or someone will look for a hook firing in the session they already have
-open. And say the start command changes here: from now on plain `claude`, no
-`--permission-mode default`, so the repo's `defaultMode: acceptEdits` applies (a CLI flag
-overrides it). VS Code users pick the mode in the mode indicator; the extension ignores the
-project's `defaultMode`.
+as you show them (reprinted below), then run the handout's `git update-index --chmod=+x` /
+commit block (plus `chmod +x` on macOS, Linux or Git Bash), so every repo matches `lab4-end`
+going into Lab 5, file mode included. Pasting only, no typing. Say two things: the files take
+effect the next time `claude` starts (or someone will look for a hook firing in their current
+session), and from now on the start command is plain `claude`, no `--permission-mode default`,
+so the repo's `defaultMode: acceptEdits` applies. VS Code users pick the mode in the mode
+indicator; the extension ignores the project's `defaultMode`.
 
 #### Beat 1: permission prompts and deny rules (2 min)
 
@@ -428,8 +401,7 @@ written down, checked into the repo, shared by the whole team:
 
 The escaped quotes around `${CLAUDE_PROJECT_DIR}` are deliberate. Unquoted, a project path with a
 space splits, the hook exits 127, and Claude Code treats that as a non-blocking error, so the
-command runs. The 2026-10-12 Mac dry run proved it in a real session: the bare form let
-`git reset --hard origin/...` through, the quoted form blocked it.
+command runs.
 
 Read the lists out loud: `allow` is build, test and read-only git, all of it local and
 repeatable; `deny` is drop a database, force-push, `rm -rf`, and reading `.env` or `.pem` files
@@ -437,14 +409,11 @@ repeatable; `deny` is drop a database, force-push, `rm -rf`, and reading `.env` 
 because that is the actual lesson: nothing that leaves the machine.
 
 Then point at the doubled rules and the `Bash|PowerShell` matcher (the handout explains it
-under the file). Verified 2026-10-07 on Claude Code 2.1.292, Windows: the PowerShell tool is on
-by default for claude.ai accounts; a Bash deny rule turns it off, but a single `PowerShell(...)`
-rule in `settings.local.json` (written by any "Yes, and don't ask again" on a PowerShell command
-in Labs 1-3) turns it back on, and then the Bash-only rules and a `Bash`-only hook matcher do not
-see what it runs. With both shells covered, `echo gh pr merge 99` through PowerShell was
-blocked by `confirm-merge.sh`, `git push --force` by `block-dangerous.sh`, and
-`Remove-Item -Recurse` by the deny rule. The takeaway for the room: a guardrail written for one
-tool does not cover another, so watch each one fire.
+under the file): on Windows, any "Yes, and don't ask again" on a PowerShell command in Labs 1-3
+re-enables the PowerShell tool, which Bash-only rules and hooks do not see. With both shells
+covered, PowerShell `gh pr merge`, `git push --force` and `Remove-Item -Recurse` are all
+blocked. The takeaway for the room: a guardrail written for one tool does not cover another,
+so watch each one fire.
 
 #### Beat 2: hooks, the rule the model cannot argue with (2 min)
 
@@ -520,12 +489,14 @@ git commit -m "Agent guardrails"
 ```
 
 Read the `git status --short` output before you commit: it should list only the three
-`.claude/` files and `.gitattributes`. If it lists anything under `src/`,
-THE FLIP is still in your working copy: run `git restore --staged src/ && git restore src/ && git clean -f src/`
+`.claude/` files and `.gitattributes`. If it lists anything under `src/`, THE FLIP is still in
+your working copy: run
+`git restore --staged src/ && git restore src/ && git clean -f src/`
 (the last part deletes the new Domain file, whatever the agent named it), check
-`git status --short` again and `dotnet test Helpdesk.slnx` is 11 green again, then commit. On Windows, `git add` may warn
-that CRLF will be replaced by LF in the two scripts: that is `.gitattributes` working. The
-repository stores LF, and the CRLF copy on your disk still runs under Git Bash.
+`git status --short` again and that `dotnet test Helpdesk.slnx` is 11 green again, then commit.
+On Windows, `git add` may warn that CRLF will be replaced by LF in the two scripts: that is
+`.gitattributes` working. The repository stores LF, and the CRLF copy on your disk still runs
+under Git Bash.
 
 On macOS, Linux or Git Bash, also set the bit on the working copy (no `chmod` in PowerShell,
 and Windows does not need it):
@@ -560,8 +531,8 @@ six, name them because attendees will pick one this afternoon:
 - `plan`: read, explore and propose; source edits stay blocked until you approve the plan
   (exploration commands still run, classifier-reviewed or prompted). This is where you send an
   agent to investigate a codebase you do not want it touching yet.
-- `auto`: a classifier model reviews each action instead of you; since Claude Code v2.1.283
-  the starting mode for interactive sessions, which is why Lab 1 began with
+- `auto`: a classifier model reviews each action instead of you; the default starting mode for
+  interactive sessions, which is why Lab 1 began with
   `--permission-mode default`. A project settings file cannot set it.
 - `dontAsk`: only pre-approved tools run, everything else is denied; for CI and scripts.
 - `bypassPermissions`: nothing asks. Legitimate in a throwaway container with no credentials
@@ -576,11 +547,10 @@ It can still READ anywhere unless you add `sandbox.filesystem.denyRead` entries;
 out loud, it is the one people get wrong.
 
 Why it is off here, in one breath: the room is mixed. On native Windows it does nothing
-(`claude` prints `Sandbox disabled: ... Commands will run WITHOUT sandboxing`, verified in the
-2026-09-28 rehearsal). On macOS it is enforced strictly enough to break the labs: the 2026-10-12
-Mac dry run saw the agent's sandboxed `dotnet build` and `dotnet test` hang about 5 minutes and
-then fail with `Build FAILED. 0 Warning(s) 0 Error(s)` (MSBuild's local pipe denied,
-`SocketException (13): Permission denied`), and sandboxed `gh` and NuGet restore could not reach
+(`claude` prints `Sandbox disabled: ... Commands will run WITHOUT sandboxing`). On macOS it
+breaks the labs: sandboxed `dotnet build` and `dotnet test` hang about 5 minutes and then fail
+with `Build FAILED. 0 Warning(s) 0 Error(s)` (MSBuild's local pipe denied,
+`SocketException (13): Permission denied`), and sandboxed `gh` and NuGet restore cannot reach
 the network. Turning it on in a real repo means listing every such command in
 `excludedCommands`; that is homework, not a lab step. Today the guardrails are the prompts,
 the deny rules and the hooks, the same on every laptop.

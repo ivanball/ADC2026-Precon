@@ -15,11 +15,8 @@ git switch -c main --track origin/lab1-end
 
 ## The lecture code (paste along during the lecture)
 
-The lecture pastes three files before the lab starts. `Result.cs` holds `Result`, `Result<T>`
-and `Error`; `Entity.cs` holds `Entity` and `IDomainEvent`; `Ticket.cs` holds `TicketErrors`,
-the events, `Ticket` down to `Create`, and `ChildTask`. Paste each one when the lecture does;
-if you fell behind, create the ones you do not already have before Step 1, because the tests
-need them to compile.
+The lecture pastes these three files. Paste each one when the lecture does; if you fell
+behind, create the missing ones before Step 1, because the tests need them to compile.
 
 **File: `src/Helpdesk.SharedKernel/Result.cs` (new file)**
 

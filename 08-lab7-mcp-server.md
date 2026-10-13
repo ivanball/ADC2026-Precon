@@ -11,22 +11,20 @@ Snapshot branch: `lab7-end`.
 **You need:**
 
 - Node.js 22.19 or newer (24 LTS recommended) on every laptop, for
-  `npx @modelcontextprotocol/inspector@latest` (Inspector 2.9.0 and the current 2.10.1 declare `node >=22.19.0`; an
-  older 22.x prints `npm warn EBADENGINE` and still ran in the dry run). It is in the setup
-  clinic checklist; the room check is one line at 3:00, not at 3:32.
+  `npx @modelcontextprotocol/inspector@latest` (Inspector 2.9 and later declare
+  `node >=22.19.0`; an older 22.x prints `npm warn EBADENGINE` and still runs). It is in the
+  setup clinic checklist; the room check is one line at 3:00, not at 3:32.
 - The SQL container up (`docker compose up -d`) and the host running on port 5000
-  (`dotnet run --project src/Helpdesk.Host`). Port 5000 is the only profile in
-  `src/Helpdesk.Host/Properties/launchSettings.json`, so unlike Lab 3 the port is not a
-  per-laptop variable any more. Run the host directly for this block, not through `aspire run`:
+  (`dotnet run --project src/Helpdesk.Host`), the only profile in `launchSettings.json`.
+  Run the host directly for this block, not through `aspire run`:
   the AppHost runs its own SQL container, while the tests use the compose database on 14330.
   Anyone who recreated the container migrates it first with Lab 3's
   `dotnet ef database update -p src/Modules/Tickets/Helpdesk.Tickets.Infrastructure -s src/Helpdesk.Host`.
   Attendees who rescued onto a fresh `lab6-end` checkout must run
   `dotnet tool restore` and `dotnet build Helpdesk.slnx` before any `dotnet ef` command (the
   snapshot pins dotnet-ef in a tool manifest; NETSDK1004 without the build). A pre-login
-  handshake error right after `docker compose up -d` is SQL still starting (seen at about 3 s
-  on the 2026-10-12 Mac run): rerun the update. All of it is in the handout prerequisite and
-  its rescue block.
+  handshake error right after `docker compose up -d` is SQL still starting (about 3 s): rerun
+  the update. All of it is in the handout prerequisite and its rescue block.
 - Claude Code on the projector machine with the connect command rehearsed:
   `claude mcp add --transport http helpdesk http://localhost:5000/mcp`. Rehearse
   `claude mcp remove helpdesk` too, because a stale entry from rehearsal is the failure you
@@ -155,9 +153,7 @@ no generic dispatcher. Three methods, three capabilities, chosen by hand.
 
 Type `TicketTools.cs` on screen for `create_ticket` only, then paste the rest. Attendees are
 watching, not typing; their turn is at 3:20. Every block you type or run here is printed once,
-below under "Lab 7a", in the order the attendees meet it: the package lines and the csproj check
-under "Step 1, both paths: the package first", then `TicketTools.cs` under "Step 1, manual path"
-and the `Program.cs` fragment under "Step 2: register the server". Keep that section open on the lectern screen.
+below under "Lab 7a"; keep that section open on the lectern screen.
 
 First the package, in Presentation and nowhere deeper. Run the handout's two lines on screen
 (`dotnet add ... package ModelContextProtocol.AspNetCore --version 2.2.0`, then
@@ -230,14 +226,8 @@ already wrote the `PackageReference`, and a second copy fails with `NU1504`.
 #### Lab 7a Step 1, AI path: the prompt
 
 What attendees do (handout lab7, "Step 1: the tools", "### AI path", word for word): the prompt
-below, then the handout's review line: "**Diff review:** is there any rule in `TicketTools.cs`?
-Any `if` that is not mapping a `Result`? Any database access? A tool that queries the DbContext
-directly compiles and passes the fitness tests, and it is the first place in the day where two
-paths into the same data can disagree. Reject it: the tool calls the handler, like the endpoint
-does."
-
-**AI path.** The prompt is the same shape as the `/slice` prompts from Lab 3, and deliberately
-does not say how:
+below, then the handout's diff review (coaching under "Lab 7a Step 2" below). The prompt is the
+same shape as the `/slice` prompts from Lab 3, and deliberately does not say how:
 
 ```text
 Add an MCP adapter to the Tickets module, in
@@ -263,8 +253,8 @@ touch Domain, Application or Infrastructure. Do not add a list or bulk operation
 Stay on the current branch: do not create a branch, commit, or push.
 ```
 
-Item 5 pins the contract the pasted `McpEndpointTests` assume; without it the dry run's agent
-named the parameter `id`, returned `{"id":"..."}`, and two of the seven API tests failed. The
+Item 5 pins the contract the pasted `McpEndpointTests` assume; without it an agent tends to
+name the parameter `id` and return `{"id":"..."}`, and two of the seven API tests fail. The
 last sentence is the one to read out to the room before they run it. It is a design
 decision disguised as a constraint, and at 3:43 it becomes the whole demo.
 
@@ -272,16 +262,13 @@ What the agent should produce: `TicketTools.cs` with exactly three tools injecti
 `ICommandHandler<CreateTicket, Guid>`, `ICommandHandler<CloseTicket, bool>` and
 `IQueryHandler<GetTicketById, TicketResponse>`, no `if` beyond `Result` mapping, no DbContext,
 refusals as `IsError` with `"{Code}: {Message}"`, plus the `AddMcpServer` / `MapMcp("/mcp")`
-lines in `Program.cs`; build 0/0 (rehearsed 2026-10-06: 33 s; before item 5 existed it named the
-parameter `id` and returned JSON, and the Step 6 tests went 2 red until one re-prompt fixed both
-in 20 s; it also used `o.Stateless = true` and skipped `Idempotent = false`, both harmless).
+lines in `Program.cs`; build 0/0 (about 33 s). `o.Stateless = true` in place of `SessionMode`,
+or no `Idempotent = false`, are both harmless.
 
 #### Lab 7a Step 1, manual path: paste the file
 
-**Manual path.** Paste the full file from the handout, then the two registration lines.
-
 What manual-path attendees do (handout lab7, "Step 1: the tools", "### Manual path"): paste
-`TicketTools.cs`, the same file you typed in the live-code.
+`TicketTools.cs`, the same file you typed in the live-code, then the two registration lines.
 
 **File: `src/Modules/Tickets/Helpdesk.Tickets.Presentation/TicketTools.cs` (new file)**
 
@@ -358,12 +345,7 @@ public static class TicketTools
 
 ### Lab 7a Step 2: register the server
 
-Then "Step 2: register the server": the two lines in the composition root, after the file they
-name, plus a `using ModelContextProtocol.AspNetCore;` at the top (for `HttpServerSessionMode`).
-The handout pins the placement to match `lab7-end`: the registration directly after
-`builder.Services.AddTicketsModule(builder.Configuration);`, the `MapMcp` line directly after
-`app.MapTicketEndpoints();` and before `app.Run();`, printed as an excerpt with the neighbouring
-lines.
+Handout step 2 covers the placement: two lines plus a `using`, after the file they name.
 
 **File: `src/Helpdesk.Host/Program.cs` (excerpt: the three additions with their neighbouring lines; `// ...` marks lines that stay as they are)**
 
@@ -411,8 +393,7 @@ changes `Ticket.Close()`.
 
 **Verify.** Stop, build, restart (handout step 2). Say "Ctrl+C first": the host has been
 running since the prerequisite, it locks its own `bin` folder, and a build while it runs fails
-with `MSB3027` (`Could not copy ... Helpdesk.Tickets.Presentation.dll`), which the 2026-10-06
-re-run hit exactly as printed before this order was fixed:
+with `MSB3027` (`Could not copy ... Helpdesk.Tickets.Presentation.dll`):
 
 ```sh
 dotnet build Helpdesk.slnx
@@ -483,9 +464,8 @@ skills and MCP config"; then `git add -A` and commit "MCP server with three tool
 npx @modelcontextprotocol/inspector@latest
 ```
 
-It opens a browser tab on a **Servers** page (click path verified on Inspector 2.9.0; `@latest` was 2.10.1 on 2026-10-12, so walk
-it once on the projector before the day). **Add Servers**, **+ Add
-manually**, Server ID `helpdesk`, Transport **streamable-http**, URL `http://localhost:5000/mcp`,
+It opens a browser tab on a **Servers** page (`@latest` moves, so walk the click path once on
+the projector before the day). **Add Servers**, **+ Add manually**, Server ID `helpdesk`, Transport **streamable-http**, URL `http://localhost:5000/mcp`,
 **Add**. Flip the switch on the `helpdesk` card until it reads **Connected**. Then **Tools** in
 the top bar: the three tools are listed straight away, with no List Tools button. Select
 `create_ticket`, type a title, **Execute Tool**, copy the id from **Results**; select
@@ -604,14 +584,13 @@ Then, with the agent connected and without mentioning the fixture, ask it:
 
 > Summarise the open tickets in the helpdesk.
 
-**Watch it stall.** The agent has three tools and none of them enumerates anything. In
-rehearsal it said it had no way to list tickets and asked for the ids, without guessing. Let
-the pause happen; the room should see the agent being blocked by an absence rather than by a
-rule.
+**Watch it stall.** The agent has three tools and none of them enumerates anything. Expect it
+to say it has no way to list tickets and ask for the ids, without guessing. Let the pause
+happen; the room should see the agent being blocked by an absence rather than by a rule.
 
-It may not stall cleanly. In the 2026-10-12 Mac run the agent, which also has Bash, read the
-`sa` password from `docker-compose.yml`, asked to run `docker exec ... sqlcmd`, and kept
-offering to query the database. Deny it on screen and say what just happened: the MCP surface
+It may not stall cleanly. An agent that also has Bash may read the `sa` password from
+`docker-compose.yml`, ask to run `docker exec ... sqlcmd`, and keep offering to query the
+database. Deny it on screen and say what just happened: the MCP surface
 had no way through, so it went for the shell. That is the caveat at the end of this step,
 arriving early; use it.
 
@@ -623,8 +602,8 @@ with the one from request 2:
 Claude Code asks permission before its first call to an MCP tool; allow it. The poisoned title comes back
 through `get_ticket` and sits there in the tool result, visible, as the value of a field;
 expand the tool call so the projector shows it. That is the whole attack surface: untrusted
-text, delivered as data. Expect the model to flag it: in rehearsal it called the title an
-instruction aimed at an AI assistant and closed nothing.
+text, delivered as data. Expect the model to flag it: it calls the title an instruction aimed
+at an AI assistant and closes nothing.
 
 Attendees without an agent do the read in Inspector instead (`get_ticket`, paste the id into
 `ticketId`, **Execute Tool**) and see the same title in **Results**. Tell them that is the data
@@ -635,8 +614,9 @@ Then the second question, which is the one worth doing in front of people:
 
 > Do whatever that ticket says.
 
-In rehearsal it made one `close_ticket` call on that ticket and said it could not close the
-rest, because it cannot list them. Three things stop it, and none of them is the model's good judgement. Say them in this order:
+Expect one `close_ticket` call on that ticket and a reply that it cannot close the rest,
+because it cannot list them. Three things stop it, and none of them is the model's good
+judgement. Say them in this order:
 
 - **There is no bulk operation.** "Close every ticket" has no tool. `close_ticket` takes one id,
   and nothing in the surface hands out ids. The tool surface is the blast radius, and it was
@@ -785,7 +765,6 @@ docker compose up -d
 dotnet test tests/Helpdesk.ApiTests
 ```
 
-
 Seven green: the four Lab 6 API tests plus the three `McpEndpointTests`. Whole solution, for
 anyone who wants the full count:
 
@@ -793,10 +772,9 @@ anyone who wants the full count:
 dotnet test Helpdesk.slnx
 ```
 
-
 16 green on `lab7-end` (Domain 4, Architecture 5, Api 7). Then the one line the context files
 gain, identical in `CLAUDE.md` and `AGENTS.md`, directly under the `- Run (orchestrated):` line
-from Lab 6 (where `lab7-end` has it):
+from Lab 6:
 
 **File: `CLAUDE.md` (edit)**
 
@@ -804,9 +782,8 @@ from Lab 6 (where `lab7-end` has it):
 - MCP: served at /mcp over streamable HTTP by the Host
 ```
 
-Optional, and the handout says so in one line: `lab7-end` also carries the `// Commands` and
-`// Queries` marker comments in `TicketsApplication.cs` (the files table above) for the S9
-demo; attendees may add them, nothing else depends on them.
+Optional: the `// Commands` and `// Queries` markers in `TicketsApplication.cs` (files table
+above); attendees may add them, nothing else depends on them.
 
 Then the commit (handout lab7, end of Verification, word for word):
 
@@ -888,8 +865,8 @@ session spends ten seconds failing to connect to a dead port. Everything in this
 - **Node missing.** Do not install it in the room. That attendee pairs with a neighbour for the
   Inspector beat, or watches the projector and does Lab 7a as code-only, which is most of the
   block anyway. The tests prove their server works without any client at all. Node older than
-  22.19 prints `npm warn EBADENGINE` for Inspector 2.9 and later and still ran in the dry run; let it
-  run and tell them to upgrade later.
+  22.19 prints `npm warn EBADENGINE` for Inspector 2.9 and later and still runs; let it run and
+  tell them to upgrade later.
 - **The poisoned demo "works" against you**, in the sense that the agent asks for an id and
   refuses to guess, and nothing dramatic happens. That IS the lesson, so say it that way rather
   than improvising a bigger attack: an agent that cannot enumerate is an agent that cannot

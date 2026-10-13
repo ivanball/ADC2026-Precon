@@ -63,13 +63,12 @@ is an autocomplete with good marketing. Today is the whole loop."
 
 ### The app's shape (1 min, one paragraph)
 
-Keep this short - it is the app's shape, not the day's subject. The thing we build is a modular
-monolith: one deployable, with module boundaries the compiler enforces, a database per module,
-and contracts rather than shared internals between them. That is the professional default in
-2026 because it keeps extraction later a move rather than a rewrite, and the wrap clip shows
-exactly that move happening. It also happens to be the codebase shape an agent performs best
-in, which is the next beat. Do not defend it here; Labs 1, 2 and 4 make it concrete and the
-arguments land better with code on screen.
+The thing we build is a modular monolith: one deployable, with module boundaries the compiler
+enforces, a database per module, and contracts rather than shared internals between them. That
+is the professional default in 2026 because it keeps extraction later a move rather than a
+rewrite, and the wrap clip shows exactly that move happening. It also happens to be the codebase
+shape an agent performs best in, which is the next beat. Do not defend it here; Labs 1, 2 and 4
+make it concrete.
 
 ### The agent is a very fast new hire (4 min)
 
@@ -103,7 +102,7 @@ bit me in production.
 ### Agent failure bingo (45 s)
 
 Bridge from the honest thing: "So let us make a game of it." Phones up, photo of the slide:
-nine real failure modes (phantom fix, the test that changed, confident wrong API, helpful
+eight real failure modes (phantom fix, the test that changed, confident wrong API, helpful
 bulldozer, invented config key, scope creep with a reason, vacuous test, quiet drift) plus the
 free square. Spot one in your own session, note the square and the time; a full row with the
 evidence still on screen wins at the 4:50 debrief in S9. When one happens on the projector
@@ -117,11 +116,10 @@ One slide, deliberately. Two different jobs share the word "agent":
 - **Building agents into your software** - agent frameworks in your own app, agent-to-agent
   protocols, multi-agent orchestration. That is a different day and a different workshop.
 
-Name the pointer out loud so nobody feels short-changed: if that is what you came for, the
-Microsoft Agent Framework 1.0 docs and the A2A protocol spec are where to start, and that
-material is Workshop B territory, not this room. Lab 7 is the one place the two touch: we host
-an MCP server inside the app, which is how you make your software legible to somebody else's
-agent. That is an adapter, not an orchestration story.
+Name the pointer out loud: if that is what you came for, the Microsoft Agent Framework 1.0 docs
+and the A2A protocol spec are where to start (Workshop B territory, not this room). Lab 7 is the
+one place the two touch: we host an MCP server inside the app, which is how you make your
+software legible to somebody else's agent. That is an adapter, not an orchestration story.
 
 ### What moved this year (90 s)
 
@@ -146,8 +144,7 @@ the tools move again by spring, the habits do not. Re-check the slide the week o
   repo's `acceptEdits` default applies.
 - **Permission prompts are part of the teaching, not friction.** When the agent asks, read what
   it is asking for. Half of today's lessons are in those prompts.
-- Interrupt me. A question during a lab is worth more than a question in the hallway. And keep
-  the bingo card handy.
+- Interrupt me. A question during a lab is worth more than a question in the hallway.
 - Close with the check: thumbs up when `claude --version` and `docker ps` both answer; thumbs
   sideways pair with a neighbor until the 10:05 break, and a TA goes to each. Docker failing does
   not block Lab 1.
@@ -167,7 +164,7 @@ the tools move again by spring, the habits do not. Re-check the slide the week o
   are the two that must survive, and the Manual-mode line on the last slide is never cut; Lab 1
   starts on time regardless.
 - **Room is quiet / no energy:** skip the show of hands, keep the map short, get to the
-  keyboard early. Lab 1 can absorb five extra minutes better than S1 can spend them.
+  keyboard early.
 - **Setup clinic overran and people are still installing:** start anyway, say helpers stay on
   it through this block, and remind them Lab 1's first ten minutes need only a terminal, Git
   and a text editor.

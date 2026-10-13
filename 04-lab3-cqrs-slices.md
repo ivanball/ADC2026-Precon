@@ -504,22 +504,9 @@ dotnet ef migrations add Initial -p src/Modules/Tickets/Helpdesk.Tickets.Infrast
 dotnet ef database update -p src/Modules/Tickets/Helpdesk.Tickets.Infrastructure -s src/Helpdesk.Host
 ```
 
-The compose line is a no-op for anyone whose container has been up since Lab 1; `database
-update` needs it. The build is for the catch-up attendee on a fresh `lab2-end` clone: `dotnet
-ef` reads the restored project assets, and on a never-built clone it stops with `NETSDK1004`
-(assets file `project.assets.json` not found).
-
-At a table (the handout carries this line): `database update` failing with "...an error
-occurred during the pre-login handshake" means SQL Server is still starting, up to about 20 s
-after `docker compose up -d` and longest on Apple Silicon under emulation (the 2026-10-12 Mac
-dry run hit it on a cold container). Wait and rerun only the update; rerunning
-`migrations add` stops with "The name 'Initial' is used by an existing migration".
-
-At a table (the handout carries this line): no `dotnet ef`? `dotnet tool install --global
-dotnet-ef`. Still "command not found" on a Mac after the install: zsh lacks the tools folder
-on its PATH, so `echo 'export PATH="$PATH:$HOME/.dotnet/tools"' >> ~/.zprofile` and a new
-terminal; on Windows, a new Git Bash window. A warning that the Entity Framework tools version is older than the runtime is
-harmless.
+The build is for the catch-up attendee on a never-built `lab2-end` clone, where `dotnet ef`
+stops with `NETSDK1004`. Handshake, missing `dotnet ef` and "Login failed for user 'sa'"
+fixes are under section D in the handout and in "If things go wrong" below.
 
 Commit the pasted machinery and the migration now, so each slice below lands as its own small
 diff:
@@ -535,74 +522,16 @@ one; they invoke a skill the repo ships.
 
 ### Lab 3a, AI path: the `/slice` skill
 
-What attendees do (handout lab3, "Lab 3a, AI path: the `/slice` skill", then "Lab 3a, manual
-path (no agent)" and "Lab 3a: diff review and verify (both paths)", word for word; the SKILL.md
-file block, the `/slice` text, the fallback prompt, the manual-path blocks and the curls are each
-printed once below, where they happen):
+What attendees do: handout lab3, "Lab 3a, AI path", then "Lab 3a, manual path (no agent)" and
+"Lab 3a: diff review and verify (both paths)". Every block they paste or type is printed once
+below, where it happens.
 
-The repo ships a skill. The frontmatter `description` is the trigger the agent matches against
-what you ask for; the body is the procedure, and it only loads once the skill fires. The same
-SKILL.md format works in GitHub Copilot (which also reads `.claude/skills`) and OpenAI Codex
-(which reads only `.agents/skills`, so copy the folder there for Codex), so the procedure is
-written once for the team, reviewed in a pull request, and versioned like any other file.
-
-[file block `.claude/skills/slice/SKILL.md`, printed next]
-
-Invoke it (if `/slice` is not offered, check that `.claude/skills/slice/SKILL.md` is present in
-the repo folder you opened; skills are discovered per repo):
-
-[the `/slice add a CreateTicket command ...` text, printed below under "Then the attendee types"]
-
-If the agent asks whether to create `tests/Helpdesk.ApiTests` for an API test, answer "not
-yet, 3b creates it": that project does not exist until 3b.
-
-If your agent does not support skills, or `/slice` does not fire, use the same instructions as
-a prompt:
-
-[the "Add a complete vertical slice for creating a ticket" prompt, printed below]
-
-Lab 3a, manual path (no agent): [`CreateTicket.cs`, the two registration lines and the
-`POST /tickets` endpoint, each with its `using` instruction first, printed below under "Lab 3a,
-manual path"]
-
-Lab 3a: diff review and verify (both paths):
-
-**Diff review:** is the handler thin (create via domain, add, save)? Did business logic leak
-into the endpoint or the validator? Validators check input shape; the domain owns the rules.
-
-**Verify.** Start the host in its own terminal and leave it running:
-
-[the `dotnet run --project src/Helpdesk.Host` block, printed below at the top of "Lab 3a verify (both paths)"]
-
-Wait for `Now listening on: http://localhost:5000`, then send the two calls from a second
-terminal:
-
-[the two curls, printed below under "Lab 3a verify (both paths)"]
-
-(`-i` prints the status line, such as `HTTP/1.1 201 Created`, above the body. No output, or
-`curl: (7) Failed to connect`, means the host is not running on 5000; start it and retry.
-Port: 5000, pinned by the `launchSettings.json` edit in paste section C; any other port in
-the `Now listening on` line means that edit was skipped. macOS: `address already in use` for
-port 5000 at startup, or a `403 Forbidden` from a server called `AirTunes`, is AirPlay Receiver
-holding 5000; switch it off (System Settings > General > AirDrop & Handoff) and restart the
-host. Windows: run these from Git Bash as printed; in cmd.exe escape the inner quotes,
-`-d "{\"title\":\"Printer on fire\"}"`; in PowerShell call `curl.exe` explicitly. A
-JsonException complaining that `'` is an invalid start of a value means the shell passed the
-single quotes through; it is not a code bug.)
-
-First call: 201 with `{"id":"..."}`. Second call: 400 with `Tickets.Validation.EmptyTitle`.
-Console: the logging decorator line for both. Then stop the host with Ctrl+C: a running host
-locks its build output on Windows, and the 3b build fails on it.
-
-[the "CreateTicket slice" commit block, printed below at the end of "Lab 3a verify (both paths)"]
-
-What the agent should produce: one new file `Application/Tickets/CreateTicket.cs` (command,
-thin handler `Ticket.Create` -> `tickets.Add` -> `SaveChangesAsync`, shape-only validator), its
-registration in `TicketsApplication.cs` and `POST /tickets` in `TicketEndpoints.cs`; nothing in
-SharedKernel, Domain or the tests (rehearsed 2026-10-06: 39 s, the skill fired and quoted its
-own steps, then asked whether to create `Helpdesk.ApiTests`; the error codes and the
-`{ "id": ... }` body are pinned in the `/slice` text because an unpinned run invented
-`Tickets.TitleRequired` and a bare-string body).
+What the agent should produce (about 40 s): one new file `Application/Tickets/CreateTicket.cs`
+(command, thin handler `Ticket.Create` -> `tickets.Add` -> `SaveChangesAsync`, shape-only
+validator), its registration in `TicketsApplication.cs` and `POST /tickets` in
+`TicketEndpoints.cs`; nothing in SharedKernel, Domain or the tests. The error codes and the
+`{ "id": ... }` body are pinned in the `/slice` text; unpinned, the agent invents its own codes
+and a bare-string body.
 
 **File: `.claude/skills/slice/SKILL.md` (new file)**
 
@@ -673,9 +602,9 @@ manual path and the `CloseTicketTests.cs` paste in 3b works on either. If an age
 whether to create `tests/Helpdesk.ApiTests` (SKILL.md step 6 points there), the answer is "not
 yet, 3b creates it"; the handout says the same.
 
-The point to land while they run it: the long prompt from the old version of this lab is now a
-file in the repo, under review, in version control, shared by the whole team. A prompt somebody
-retypes from memory drifts; a skill does not.
+The point to land while they run it: the long prompt is now a file in the repo, under review,
+in version control, shared by the whole team. A prompt somebody retypes from memory drifts; a
+skill does not.
 
 Manual path (and the fallback if the skill does not fire): the same instructions as a prompt,
 verbatim on the handout.
@@ -702,7 +631,7 @@ domain, save)? Did business logic leak into the endpoint or validator?
 
 What manual-path attendees do (handout lab3, "Lab 3a, manual path (no agent)", word for word):
 the three blocks below, in this order. The two by-hand steps attendees miss are the two `using`
-lines (each a CS0246 when skipped, rehearsed), so the handout puts each one BEFORE the block that
+lines (each a CS0246 when skipped), so the handout puts each one BEFORE the block that
 needs it; point at them from the front.
 
 No agent, or neither the skill nor the prompt works: create the slice by hand, mirroring the
@@ -783,8 +712,7 @@ Then the same diff review and verify as the AI path, and commit.
 
 ### Lab 3a verify (both paths)
 
-Start the host in its own terminal and leave it running (every table, both paths; the
-2026-10-08 rehearsal skipped this and got two blank lines from the curls):
+Start the host in its own terminal and leave it running (every table, both paths):
 
 ```bash
 dotnet run --project src/Helpdesk.Host
@@ -801,22 +729,23 @@ curl -sS -i -X POST localhost:5000/tickets -H "content-type: application/json" -
 body; `-S` keeps curl's error visible under `-s`. The second call returns 400 with
 `Tickets.Validation.EmptyTitle`: the validator answers first.
 
-Three traps to call out from the front. No output at all, or `curl: (7) Failed to connect`,
-means nothing is listening on 5000: the host is not running (or is on another port), not a
-code bug (found in the 2026-10-08 rehearsal, where plain `-s` printed two blank lines). The port is 5000 only if the attendee pasted the
-`launchSettings.json` edit in the plumbing beat; a host that prints another port (whatever
-`dotnet new web` chose, for example 5139) means that file was skipped, and it has to be fixed
-now, because Labs 6 and 7 hard-code 5000. On a Mac, a host that dies with `address already in
-use` on 5000, or curls answered `403 Forbidden` by `Server: AirTunes`, is AirPlay Receiver:
-System Settings > General > AirDrop & Handoff > AirPlay Receiver off, then restart the host. And on Windows these curls
-are bash-quoted, so Git Bash runs them as printed but cmd.exe needs the inner quotes escaped
+Traps to call out from the front. No output at all, or `curl: (7) Failed to connect`, means
+nothing is listening on 5000: the host is not running (or is on another port), not a code bug.
+The port is 5000 only if the attendee pasted the `launchSettings.json` edit in the plumbing
+beat; a host that prints another port (whatever `dotnet new web` chose, for example 5139) means
+that file was skipped, and it has to be fixed now, because Labs 6 and 7 hard-code 5000. On a
+Mac, a host that dies with `address already in use` on 5000, or curls answered `403 Forbidden`
+by `Server: AirTunes`, is AirPlay Receiver: System Settings > General > AirDrop & Handoff >
+AirPlay Receiver off, then restart the host. On Windows these curls are bash-quoted, so Git
+Bash runs them as printed but cmd.exe needs the inner quotes escaped
 (`-d "{\"title\":\"Printer on fire\"}"`) and PowerShell needs `curl.exe` spelled out (bare
 `curl` aliases to Invoke-WebRequest on Windows PowerShell). A body that reaches the endpoint
 starting with `'` means the shell passed the single quotes through: JsonException, not a code
 bug.
 
 Watch the console: the logging decorator's line appears for both. "Nobody wrote logging in the
-handler. That is the pipeline paying rent."
+handler. That is the pipeline paying rent." Then Ctrl+C the host: a running host locks its
+build output on Windows, and the 3b build fails on it.
 
 Then the commit (handout lab3, end of "Lab 3a: diff review and verify", word for word):
 
@@ -935,12 +864,9 @@ public sealed class HelpdeskApiFactory : WebApplicationFactory<Program>, IAsyncL
 
 Moment: Lab 3b, an append below the plumbing-beat `Program.cs` edit shown earlier.
 
-`WebApplicationFactory<Program>` needs to SEE `Program`. On the .NET 10 SDK the class
-generated from top-level statements is already accessible, so the factory builds without help
-(confirmed on SDK 10.0.401); older SDKs (.NET 8 and 9) failed here with CS0122, "Program is
-inaccessible due to its protection level". The two lines at the bottom of the host stay
-anyway: harmless, and explicit about what the tests rely on. Mention CS0122 only for anyone on
-an older SDK:
+`WebApplicationFactory<Program>` needs to SEE `Program`. On .NET 10 it already can; the two
+lines at the bottom of the host stay anyway: harmless, and explicit about what the tests rely
+on:
 
 **File: `src/Helpdesk.Host/Program.cs` (append)**
 
@@ -965,10 +891,10 @@ test and nothing else:", word for word):
 > same ticket twice returns 400 with the error code Tickets.AlreadyClosed. Use
 > HelpdeskApiFactory as an IClassFixture. Do not change any file outside tests/Helpdesk.ApiTests.
 
-What the agent should produce: exactly one new file, `tests/Helpdesk.ApiTests/CloseTicketTests.cs`,
-with the two facts and no slice code (rehearsed 2026-10-06: 17 s, `git status` showed only that
-file; its version read the 201 body as a bare `Guid` and the GET body through `JsonDocument`,
-which is fine as long as it matches the 3a response shape).
+What the agent should produce (about 17 s): exactly one new file,
+`tests/Helpdesk.ApiTests/CloseTicketTests.cs`, with the two facts and no slice code;
+`git status` shows only that file. Reading the 201 body as a bare `Guid` or the GET body through
+`JsonDocument` is fine as long as it matches the 3a response shape.
 
 ### Lab 3b Step 3, manual path: paste it
 
@@ -1043,9 +969,8 @@ It fails at `/tickets/{id}/close` with a 404, because the route does not exist. 
 goalposts.
 
 Fact one also reads the ticket back through `GET /tickets/{id}`, which does not exist yet
-either, so Step 5 is TWO slices. This used to be a fast-finisher extra; the 2026-09-28 attendee
-rehearsal showed that anyone treating it as optional ends 3b with fact one still red, so the
-handout now makes it required. Its code is under "Lab 3b Step 5, manual path" below.
+either, so Step 5 is TWO slices, both required: anyone treating the GET as optional ends 3b
+with fact one still red. Its code is under "Lab 3b Step 5, manual path" below.
 
 Then they commit the red test (handout lab3, end of "Step 4: run it RED", word for word):
 
@@ -1058,11 +983,8 @@ git add -A && git commit -m "Close and read-back API test (red)"
 
 ### Lab 3b Step 5, AI path: `/slice` twice
 
-What attendees do (handout lab3, "Step 5: now the two slices", word for word): "The command
-first:" the first `/slice` text below; "Then the query the test reads back through (your first
-read path; no validator):" the second; then: "That last clause is the Lab 2 guardrail one level
-up. "Make the test pass" is the instruction; "make the test green" is an invitation to edit the
-test."
+What attendees do (handout lab3, "Step 5: now the two slices"): the two `/slice` texts below,
+in order.
 
 Step 5, `/slice` twice. CloseTicket first:
 
@@ -1092,16 +1014,14 @@ test green".
 What the agent should produce: first `CloseTicket.cs` + its `AddCommandHandler` registration +
 `POST /tickets/{id:guid}/close` (fact one still red on the missing GET, which proves the second
 slice is required), then `GetTicketById.cs` + `AddQueryHandler` + `MapGet("/tickets/{id:guid}")`;
-the test file untouched both times (rehearsed 2026-10-06: 25 s and 29 s; the agent declined to
-add the GET inside the first slice, "one use case per slice").
+the test file untouched both times (about 25 s and 30 s; the agent declines to add the GET
+inside the first slice, "one use case per slice").
 
 ### Lab 3b Step 5, manual path (no Claude Code)
 
 What manual-path attendees do (handout lab3, "Step 5, manual path: paste the two slices", word
 for word): the blocks below, in this order, AFTER the red run; the test stays first on both
-paths. The 3a `using` lines already cover both files. The reference solution in `lab3-end`
-reuses `ITicketRepository` for the GetTicketById load rather than projecting straight off the
-DbContext; a pure read-path projection is the refinement worth naming out loud if anyone asks.
+paths. The 3a `using` lines already cover both files.
 
 No agent: create both slices by hand. The command first, `Application/Tickets/CloseTicket.cs`:
 
@@ -1295,7 +1215,9 @@ reviewer catching it."
 
 - EF migration failures (SQL container down or still starting, connection string typos) are
   THE risk here. A "pre-login handshake" error right after `docker compose up -d` is a
-  container still starting: wait, rerun only the update.
+  container still starting (up to about 20 s, longest on Apple Silicon): wait, rerun only the
+  update; rerunning `migrations add` stops with "The name 'Initial' is used by an existing
+  migration".
   Fallback: `docker compose up -d` check first; worst case attendees check out `lab3-end` and
   fix their own copy over lunch.
 - "Login failed for user 'sa'" with the container up: something else answered the port. The
@@ -1304,9 +1226,11 @@ reviewer catching it."
   mapping (Docker can bind only IPv6 there and still look healthy in `docker ps`). Fix: use
   the kit's `"14330:1433"` mapping and `Server=localhost,14330` in the connection string,
   then `docker compose up -d --force-recreate` and rerun the update.
-- macOS, `dotnet ef: command not found` right after the global install: zsh does not put
-  `~/.dotnet/tools` on PATH. `echo 'export PATH="$PATH:$HOME/.dotnet/tools"' >> ~/.zprofile`,
-  new terminal.
+- No `dotnet ef`: `dotnet tool install --global dotnet-ef`. Still `command not found` on macOS:
+  zsh does not put `~/.dotnet/tools` on PATH.
+  `echo 'export PATH="$PATH:$HOME/.dotnet/tools"' >> ~/.zprofile`, new terminal; on Windows, a
+  new Git Bash window. A warning that the EF tools version is older than the runtime is
+  harmless.
 - macOS, port 5000 `address already in use` or `403` from `AirTunes`: AirPlay Receiver. Off in
   System Settings > General > AirDrop & Handoff; never move the API off 5000, Labs 6 and 7
   hard-code it.
@@ -1319,8 +1243,6 @@ reviewer catching it."
 - `/slice` does not fire for somebody: their agent did not match the description, or the skill
   folder is not in the repo they opened. Do not debug it in the room; hand them the manual-path
   prompt, which is the same instructions, and move on.
-- CS0122 "Program is inaccessible" in the API tests (older SDKs only; .NET 10 does not raise
-  it): the `public partial class Program { }` append is missing from the host.
 - CS0246 on `CreateTicket` in `TicketsApplication.cs` or `TicketEndpoints.cs` (manual path):
   the `using Helpdesk.Tickets.Application.Tickets;` line is missing; the handout's 3a step
   names it.

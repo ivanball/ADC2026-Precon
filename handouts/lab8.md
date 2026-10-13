@@ -2,8 +2,8 @@
 
 Snapshot branch if you get stuck: `lab7-end`
 Prerequisite: your own repository at the end of Lab 7, plus the starter kit repo cloned next to
-it (step 1 shows how) or open in a browser tab. Nothing here needs the application running or the SQL container. The
-agent path needs your agent's usual network access; the manual path needs nothing.
+it (step 1 shows how) or open in a browser tab. Nothing here needs the application running
+or the SQL container.
 
 **Starting from the snapshot instead of your own work?** Your Lab 5 repository has no snapshot
 branches, so add the workshop repository as a second remote (skip the `remote add` line if
@@ -98,11 +98,10 @@ judge or the adversary wrote:
 git add -A && git commit -m "Eval rubric and grading agents"
 ```
 
-Then start a FRESH `claude` session in the repo (`/exit`, then `claude`). Your repo had no
-`.claude/agents/` folder before this copy, and Claude Code only watches agent folders that
-existed when the session started, so the session you copied them from answers "Agent type
-'rubric-scorer' not found". A fresh session is also the right habit for
-judging: no leftover context from the code you wrote this afternoon.
+Then start a FRESH `claude` session in the repo (`/exit`, then `claude`). Claude Code only
+watches agent folders that existed when the session started, so the session you copied them
+from answers "Agent type 'rubric-scorer' not found". A fresh session is also the right habit
+for judging: no leftover context from the code you wrote this afternoon.
 
 The one line in the rubric that everything else hangs off:
 
@@ -250,17 +249,17 @@ depends on your machine:
   A sentence in a document is not the gate, and the rubric says so ("A statement in a README
   ... does not count"); the honest answer was FLAG with a null score. Rule 1 often leans on
   the same line. Mark both rows and hand the `CLAUDE.md` citation to the verifier with the
-  rest. Do not expect it to throw that citation out: in a rehearsal it only corrected the
-  line number, settled the score itself with `gh api`, and let the 2 stand. Striking the
-  citation is your call at step 5.
+  rest. Do not expect it to throw that citation out: it may only correct the line number,
+  settle the score itself with `gh api`, and let the 2 stand. Striking the citation is your
+  call at step 5.
 - **You caught up from a fresh clone of the workshop repository** (no Lab 5 repository of your
   own): `origin` is the workshop repository, its `main` is not your code, and the agents'
   `gh api` call returns 404 `Branch not protected` (or describes the workshop repository's
   `main`, which is not the branch you are scoring). Rules 1 to 4 then come back FLAG with a
   null score, and the verifier calls the `CLAUDE.md` line about the required check false. Both
-  are right for that clone: no required check gates the code you are scoring. Read the flags as the
-  rubric working, score rule 4 from `ci.yml` with "required" marked unverified, and skip the
-  command below.
+  are right for that clone: no required check gates the code you are scoring. Read the flags
+  as the rubric working, score rule 4 from `ci.yml` with "required" marked unverified, and skip
+  the command below.
 
 Either way, settle it yourself with the command you ran in Lab 5. It should print
 `["build-and-test"]`:
@@ -295,9 +294,9 @@ git commit -am "Plant a weakness: CloseTicketHandler public"
 
 Score again: rule 3 drops to 0 with a citation, and your handlers-are-internal fitness test
 goes red if you run the tests (`Rule4_Handlers_are_internal` if you took Lab 4's manual path;
-on the AI path your agent named it, for example `CommandAndQueryHandlers_MustBeInternal`). Your `path:line` anchors will not match the projector's; the shape will. Do
-not push the branch, and `git switch main` when you are done, so the planted change stays off
-`main`.
+on the AI path your agent named it, for example `CommandAndQueryHandlers_MustBeInternal`).
+Your `path:line` anchors will not match the projector's; the shape will. Do not push the
+branch, and `git switch main` when you are done, so the planted change stays off `main`.
 
 ### Manual path
 
@@ -373,8 +372,8 @@ Two calls you will probably make on rule 4:
   whether "a check enforces it on every merge" still holds for a 2, write down which way you
   went and why, and apply it the same way to every rule whose 2 rests on the required check.
 
-Deciding yourself and totalling by hand are both deliberate. A verifier's CONFIRMED means "I found nothing", not "there is
-nothing", so it authorises nothing on its own. And adding five numbers is exactly the
+Deciding yourself and totalling by hand are both deliberate. A verifier's CONFIRMED means "I
+found nothing", not "there is nothing", so it authorises nothing on its own. And adding five numbers is exactly the
 operation a model does fluently and wrong, which is why the rubric hands the arithmetic back
 to you.
 

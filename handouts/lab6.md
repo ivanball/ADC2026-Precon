@@ -2,13 +2,11 @@
 
 Snapshot branch if you get stuck: `lab6-end`
 Prerequisite: `lab5-end` plus your Lab 5 work. You also need the **Aspire CLI 13.6 or newer**
-(check with `aspire --version`; 13.6 is the current release, the version this lab was
-rehearsed on and the one the AppHost pins; anything before 13.2 has no `agent` command, which step 4 depends on), the
-**Aspire 13.6 templates** (`dotnet new install Aspire.ProjectTemplates::13.6.0`; older
+(check with `aspire --version`; before 13.2 there is no `agent` command, which step 4 needs),
+the **Aspire 13.6 templates** (`dotnet new install Aspire.ProjectTemplates::13.6.0`; older
 templates write a 13.0 AppHost that the 13.6 CLI and its MCP server cannot see), and
-**Docker running**. The `docker compose`
-container from the earlier labs can stay up: the AppHost starts a second SQL container on a
-different port by design.
+**Docker running**. The `docker compose` container from the earlier labs can stay up: the
+AppHost starts a second SQL container on a different port by design.
 
 **Starting from the snapshot instead of your own work?** Your Lab 5 repository has no snapshot
 branches, so add the workshop repository as a second remote (skip the `remote add` line if
@@ -72,8 +70,7 @@ Stay on the current branch: do not create a branch, commit, or push.
 
 ### Manual path
 
-Create both projects from the templates and add them to the solution first. Every project
-file, reference and code block below points at them:
+Create both projects from the templates and add them to the solution first:
 
 ```sh
 dotnet new aspire-apphost -o src/Helpdesk.AppHost
@@ -88,15 +85,13 @@ from the Host project reference.
 First check the version on the generated project file. The 13.6 template writes
 `<Project Sdk="Aspire.AppHost.Sdk/13.6.0">` and `<AspireUseCliBundle>true</AspireUseCliBundle>`.
 If yours says `13.0.0`, your templates are old; the file below sets both either way. A 13.0
-AppHost still runs under the 13.6 CLI, but `aspire ps` and the MCP server then find no running
-AppHost, and step 4 has nothing to read.
+AppHost still runs, but `aspire ps` and the MCP server find no running AppHost, and step 4 has
+nothing to read.
 
-The project file also needs a lock-file property, two package references and one project
-reference. The property first: Lab 5 turned lock files on for every project, but the AppHost
-SDK adds a dashboard package for the machine doing the restore (`Aspire.Dashboard.Sdk.win-x64`
-on a Windows laptop, `Aspire.Dashboard.Sdk.osx-arm64` on an Apple Silicon Mac), so an AppHost lock file made on your laptop can never match the Linux CI
-runner, and CI's locked-mode restore fails with `NU1004`. The AppHost never ships, so it opts
-out. Replace the generated project file with this one, then delete
+The file also opts the AppHost out of the lock files Lab 5 turned on: the AppHost SDK adds a
+dashboard package for the restoring machine's own platform (`win-x64`, `osx-arm64`), so a lock
+file made on your laptop never matches the Linux CI runner and CI's restore fails with
+`NU1004`. Replace the generated project file with this one, then delete
 `src/Helpdesk.AppHost/packages.lock.json` if a restore already wrote one:
 
 **File: `src/Helpdesk.AppHost/Helpdesk.AppHost.csproj` (new file)**
@@ -137,10 +132,8 @@ out. Replace the generated project file with this one, then delete
 </Project>
 ```
 
-The `MessagePack` pin is a supply-chain story: on Aspire 13.0 the AppHost pulled `MessagePack`
-2.5.192 transitively, that version carries published advisories, and the audit mode you turned
-on in Lab 5 refused the build until it was pinned forward. Aspire 13.6 pulls 2.5.302, which is
-clean, so the pin is now a harmless floor. Keep it. Bump, never suppress.
+Keep the `MessagePack` pin: it holds a transitive dependency above versions with published
+advisories, which the audit mode you turned on in Lab 5 refuses. Bump, never suppress.
 
 Now replace the generated `AppHost.cs` with this:
 
@@ -179,10 +172,8 @@ builder.AddProject<Projects.Helpdesk_Host>("api")
 builder.Build().Run();
 ```
 
-The generated `ServiceDefaults/Extensions.cs` is almost right out of the box. Change two
-things. First, the template maps the health endpoints in Development only, and you want them
-mapped everywhere, because a container probe reads them from outside the process where the
-environment name is whatever the platform set.
+The generated `ServiceDefaults/Extensions.cs` needs two changes. First, map the health
+endpoints in every environment, not just Development (the comment says why):
 
 **File: `src/Helpdesk.ServiceDefaults/Extensions.cs` (excerpt: the health endpoints, mapped in every environment)**
 
@@ -289,9 +280,8 @@ app.Run();
 public partial class Program { }
 ```
 
-The new third `using`, `Microsoft.EntityFrameworkCore`, is what makes `MigrateAsync` resolve: it
-is an extension method, and without the `using` the build fails with `CS1061` on
-`DatabaseFacade`.
+The new third `using`, `Microsoft.EntityFrameworkCore`, is what makes `MigrateAsync` resolve;
+without it the build fails with `CS1061` on `DatabaseFacade`.
 
 Last, both paths: tell the context files the AppHost exists. One identical line in each, directly
 under `- Run:` in the `## Commands` list:
@@ -304,15 +294,14 @@ under `- Run:` in the `## Commands` list:
 
 Add the same line to `AGENTS.md`, in the same place.
 
-What will differ from `lab6-end`, all of it harmless (both paths). The 13.6 templates write a
-few things the snapshot branch does not have; build 0/0 and 13 green either way, and Lab 7 does
-not touch these files:
+What will differ from `lab6-end`, all of it harmless (both paths; build 0/0 and 13 green
+either way, and Lab 7 does not touch these files):
 
 - `src/Helpdesk.AppHost/aspire.config.json` exists only in yours. It tells the Aspire CLI which
   project is the AppHost; every command in this lab passes `--apphost` explicitly anyway.
 - Your AppHost `Properties/launchSettings.json` has its own random ports and no
-  `ASPIRE_DASHBOARD_MCP_ENDPOINT_URL`. Aspire.Hosting 13.4 and later (the AppHost pins 13.6.0)
-  no longer reads that variable, and step 4 reaches the dashboard through `aspire agent mcp`.
+  `ASPIRE_DASHBOARD_MCP_ENDPOINT_URL`. Aspire 13.6 no longer reads that variable; step 4
+  reaches the dashboard through `aspire agent mcp`.
 - `Helpdesk.ServiceDefaults.csproj` keeps the template's `OpenTelemetry.*` 1.17.0 and
   `Microsoft.Extensions.Http.Resilience` / `ServiceDiscovery` 10.10.0, where `lab6-end` has
   1.19.0 and 10.0.0. The 1.19.0 SQL client package you added on top restores and builds clean.
@@ -502,12 +491,10 @@ over the break, or tonight. Either way, read it now.
    Step 3; checkout refuses to switch over uncommitted changes), check out the branch with the
    planted fault, run the API tests while the run is still stopped (a running AppHost locks the
    API's `bin` folder and the test build fails with `MSB3027`), then start it again. Expect two
-   red: both `CloseTicketTests` fail, the two health tests pass. That is the fault proved
-   before you look for it, and the red that step 6 turns green. Your own repository
-   has no `lab6-fault` branch; it lives in the workshop repository, so add that as a second
-   remote named `workshop` and fetch it first (it is public at
-   <https://github.com/ivanball/adc2026-helpdesk>). Skip the `remote add` line if you already
-   have the remote:
+   red: both `CloseTicketTests` fail, the two health tests pass; step 6 turns them green.
+   `lab6-fault` lives in the public workshop repository
+   (<https://github.com/ivanball/adc2026-helpdesk>), so add it as a second remote named
+   `workshop` and fetch it first. Skip the `remote add` line if you already have the remote:
 
    ```sh
    git status
@@ -560,10 +547,9 @@ over the break, or tonight. Either way, read it now.
 
    VS Code reads `.vscode/mcp.json` in a different shape: a top-level `servers` key and
    `"type": "stdio"` on the entry; `aspire agent init --mcp` writes it if you pick VS Code.
-   Restart your agent after the file
-   appears, and confirm the `aspire` server is listed and connected (`/mcp` in Claude Code)
-   before asking anything. A disconnected server gives you an agent reasoning from source
-   code, which sounds exactly as confident and is not the exercise.
+   Restart your agent after the file appears, and confirm the `aspire` server is listed and
+   connected (`/mcp` in Claude Code) before asking anything. A disconnected server gives you an
+   agent reasoning from source code, which sounds exactly as confident and is not the exercise.
 
 4. Ask it, without telling it where the bug is:
 
@@ -717,15 +703,14 @@ Work on a scratch branch: the deploy target is demo code, and Labs 7 and 8 build
    builder.Build().Run();
    ```
 
-   The `// NEW` markers are only there to show you what changed; leave them out or keep them,
-   the build does not care. On the AI path your step 1 file reads differently, so do not paste
+   The `// NEW` markers are optional. On the AI path your step 1 file reads differently, so do not paste
    over it: add the same three lines in the same two places (the environment right after
    `CreateBuilder`, `.WithExternalHttpEndpoints()` as the first call on `api`). Either way,
    `git diff src/Helpdesk.AppHost/AppHost.cs` should show only additions (the three marked
    lines and one blank line) and nothing removed.
 
-3. Check the pipeline before spending anything, now that step 2 is saved. This is offline and
-   touches no cloud resource:
+3. Check the pipeline before spending anything. This is offline and touches no cloud
+   resource:
 
    ```sh
    aspire deploy --apphost src/Helpdesk.AppHost --list-steps
@@ -791,8 +776,8 @@ Four green: the two `CloseTicketTests` from Lab 3 and two new health-endpoint te
 
 Whole solution: 13 green (Domain 4, Architecture 5, Api 4).
 
-And in the dashboard after the fix and a restart of the run: the Error log is gone, and the close request's trace now
-carries an `UPDATE` span it did not have before. Two kinds of evidence, and the telemetry one
+And in the dashboard after the fix and a restart of the run: the Error log is gone, and the
+close request's trace now carries an `UPDATE` span it did not have before. Two kinds of evidence, and the telemetry one
 is the one that would have caught this in production, where nobody had written the test.
 
 Worth noticing: the five architecture tests pass on **both** branches. A swallowed exception
@@ -807,9 +792,8 @@ cannot; telemetry catches what nobody wrote a test for.
 - **Apple Silicon: the `sql` resource keeps restarting or exits.** Docker Desktop's Rosetta
   setting is off and the amd64-only SQL Server image cannot run. Settings > General > "Use
   Rosetta for x86_64/amd64 emulation on Apple Silicon", restart Docker, run the AppHost again.
-- **`Unrecognized command or argument 'agent'`.** Your Aspire CLI predates 13.2. These
-  commands moved from `aspire mcp` to `aspire agent` in 13.2, so an older CLI has
-  one spelling, the other, or neither. Update the CLI; there is no workaround for step 4.
+- **`Unrecognized command or argument 'agent'`.** Your Aspire CLI predates 13.2. Update the
+  CLI; there is no workaround for step 4.
 - **The app runs, but `aspire ps` says "No running AppHost found" and the MCP server lists no
   AppHost.** Your AppHost project still says `Aspire.AppHost.Sdk/13.0.0`. Make it `13.6.0`,
   set `Aspire.Hosting.SqlServer` to `13.6.0`, add `<AspireUseCliBundle>true</AspireUseCliBundle>`
@@ -818,7 +802,7 @@ cannot; telemetry catches what nobody wrote a test for.
   Docker Desktop and re-run; the persistent container lifetime makes the second start seconds.
 - **`sql` and `Tickets` stay Running (Unhealthy) and `api` stays Waiting.** Run
   `docker logs --tail 5 helpdesk-aspire-sql`. If it repeats `Login failed for user 'sa'.
-  Reason: Password did not match`, the data volume is left over from an earlier run (a rehearsal
+  Reason: Password did not match`, the data volume is left over from an earlier run (a practice run
   at home, or an AppHost you rebuilt or recloned). Aspire generated a new `sa` password, stored in
   this AppHost's user secrets, but SQL Server only reads it when it first creates `master`, so the
   old volume keeps the old password. Stop the AppHost (Ctrl+C; the persistent container keeps
@@ -832,7 +816,7 @@ cannot; telemetry catches what nobody wrote a test for.
   docker volume rm helpdesk-aspire-sql-data
   ```
 
-  Start the AppHost again. You lose only the old rehearsal tickets; `Migrations__ApplyOnStartup`
+  Start the AppHost again. You lose only the old practice tickets; `Migrations__ApplyOnStartup`
   rebuilds the schema, and `sql` goes Healthy in about 30 seconds.
 - **Login page with no way in.** You typed the dashboard host name instead of opening the link
   the console printed. The token is in the query string; scroll the terminal up.

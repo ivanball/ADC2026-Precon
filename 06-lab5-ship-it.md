@@ -38,9 +38,9 @@ git switch -c main --track origin/lab4-end
 dotnet tool restore
 ```
 
-`dotnet tool restore` installs the `dotnet ef` version the snapshot pins (from `lab3-end` on
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins. From `lab3-end` on,
 the repository carries a tool manifest, and `dotnet ef` refuses to run until it is restored,
-even with the global tool installed).
+even with the global tool installed.
 
 ## Minute-by-minute
 
@@ -85,16 +85,15 @@ red pull request in step 4, and it changes exactly two files that already exist 
 
 ## Talking points (4 min framing, plus filler during the CI waits)
 
-**The supply-chain beat.** The whole of what used to be a standalone lab, compressed into two
-properties and a commit. Lock files make restore deterministic: `packages.lock.json` records the
-exact resolved graph, and `--locked-mode` in CI fails the restore if anything resolves
-differently from what is committed, which turns "it worked on my machine last Tuesday" into a
-build error with a name. `NuGetAudit`, with `NuGetAuditMode` set to `all` and `NuGetAuditLevel`
-at `low`, raises NU1901-NU1904 on a known-vulnerable package, direct or transitive, and
-because `TreatWarningsAsErrors` is already on (and CI passes `-warnaserror`), that warning
-fails the BUILD instead of scrolling past where nobody reads it. The payoff shape: bumping a package is now a VISIBLE DIFF in a
-lock file, reviewed like any other change, rather than an invisible change in what the build
-downloads.
+**The supply-chain beat.** Two properties and a commit. Lock files make restore deterministic:
+`packages.lock.json` records the exact resolved graph, and `--locked-mode` in CI fails the
+restore if anything resolves differently from what is committed, which turns "it worked on my
+machine last Tuesday" into a build error with a name. `NuGetAudit`, with `NuGetAuditMode` set to
+`all` and `NuGetAuditLevel` at `low`, raises NU1901-NU1904 on a known-vulnerable package, direct
+or transitive, and because `TreatWarningsAsErrors` is already on (and CI passes `-warnaserror`),
+that warning fails the BUILD instead of scrolling past where nobody reads it. The payoff shape:
+bumping a package is now a VISIBLE DIFF in a lock file, reviewed like any other change, rather
+than an invisible change in what the build downloads.
 
 **Why the repository has to be public.** Branch protection is not on the free plan for private
 repositories. That is the only reason today's repository is public, and be blunt about it: this
@@ -134,21 +133,19 @@ name change and moves on; the test names the offender in one line.
 
 Everything runs from the repository root. `<owner>` is the attendee's GitHub account name in
 LOWER CASE, because container registry names must be lower case and the same string is reused
-in step 6. `git branch -M main` comes first: Lab 1's `git init -b main` already named it, but an
-attendee who skipped that flag has `master` (Git for Windows ships `init.defaultBranch=master`)
-and the snapshot branch is `lab4-end`, and whatever gets pushed becomes the default branch, so the protection call on
+in step 6. `git branch -M main` comes first: an attendee who skipped Lab 1's `-b main` has
+`master` (Git for Windows ships `init.defaultBranch=master`), the snapshot branch is
+`lab4-end`, and whatever gets pushed becomes the default branch, so the protection call on
 `branches/main` would hit a branch that does not exist.
 
-The handout now repeats the `<owner>` reminder right above this block: left in, the shell
-reads `<owner>` as a file redirect and fails before `gh` runs ("The system cannot find the file
-specified" in cmd.exe). Say it out loud as well, and that any repo name other than `helpdesk`
-must then be swapped into every later `<owner>/helpdesk` too.
+Say out loud: `<owner>` left in with its angle brackets is a file redirect and fails before
+`gh` runs ("The system cannot find the file specified" in cmd.exe), and any repo name other
+than `helpdesk` must be swapped into every later `<owner>/helpdesk` too.
 
 Attendees who rescued by CLONING the workshop repo already have an `origin`: `gh repo create`
-then prints `X Unable to add remote "origin"` and pushes nothing (Mac dry run, 2026-10-12; any
-OS). `git branch -M main` over the clone's `main` also leaves `main` tracking the workshop repo,
-so step 3's bare `git push` would aim there. The handout gives them this first (tested: clean
-config, `main...origin/main` after the create):
+then prints `X Unable to add remote "origin"` and pushes nothing. `git branch -M main` over the
+clone's `main` also leaves `main` tracking the workshop repo, so step 3's bare `git push` would
+aim there. The handout gives them this first:
 
 ```sh
 git remote rename origin workshop
@@ -171,9 +168,10 @@ Then protection. The body names the one check context from step 3, so the check 
 yet: that is fine and worth naming, because a required check that has never run simply blocks
 the merge until it does.
 
-The handout tells attendees to run this in Git Bash (Terminal on a Mac) from the repository root, replace `<owner>`,
-and paste the whole block including the closing `JSON` line (a partial paste leaves the shell
-waiting at a `>` prompt, `heredoc>` in a Mac's zsh, for the rest of the heredoc; Ctrl+C and paste again).
+The handout tells attendees to run this in Git Bash (Terminal on a Mac) from the repository
+root, replace `<owner>`, and paste the whole block including the closing `JSON` line (a partial
+paste leaves the shell waiting at a `>` prompt, `heredoc>` in a Mac's zsh, for the rest of the
+heredoc; Ctrl+C and paste again).
 
 ```sh
 gh api -X PUT repos/<owner>/helpdesk/branches/main/protection --input - <<'JSON'
@@ -192,8 +190,7 @@ Then the check, from the handout word for word:
 gh api repos/<owner>/helpdesk/branches/main/protection --jq '.required_status_checks.contexts'
 ```
 
-It prints `["build-and-test"]`; before the PUT, the same call answers "Branch not protected"
-(verified on a practice repo 2026-10-07).
+It prints `["build-and-test"]`; before the PUT, the same call answers "Branch not protected".
 
 Read the four keys out loud while it runs. `strict: true` means a branch has to be up to date
 with `main` before it merges, without which two pull requests that are each green can merge
@@ -208,11 +205,8 @@ from memory next week.
 
 ### Step 3, AI path: the agent writes ci.yml
 
-AI path. The prompt is on the handout verbatim; it names the four gates, the service container,
-and the one thing the agent must not do:
-
-What attendees do (handout lab5, "Step 3: let the agent write the CI workflow", "**AI path.**",
-word for word): "The prompt, verbatim:"
+The prompt, verbatim from handout step 3 ("**AI path.**"); it names the four gates, the service
+container, and the one thing the agent must not do:
 
 > Write `.github/workflows/ci.yml` for this repository. One job named `build-and-test` on
 > ubuntu-latest, triggered on pull requests and on pushes to main. Four gates in this order:
@@ -236,23 +230,17 @@ versions did it pick? Compare with the manual-path block (`checkout@v7`, `setup-
 What the agent should produce: `.github/workflows/ci.yml` only (`git status` shows just
 `?? .github/`): one job `build-and-test`, the SQL service on `14330:1433` with a sqlcmd health
 check, `restore --locked-mode`, `build -warnaserror --no-restore`, three named test steps,
-`permissions: contents: read`, no `continue-on-error` (rehearsed 2026-10-06: 30 s, green on
-GitHub in 1m32s, with `checkout@v4` / `setup-dotnet@v4` and the Node.js 20 deprecation
-annotation).
+`permissions: contents: read`, no `continue-on-error`. The agent takes about 30 s; the first
+green run on GitHub about 1.5 min. Expect older action versions (`checkout@v4`,
+`setup-dotnet@v4`) and the Node.js 20 deprecation annotation.
 
 Say the last sentence out loud before they send it. The agent's objective is the gate you name,
 so "make CI pass" and "write a CI workflow that runs these tests" are different instructions,
-and only one of them leaves the tests intact. When they review the diff, have them compare
-action versions with the block below: the dry-run agent picked `checkout@v4` and
-`setup-dotnet@v4`, and the run carried a "Node.js 20 is deprecated" warning, which is the
-agent's training cutoff showing.
+and only one of them leaves the tests intact.
 
 ### Step 3, manual path: paste ci.yml
 
-What manual-path attendees do (handout lab5, "Step 3: let the agent write the CI workflow",
-"**Manual path.**", word for word): "Paste it:" the file below.
-
-**Manual path** (and the reference answer for diff review):
+**Manual path** (handout step 3, "Paste it:"; also the reference answer for diff review):
 
 **File: `.github/workflows/ci.yml` (new file)**
 
@@ -345,10 +333,9 @@ that they read them):
   </PropertyGroup>
 ```
 
-Read the comment out loud and then say why it is phrased that way: MSBuild rejects a double
-hyphen INSIDE an XML comment (MSB4024, and the message is not obvious), so the comment says
-"the force-evaluate switch" rather than spelling the switch. It is a thirty-second story and it
-saves somebody an evening.
+Read the comment out loud and say why it is phrased that way: MSBuild rejects a double hyphen
+INSIDE an XML comment (MSB4024, and the message is not obvious), so the comment does not spell
+the switch. Thirty seconds that saves somebody an evening.
 
 Then the one line the context files gain, identical in both, at the end of the `## Commands`
 list. It goes in BEFORE the commit below, so it lands with the CI push instead of riding along
@@ -396,11 +383,9 @@ repository (both are on the handout). Put the branch line on screen first, befor
 git checkout -b lab5-violation
 ```
 
-The later `git push` and `gh pr create --head lab5-violation` depend on that branch existing.
 Skipped, the commit lands on `main` and the push fails with "src refspec lab5-violation does not
-match any" (caught in the 2026-10-11 rehearsal, when the line lived only in prose). Recovery,
-also on the handout: `git switch -c lab5-violation`, `git branch -f main origin/main`, then the
-push. First, the handler stops being internal, because a concrete type has to be public to be
+match any". Recovery is on the handout: `git switch -c lab5-violation`,
+`git branch -f main origin/main`, then the push. First, the handler stops being internal, because a concrete type has to be public to be
 injected from another assembly:
 
 **File: `src/Modules/Tickets/Helpdesk.Tickets.Application/Tickets/CreateTicket.cs` (edit)**
@@ -440,15 +425,9 @@ gh run list --branch lab5-violation --limit 3
 gh run view <run id> --log-failed
 ```
 
-`gh pr checks --watch` waits for the run, and `build-and-test` ends as fail. The run id is the
-number in the ID column of `gh run list`; paste it into `gh run view` without the angle brackets.
-
-The link `gh pr checks` prints also holds the run id (the number after `/runs/`), but a narrow
-terminal cuts it short, so `gh run list` is the reliable place to read it. Or skip the id:
-`gh run view --log-failed` on its own lets you pick the run from a list.
-
-On the 2026-10-07 practice run the `gh pr checks` table truncated the URL before `/runs/`, so
-the old "number after /runs/" hint left the attendee with no id; `gh run list` fixed it.
+`build-and-test` ends as fail. The run id is the ID column of `gh run list` (handout step 4;
+the URL in `gh pr checks` truncates on a narrow terminal), or bare `gh run view --log-failed`
+picks from a list.
 
 While the run queues, ask the room to predict which gate catches it. The compiler will not: the
 change compiles. The unit tests will not: the domain is untouched. The API tests will not:
@@ -496,7 +475,7 @@ gh pr close lab5-violation
 ```
 
 The fix is a full revert, so the branch now changes nothing, and a squash merge would land an
-empty commit titled after the violation in `main` (the dry run did exactly that). The merge
+empty commit titled after the violation in `main`. The merge
 habit moves to step 5, which has a real change to merge.
 
 ## Instructor demo: agent code review as an advisory check (5 min, no step number)
@@ -581,9 +560,7 @@ deterministic gates block; the agent comments.
 
 ### Step 5: tag a release
 
-First, from the handout word for word: Start from an up-to-date `main`. The violation pull request is closed, so leave its branch
-before you write anything: the three new files, and the agent if you take the AI path, then
-work on `main`.
+First, back to an up-to-date `main` before anyone writes the three new files (handout step 5):
 
 ```sh
 git checkout main && git pull
@@ -648,10 +625,7 @@ the `aspnet` image, not the SDK: no compiler, no source, nothing but what publis
 
 #### Step 5, AI path: the agent writes release.yml
 
-Then the release workflow. AI path prompt:
-
-What attendees do (handout lab5, "Step 5: tag a release", "**AI path** for the release
-workflow:", word for word):
+Then the release workflow. AI path prompt (handout step 5, verbatim):
 
 > Write `.github/workflows/release.yml`. It triggers on pushed tags matching `v*`. It logs in
 > to ghcr.io using the built-in GITHUB_TOKEN and the actor who pushed the tag, then builds the
@@ -663,14 +637,10 @@ workflow:", word for word):
 What the agent should produce: `.github/workflows/release.yml` with `on: push: tags: ["v*"]`
 only, exactly `contents: read` + `packages: write`, a ghcr.io login with `github.actor` /
 `GITHUB_TOKEN`, and a build-push of the root Dockerfile tagged `:${{ github.ref_name }}` and
-`:latest` (rehearsed 2026-10-06: 10 s; it picked `docker/login-action@v3` and
-`build-push-action@v6` and hard-coded the owner, all fine; compare versions with the block
-below as in Step 3).
+`:latest`. About 10 s; older action versions (`docker/login-action@v3`, `build-push-action@v6`)
+and a hard-coded owner are all fine.
 
 #### Step 5, manual path: paste release.yml
-
-What manual-path attendees do (handout lab5, "Step 5: tag a release", "**Manual path:**"):
-paste the file below.
 
 **Manual path:**
 
@@ -717,11 +687,8 @@ jobs:
 
 #### Step 5, both paths: land it, merge, tag
 
-Land the three files through a pull request, like everything since step 3 (the dry run proved
-this path; the files are still untracked at this point, and tagging `main` without them starts
-no release run). They switched to `main` at the top of Step 5, so the block starts with the branch
-(moved there 2026-10-07: before, attendees wrote all three files while still on the closed
-`lab5-violation` branch):
+Land the three files through a pull request, like everything since step 3 (they are still
+untracked here, and tagging `main` without them starts no release run):
 
 ```sh
 git checkout -b ship-image && git add -A && git commit -m "Dockerfile and release workflow" && git push -u origin ship-image
@@ -740,9 +707,6 @@ Merge before the check finishes and GitHub answers "the base branch policy prohi
 merge": that is your step 2 protection working, so wait and run the merge again. `--auto`
 (merge as soon as the check passes) is fine; `--admin` is not, because it uses your owner
 rights to skip the very check you just made required.
-
-Added 2026-10-07: on the practice run the merge went in straight after `gh pr create`, while CI
-was still pending, and hit that refusal.
 
 Attendees TYPE this one. Asked to merge, the agent is refused by their own Lab 4
 `confirm-merge.sh` ("merging can deploy to production"); the handout says so, so nobody
@@ -777,12 +741,10 @@ docker run --rm --platform linux/amd64 -p 8080:8080 ghcr.io/<owner>/helpdesk:v0.
 asks for the amd64 image the CI runner built and runs it under Rosetta; without it Docker looks
 for an arm64 image, finds only amd64 plus a build attestation, and, depending on your Docker
 version, either stops with `no matching manifest for linux/arm64/v8` or pulls the amd64 image
-anyway with a platform-mismatch warning (Docker 29.8 on the 2026-10-12 Mac run). The flag makes
-both behave the same.
+anyway with a platform-mismatch warning. The flag makes both behave the same.
 
-About 103 MB compressed (a few hundred MB on disk after the pull: `docker image ls` showed 367 MB
-on Windows and 250 MB on the Mac, Docker 29.8; quote the compressed number).
-Say the number, it lands better than any slide about layer caching. The container starts
+About 103 MB compressed (`docker image ls` shows a few hundred MB on disk; quote the compressed
+number). Say the number, it lands better than any slide about layer caching. The container starts
 without a database and answers `/health`; the ticket endpoints need a database the container
 can reach (the baked-in connection string says `localhost,14330`, which inside the container
 is the container itself), which is precisely the thing Lab 6 stops doing by hand.
@@ -805,20 +767,19 @@ The first is `200 OK` with the body `OK` (`app.MapGet("/health", () => "OK")` in
 exception. The second takes about 15 seconds (SQL connect timeout; warn the room it is
 not hung) and is a 500 with an empty body (Production, so no developer exception
 page; point at the SQL connection error in the first terminal's log instead), even though the
-compose SQL container is up on the host: the container's `localhost` is itself. That 500 is the bridge into
-Lab 6; say so. Ctrl+C stops the container, `--rm` cleans it up. PowerShell 5.1 users type
+compose SQL container is up on the host: the container's `localhost` is itself. That 500 is the
+bridge into Lab 6; say so. Ctrl+C stops the container, `--rm` cleans it up. PowerShell 5.1 users type
 `curl.exe`.
 
 One fact to state before anyone asks: the package is linked to the public repository and
-inherits its visibility, so it is PUBLIC and anyone can pull it anonymously (the dry run got
-anonymous 200s). Fine for this image, which does carry the workshop `sa` password in
+inherits its visibility, so it is PUBLIC and anyone can pull it anonymously. Fine for this image, which does carry the workshop `sa` password in
 `appsettings.json`, already public in `ci.yml`; say "never ship a real one this way". From a
 private repository the package is private and a teammate's pull is denied until access is
 granted on the package settings page.
 
 ## Verification (attendee, end of step 6)
 
-What attendees run to check they are done (handout lab5, "Verification", word for word):
+What attendees run to check they are done (handout "Verification"):
 
 ```sh
 gh pr checks lab5-violation
@@ -828,8 +789,8 @@ docker pull --platform linux/amd64 ghcr.io/<owner>/helpdesk:v0.1.0
 ```
 
 `gh pr checks` shows per-check status on the violation PR, and `gh run list` the last five
-workflow runs. Done when `gh pr checks` showed `build-and-test` FAILING on the violation and PASSING after the
-fix, and the `docker pull` succeeds.
+workflow runs. Done when `gh pr checks` showed `build-and-test` FAILING on the violation and
+PASSING after the fix, and the `docker pull` succeeds.
 
 ## Debrief (3 min)
 
@@ -864,21 +825,19 @@ dashboard that shows you a trace through a create-ticket call. The image exists;
 ## If things go wrong
 
 - **Apple Silicon: `no matching manifest for linux/arm64/v8` on `docker pull`** (older Docker;
-  Docker 29.8 pulls with a platform warning instead). The command
-  lost its `--platform linux/amd64` (the release builds amd64 only, plus an attestation entry).
-  Add the flag to the pull and the run. If the container then exits at once, Docker Desktop's
+  newer Docker pulls with a platform warning instead). The command lost its
+  `--platform linux/amd64` (the release builds amd64 only). Add the flag to the pull and the run. If the container then exits at once, Docker Desktop's
   Rosetta setting is off; the Lab 1 fix applies.
 - **`git commit` says "nothing to commit" in step 5.** The agent committed the release
   workflow itself, so `ship-image` branched from `main` without it.
   `git log --oneline --all -3` finds the commit; on `ship-image`, `git cherry-pick <sha>`,
-  then `git push -u origin ship-image` and `gh pr create` as written. The prompt now forbids
-  committing; this catches agents that ignore it.
+  then `git push -u origin ship-image` and `gh pr create` as written. For agents that ignore
+  the prompt's "do not commit".
 - **`git push` says "The current branch ... has no upstream branch".** The attendee's
-  agent branched for the CI work (seen in rehearsal as `ci/build-and-test`), so the commit
-  landed off `main` and the bare push has nowhere to go. Do not push the branch: step 4
-  expects the workflow ON `main`. Recovery, one line:
+  agent ignored "Stay on the current branch, main" and branched for the CI work (for example
+  `ci/build-and-test`), so the commit landed off `main` and the bare push has nowhere to go. Do
+  not push the branch: step 4 expects the workflow ON `main`. Recovery, one line:
   `git checkout main && git merge --ff-only <branch> && git push && git branch -d <branch>`.
-  The prompt now says "Stay on the current branch, main"; this catches agents that ignore it.
 - **Room wifi dies.** Stop the solo work immediately rather than letting thirty people retry in
   parallel; switch the whole block to a walk-along on the reference repository, which is on the
   projector and already has everything. Attendees do the reading and the diff review, and run

@@ -158,7 +158,7 @@ default wherever possible ("stop and ask" rather than only "do not improvise").
 description sentence and the numbered steps. They get the whole lesson, because the lesson is
 the writing, not the running.
 
-**The takeaway to land at 4:29, this is the payoff of the whole five minutes:** test a skill
+**The takeaway to land at 4:29:** test a skill
 the way you would test a hire's job description. Fresh session, describe the situation in your
 own words, never name the skill. If it does not fire, the description is wrong. Not your
 phrasing. The description.
@@ -180,9 +180,8 @@ git worktree list
 Still during the mini-lab, start `claude` once in each worktree (terminals 1 and 2) and accept
 the folder trust dialog. A fresh worktree path is untrusted, so the project allowlist in
 `.claude/settings.json` is ignored until trust is accepted, and the first launch shows the
-dialog. The repo runs without the sandbox (Lab 4, Beat 3), so expect
-permission prompts for `docker compose up -d` and `dotnet test` in both terminals at the end
-of each run. Decide now: approve the build, deny the tests in terminal 2 (that is the scope
+dialog. The repo runs without the sandbox (Lab 4, Beat 3), so expect permission prompts for
+`docker compose up -d` and `dotnet test` in both terminals at the end of each run. Decide now: approve the build, deny the tests in terminal 2 (that is the scope
 fence talking point below, made live).
 
 At 4:29, in terminal 1 and terminal 2, which are already sitting in the two worktrees, type
@@ -196,10 +195,10 @@ one line each and hit enter:
 /slice GetChildTasks
 ```
 
-Rehearsed 2026-10-06: one command plus one query on behavior `Ticket` already has, so neither
-agent needs a Domain change (the skill forbids one), and the merge was clean, 0 warnings,
-architecture tests 5/5. Each agent finished in under a minute, well inside the 150 seconds of
-talking points; they will sit idle at a prompt while you finish. Do not cut the talking points.
+One command plus one query on behavior `Ticket` already has, so neither agent needs a Domain
+change (the skill forbids one); expect a clean merge, 0 warnings, architecture tests 5/5. Each
+agent finishes in under a minute, well inside the 150 seconds of talking points, and sits idle
+at a prompt while you finish. Do not cut the talking points.
 
 **What to say while both agents run (about 150 seconds, this is the real content):**
 
@@ -236,8 +235,8 @@ Two clean merges, because the two slices touched different files in the same pre
 places: one new Application file each, one test file each, one endpoint and one registration
 each. The command went after the last command and the query after the last query (on
 `lab7-end`, `TicketsApplication.cs` marks the two registration lists with `// Commands` and
-`// Queries` comments), so the two edits never touched the same lines. Say the load-bearing line: **"they merged cleanly because
-the convention decided where each file goes. Consistency is not a style preference here, it
+`// Queries` comments), so the two edits never touched the same lines. Say the load-bearing
+line: **"they merged cleanly because the convention decided where each file goes. Consistency is not a style preference here, it
 is what makes parallel agents mergeable."**
 
 If the merge conflicts anyway (placement is the agent's choice, not enforced), say this one
@@ -462,6 +461,10 @@ packaged with the framework and the measurement contradicted it.
 
 ## 4:50 Delegation rules of thumb (2 min)
 
+**Bingo debrief first (about 30 s, its own slide, "Bingo debrief: five ways it goes
+wrong").** Ask who has a full row with the evidence still on screen, check one square against
+the screen, and hand over the prize promised in S1. Then the delegation slide.
+
 One slide, two columns, then one sentence.
 
 **Delegate freely** (mechanical, and you already have the check): scorecard and audit passes,
@@ -562,9 +565,8 @@ Thank the room. You will be around for hallway questions.
 
 ## Transitions
 
-- **Into S9 at 4:20:** Lab 8 just ended on a verifier returning CONFIRMED, DRIFTED or FLAG against
-  `path:line` citations. Open with "that is the smallest version of everything in the next
-  thirty-five minutes" and go straight into skills. Do not recap the day; the wrap does that.
+- **Into S9 at 4:20:** the "Hand-off in" line at the top, then straight into skills. Do not
+  recap the day; the wrap does that.
 - **Out of the mini-lab at 4:29:** the two agents in the demo worktrees should already be one
   keystroke from starting. Walk to the terminals while you deliver the description-is-the-
   trigger takeaway.
@@ -581,8 +583,7 @@ Thank the room. You will be around for hallway questions.
   which costs nothing because the content of the segment is the talking points, not the
   output. Say why out loud if it fails live: "that is the other half of the field report."
 - **The clip will not play.** Narrate it from the sheet. The four "what we did NOT change"
-  lines above carry the entire point without a single frame of video, and you have them
-  memorized because they are also the closing frame's setup.
+  lines above carry the entire point without a single frame of video.
 - **Running long.** Cut in this order, and only in this order: the worktree demo first (the
   background-agent paragraph plus the merge slide covers it in 60 seconds), then the waves
   segment down to the FinOps slide alone, then the documentation segment down to the drift

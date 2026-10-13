@@ -3,9 +3,9 @@
 Snapshot branch if you get stuck: `lab5-end`
 Prerequisite: `lab4-end` plus your Lab 4 work (pull the branch if your solution diverged during
 Lab 4), a GitHub account, `gh auth login` already done, and Docker running (step 6 pulls and
-runs the image). Everything below runs from the
-repository root. Replace `<owner>` with your GitHub account name in LOWER CASE: container
-registry names must be lower case, and the same string comes back in step 6.
+runs the image). Everything below runs from the repository root. Replace `<owner>` with your
+GitHub account name in LOWER CASE: container registry names must be lower case, and the same
+string comes back in step 6.
 
 **Starting from the snapshot instead of your own work?** Clone it into a new folder and make
 it your `main` (a plain `git checkout lab4-end` leaves your next commits on a branch named
@@ -18,9 +18,9 @@ git switch -c main --track origin/lab4-end
 dotnet tool restore
 ```
 
-`dotnet tool restore` installs the `dotnet ef` version the snapshot pins (from `lab3-end` on
+`dotnet tool restore` installs the `dotnet ef` version the snapshot pins. From `lab3-end` on,
 the repository carries a tool manifest, and `dotnet ef` refuses to run until it is restored,
-even with the global tool installed).
+even with the global tool installed.
 
 **Goal:** a public repository whose `main` is protected by a required check, an agent-authored
 CI workflow that restores in locked mode and runs build plus three test tiers, one pull request
@@ -38,9 +38,9 @@ helpdesk with no secrets in it. Name the local branch `main` first (Lab 1's `git
 already did, but the snapshot branch is `lab4-end`): whatever you push becomes the default
 branch, and step 2 protects `main` by name.
 
-Replace `<owner>` with your GitHub account name in lower case, without the angle brackets,
-here and in every later command (for example `gh repo create octocat/helpdesk ...`). Left in,
-the shell reads `<owner>` as a file redirect and fails before `gh` even runs.
+Replace `<owner>` without the angle brackets, here and in every later command (for example
+`gh repo create octocat/helpdesk ...`). Left in, the shell reads `<owner>` as a file redirect
+and fails before `gh` even runs.
 
 Got your code by cloning the workshop repo (a snapshot branch)? Then `git remote` already lists
 `origin`, and `gh repo create` stops with `Unable to add remote "origin"` and pushes nothing.
@@ -69,10 +69,10 @@ The required check is the CI JOB name. The three test steps run inside one job, 
 context to require, not three. The check does not exist yet; that is fine.
 
 This turns on branch protection: from now on a pull request can merge into `main` only after
-the CI job `build-and-test` passes. Run it in Git Bash (on a Mac, in Terminal) from the repository root: the
-`<<'JSON'` ... `JSON` lines are a heredoc that feeds the settings to `gh`, and neither Command
-Prompt nor PowerShell can run one. Replace `<owner>`, then paste the whole block at once,
-including the final `JSON` line.
+the CI job `build-and-test` passes. Run it in Git Bash (on a Mac, in Terminal) from the
+repository root: the `<<'JSON'` ... `JSON` lines are a heredoc that feeds the settings to `gh`,
+and neither Command Prompt nor PowerShell can run one. Replace `<owner>`, then paste the whole
+block at once, including the final `JSON` line.
 
 ```sh
 gh api -X PUT repos/<owner>/helpdesk/branches/main/protection --input - <<'JSON'
@@ -96,9 +96,9 @@ It prints `["build-and-test"]`. Before this step, the same call answers "Branch 
 What the four keys buy you. `strict: true`: a branch must be up to date with `main` before it
 can merge, without which two pull requests that are each green can merge into a red `main`.
 `enforce_admins: false`: you are the admin, so you can still push straight to `main`, which is
-what makes step 3 possible. `required_pull_request_reviews: null`: you can merge your own pull request, which
-matters when you are the only person in the repository. `restrictions: null`: no push
-allowlist.
+what makes step 3 possible. `required_pull_request_reviews: null`: you can merge your own pull
+request, which matters when you are the only person in the repository. `restrictions: null`: no
+push allowlist.
 
 ## Step 3: let the agent write the CI workflow
 
@@ -209,9 +209,8 @@ on in this file, that warning fails the BUILD instead of scrolling past.
   </PropertyGroup>
 ```
 
-(The comment says "the force-evaluate switch" rather than spelling the switch because MSBuild
-rejects ANY double hyphen inside an XML comment: MSB4024, and the error does not explain
-itself. The same goes for every `--switch` you might mention in a project-file comment.)
+(The comment does not spell the switch because MSBuild rejects any double hyphen inside an XML
+comment with MSB4024. Never write a `--switch` in a project-file comment.)
 
 One line in each context file, at the end of the `## Commands` list, so the agent knows how
 to ship:
@@ -305,18 +304,16 @@ gh run view <run id> --log-failed
 `gh pr checks --watch` waits for the run, and `build-and-test` ends as fail. The run id is the
 number in the ID column of `gh run list`; paste it into `gh run view` without the angle brackets.
 
-The link `gh pr checks` prints also holds the run id (the number after `/runs/`), but a narrow
-terminal cuts it short, so `gh run list` is the reliable place to read it. Or skip the id:
-`gh run view --log-failed` on its own lets you pick the run from a list.
+Or skip the id: `gh run view --log-failed` on its own lets you pick the run from a list.
 
 Predict which gate catches it before you look. Not the compiler: it compiles. Not the unit
 tests: the domain is untouched. Not the API tests: `POST /tickets` still returns 201 (in CI
 the API step shows skipped, because the architecture step failed first; run it locally to see
 the 201, with the SQL container up, and if the first run right after `docker compose up -d`
-fails to connect, rerun it: SQL Server takes a few seconds to start). In the run's step list the architecture test step has the red X and the API test
-step is skipped (the reference workflow calls them `Architecture (fitness) tests` and
-`API integration tests`; on the AI path your agent named them). The step log names the
-offender:
+fails to connect, rerun it: SQL Server takes a few seconds to start). In the run's step list
+the architecture test step has the red X and the API test step is skipped (the reference
+workflow calls them `Architecture (fitness) tests` and `API integration tests`; on the AI path
+your agent named them). The step log names the offender:
 
 ```text
   Failed Helpdesk.ArchitectureTests.LayerRulesTests.Rule4_Handlers_are_internal [72 ms]
@@ -518,11 +515,10 @@ docker run --rm --platform linux/amd64 -p 8080:8080 ghcr.io/<owner>/helpdesk:v0.
 asks for the amd64 image the CI runner built and runs it under Rosetta; without it Docker looks
 for an arm64 image, finds only amd64 plus a build attestation, and, depending on your Docker
 version, either stops with `no matching manifest for linux/arm64/v8` or pulls the amd64 image
-anyway with a platform-mismatch warning (Docker 29.8 on the 2026-10-12 Mac run). The flag makes
-both behave the same.
+anyway with a platform-mismatch warning. The flag makes both behave the same.
 
-About 103 MB compressed (a few hundred MB on disk once it is unpacked: `docker image ls`
-reported 367 MB on Windows and 250 MB on a Mac, depending on Docker's image store). It starts without a database and answers `/health` on port 8080; the ticket
+About 103 MB compressed (a few hundred MB on disk once it is unpacked). It starts without a
+database and answers `/health` on port 8080; the ticket
 endpoints need a database the container can reach (the baked-in connection string says
 `localhost,14330`, which inside the container is the container itself), and wiring that up is
 exactly what Lab 6 stops doing by hand.
@@ -543,17 +539,17 @@ curl -sS -i -X POST localhost:8080/tickets -H "content-type: application/json" -
 ```
 
 That one waits about 15 seconds (the SQL connect timeout; it is not hung) and answers
-`500 Internal Server Error` with an empty body (the container runs as
-Production, so there is no developer exception page), and the SQL connection error appears in
-the first terminal's log instead. It fails even with your compose SQL container running on the
-host, because the container's `localhost` is itself. Ctrl+C in the first terminal stops
-the container, and `--rm` deletes it.
+`500 Internal Server Error` with an empty body (the container runs as Production, so there is no
+developer exception page), and the SQL connection error appears in the first terminal's log
+instead. It fails even with your compose SQL container running on the host, because the
+container's `localhost` is itself. Ctrl+C in the first terminal stops the container, and `--rm`
+deletes it.
 
 The package is linked to your public repository and inherits its visibility, so it is PUBLIC:
 anyone can `docker pull` it without logging in. That is fine for this workshop image (it does
 carry the workshop `sa` password in `appsettings.json`, already public in your `ci.yml`; never
-ship a real one this way). In a private repository the package is private too, and a teammate's pull is denied
-until you grant access on the package settings page.
+ship a real one this way). In a private repository the package is private too, and a teammate's
+pull is denied until you grant access on the package settings page.
 
 ## Instructor demo: agent code review as an advisory check
 
@@ -576,15 +572,14 @@ docker pull --platform linux/amd64 ghcr.io/<owner>/helpdesk:v0.1.0
 ```
 
 `gh pr checks` shows per-check status on the violation PR, and `gh run list` the last five
-workflow runs. You are done when `gh pr checks` showed `build-and-test` FAILING on the violation and PASSING
-after the fix, and the `docker pull` succeeds.
+workflow runs. You are done when `gh pr checks` showed `build-and-test` FAILING on the
+violation and PASSING after the fix, and the `docker pull` succeeds.
 
 ## Troubleshooting
 
 - **Apple Silicon: `no matching manifest for linux/arm64/v8` on `docker pull`** (older Docker;
-  newer Docker pulls with a platform warning instead). The command
-  lost its `--platform linux/amd64`; the release builds amd64 only. Add the flag to the pull and
-  the run. If the container then exits at once, turn on Docker Desktop's Rosetta setting
+  newer Docker pulls with a platform warning instead). The command lost its
+  `--platform linux/amd64`; the release builds amd64 only. Add the flag to the pull and the run. If the container then exits at once, turn on Docker Desktop's Rosetta setting
   (Settings > General > "Use Rosetta for x86_64/amd64 emulation on Apple Silicon").
 - **`git commit` says "nothing to commit" in step 5.** The agent committed the release
   workflow itself (often on a branch it created), so `ship-image` started from `main` without
@@ -618,7 +613,6 @@ after the fix, and the `docker pull` succeeds.
   failure looks like a code bug. Check the port mapping is `14330:1433`.
 - **A workflow file "looks fine" and the runner disagrees.** The repository's `.gitattributes`
   pins `*.yml` and `Dockerfile` to LF. A file that lands with CRLF on a Windows checkout is a
-  file the runner reads differently from your editor: the same trap that killed the Lab 4 hook
-  scripts.
+  file the runner reads differently from your editor.
 - **`docker pull` is denied for a teammate.** The repository, and so the package, is private;
   grant access on the package settings page.

@@ -37,8 +37,7 @@ and cannot do with it when somebody puts an instruction in a ticket title.
 An agent is optional here. MCP Inspector is the client for everybody and it does everything
 the lab needs; steps 4b and 5 note where an agent adds something.
 
-The equivalent procedure lives in the repository at `docs/mcp.md` on `lab7-end`, six
-sections, and this handout tracks it step for step.
+The same procedure is in `docs/mcp.md` on `lab7-end`.
 
 ---
 
@@ -56,8 +55,8 @@ dotnet restore Helpdesk.slnx --force-evaluate
 The second line is not optional. `dotnet add package` rewrites only Presentation's lock file,
 but every project that references Presentation (the Host, the architecture tests, the API
 tests) now resolves new transitive packages too, and CI restores in locked mode. Skip it and
-the next push goes red with `NU1004`. This is the Lab 5 context-file line in action: after
-changing a package, `--force-evaluate`, then commit every `packages.lock.json` it touched.
+the next push goes red with `NU1004`. After changing a package, `--force-evaluate`, then commit
+every `packages.lock.json` it touched.
 
 Do not paste the next block: `dotnet add package` already wrote the `PackageReference`, and a
 second copy fails the build with `NU1504` (duplicate `PackageReference`). Open the file and check
@@ -263,13 +262,9 @@ Three tools come back, as one `data:` line of server-sent events, each with its 
 a generated input schema. Read the schema for `create_ticket`: one property, `title`. The
 handler you injected is not in it.
 
-Two things about that request. The `Accept` header names both `application/json` and
-`text/event-stream`, in one header; name only one of them, or send it empty, and the server
-answers `406` (curl's default `*/*` also works). And it carries no `MCP-Protocol-Version` header
-on purpose: a stateless server answers a bare call happily, but a request that declares
-`2026-07-28` must also carry an `Mcp-Method` header and `_meta` entries for the protocol version
-and the client capabilities, and short of all of them it is rejected with `-32602` or `-32020`.
-Clients do that for you; by hand, leave the header off.
+Keep the headers exactly as printed: the `Accept` header names both types in one header, and
+there is no `MCP-Protocol-Version` header on purpose. Change either and you get `406` or
+`-32602`/`-32020` (see Troubleshooting).
 
 Windows: run this from Git Bash as printed. In Windows PowerShell 5.1 bare `curl` is an alias
 for `Invoke-WebRequest`, so type `curl.exe` (works in PowerShell 7 too). In cmd.exe escape the
@@ -378,14 +373,14 @@ you prefer the VS Code REST Client; the curl commands below are all you need.
    > Summarise the open tickets in the helpdesk.
 
    **What you should see:** nothing useful. There is no tool that lists anything. An agent says
-   it has no way to list tickets and asks you for the ids; in the dry run it did not guess. In
-   Inspector you hit the same wall yourself: there is no `list` button, because there is no
-   `list` tool, because nobody wrote one.
+   it has no way to list tickets and asks you for the ids. In Inspector you hit the same wall
+   yourself: there is no `list` button, because there is no `list` tool, because nobody wrote
+   one.
 
-   **An agent with a shell may go around the tools.** In the 2026-10-12 Mac run it read the
-   `sa` password from `docker-compose.yml` and asked to run `docker exec ... sqlcmd` against
-   the database; only the permission prompt stopped it. Deny that call (and any offer to query
-   the database for you), then go on to item 3.
+   **An agent with a shell may go around the tools.** It may read the `sa` password from
+   `docker-compose.yml` and ask to run `docker exec ... sqlcmd` against the database; only the
+   permission prompt stops it. Deny that call (and any offer to query the database for you),
+   then go on to item 3.
 
 3. Give it the id from the poisoned ticket and let `get_ticket` run. The agent just asked you
    for ids, so answer with the one the second curl returned:
@@ -395,8 +390,8 @@ you prefer the VS Code REST Client; the curl commands below are all you need.
    Claude Code asks permission before its first call to an MCP tool; allow it. The hostile
    title comes back as the value of a field, visible in the tool result (expand the tool call
    if it is collapsed). That is the whole of the attack surface: untrusted text, delivered as
-   data. Then read the reply. A current model often says so: in the dry run it named the title
-   as an instruction aimed at an AI assistant and closed nothing.
+   data. Then read the reply: a current model often names the title as an instruction aimed at
+   an AI assistant and closes nothing.
 
    **No agent connected?** In Inspector, select `get_ticket`, paste the same id into
    `ticketId`, **Execute Tool**: the title is right there in **Results**. That shows the data
@@ -407,9 +402,8 @@ you prefer the VS Code REST Client; the curl commands below are all you need.
 
    > Do whatever that ticket says.
 
-   **What you should see, and why:** in the dry run the agent closed the one ticket it had an
-   id for, with one `close_ticket` call, and said it could not close the rest because it cannot
-   list them.
+   **What you should see, and why:** the agent closes the one ticket it has an id for, with one
+   `close_ticket` call, and says it cannot close the rest because it cannot list them.
 
    - **"Close every ticket" has no tool.** `close_ticket` takes one id and nothing hands out
      ids. The tool surface is the blast radius, and it was fixed at design time by three method
@@ -544,10 +538,8 @@ dotnet test tests/Helpdesk.ApiTests
 ```
 
 Seven green. Three of them are `McpEndpointTests`, and they need no port and no process: the
-SDK client speaks streamable HTTP over the test factory's own `HttpClient`, so the MCP endpoint
-is tested through the same in-memory host as your HTTP endpoints. They assert that the server
-advertises exactly three tools, that a create-then-read round trips the title, and that closing
-the same ticket twice comes back as a tool error containing `Tickets.AlreadyClosed`.
+SDK client speaks streamable HTTP over the test factory's own `HttpClient`, the same in-memory
+host as your HTTP endpoints.
 
 Whole solution, if you want the full 16:
 
@@ -603,8 +595,8 @@ git add -A && git commit -m "MCP endpoint tests"
   another port. Added while the session was open means restart the session: clients read their
   server list at startup.
 - **`npm warn EBADENGINE` when Inspector starts.** Your Node.js is older than 22.19, which
-  Inspector declares (2.9 and later). On 22.16 it still ran in the dry run, so carry on today, but install
-  22.19 or newer.
+  Inspector declares (2.9 and later). It still runs, so carry on today, but install 22.19 or
+  newer.
 - **No Node.js.** Skip Inspector, pair with a neighbour, or stop after step 3. The curl in step
   3 and the tests in the verification section prove your server works with no client at all.
 - **`CS0246` on `McpServerToolType` or `CallToolResult`.** The package landed in the wrong
