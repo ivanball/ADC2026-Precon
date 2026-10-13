@@ -240,6 +240,14 @@ depends on your machine:
   rest. Do not expect it to throw that citation out: in a rehearsal it only corrected the
   line number, settled the score itself with `gh api`, and let the 2 stand. Striking the
   citation is your call at step 5.
+- **You caught up from a fresh clone of the workshop repository** (no Lab 5 repository of your
+  own): `origin` is the workshop repository, its `main` is not your code, and the agents'
+  `gh api` call returns 404 `Branch not protected` (or describes the workshop repository's
+  `main`, which is not the branch you are scoring). Rules 1 to 4 then come back FLAG with a
+  null score, and the verifier calls the `CLAUDE.md` line about the required check false. Both
+  are right for that clone: no required check gates the code you are scoring. Read the flags as the
+  rubric working, score rule 4 from `ci.yml` with "required" marked unverified, and skip the
+  command below.
 
 Either way, settle it yourself with the command you ran in Lab 5. It should print
 `["build-and-test"]`:

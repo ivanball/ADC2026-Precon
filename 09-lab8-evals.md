@@ -47,6 +47,16 @@ because a wrong score becomes the record and everybody inherits it.
   git switch -c lab8-demo
   ```
 
+  Run the demo from a repository whose `main` is protected with `build-and-test` required (your
+  Lab 5 practice repo after its Step 2). On a fresh clone of the workshop repository, `origin`
+  is the reference repo, whose `main` is unprotected until the prep-checklist item is done: the
+  agents' `gh api` call returns 404 `Branch not protected`, rules 1 to 4 come back FLAG with
+  null scores, and the verifier calls the CLAUDE.md required-check line false (2026-10-12 Mac
+  run). Check before the room arrives:
+  `gh api repos/<owner>/<repo>/branches/main/protection --jq '.required_status_checks.contexts'`
+  must print `["build-and-test"]`. Attendees who caught up from a rescue clone will see exactly
+  those flags; handout step 3 tells them that is the rubric working.
+
   Edit `CloseTicket.cs` line 9: `internal sealed class` becomes `public sealed class`. Then:
 
   ```sh
