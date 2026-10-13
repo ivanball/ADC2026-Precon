@@ -228,11 +228,6 @@ indicator instead, because the extension does not read a project's `defaultMode`
       "Read(./**/*.pem)"
     ]
   },
-  "sandbox": {
-    "enabled": true,
-    "autoAllowBashIfSandboxed": true,
-    "excludedCommands": ["docker compose:*"]
-  },
   "hooks": {
     "PreToolUse": [
       {
@@ -345,7 +340,7 @@ PowerShell, and Windows does not need it):
 chmod +x .claude/hooks/block-dangerous.sh .claude/hooks/confirm-merge.sh
 ```
 
-**Sandbox mode and permission modes, in five lines.** `defaultMode` decides what happens when
+**Permission modes, and why this repo leaves the sandbox off.** `defaultMode` decides what happens when
 nothing else matches: `default` (Manual) prompts on every edit and command; `acceptEdits`
 (used here) applies edits and simple file commands without prompting while still gating other
 commands; `plan` reads, runs exploration commands and proposes a plan, but blocks source edits
@@ -355,22 +350,18 @@ interactive sessions, which is why this morning began with `--permission-mode de
 `dontAsk` runs only pre-approved tools and denies the rest, for CI and scripts;
 `bypassPermissions` asks nothing, which is fine in a throwaway container and reckless on a
 laptop signed into production. A project file can set any mode except `auto` and
-`bypassPermissions`. The `sandbox` block runs Bash under
-OS-level filesystem and network isolation, so a command that goes wrong cannot write outside
-the repo (and a temp directory) or reach a host you have not approved. It can still READ files
-anywhere on the machine, credential files included, unless you add `sandbox.filesystem.denyRead`
-entries. Bounded writes and network are precisely what pays for `autoAllowBashIfSandboxed`: the prompt is
-skipped because the blast radius is bounded, not because the command was judged safe.
-`excludedCommands` lists the few that must reach outside (here `docker compose`, which needs
-the Docker daemon); those run unsandboxed and prompt normally. The rule to take home: gate on
-reversibility and on whether the action leaves your machine, not on how weighty it feels.
+`bypassPermissions`. The rule to take home: gate on reversibility and on whether the action
+leaves your machine, not on how weighty it feels.
 
-**On native Windows, check before you trust it.** The sandbox is not active there today: start
-`claude` in this repo and it prints `Sandbox disabled: ... Commands will run WITHOUT
-sandboxing. Network and filesystem restrictions will NOT be enforced.` The block is harmless
-to keep, but the bounded blast radius that justifies `autoAllowBashIfSandboxed` is simply not
-there, so on a Windows laptop read every command before it runs. Whatever your OS, the
-startup banner is the test: a guardrail you have not watched work is one you do not have.
+Claude Code also has a `sandbox` setting that runs Bash under OS-level filesystem and network
+isolation (Seatbelt on macOS, bubblewrap on Linux and WSL2; native Windows has none and runs
+commands unsandboxed). This repo deliberately leaves it off. On macOS it is enforced strictly
+enough to break today's agent work: the agent's `dotnet build` and `dotnet test` hang and then
+fail because the sandbox blocks MSBuild's local connections, and `dotnet restore` and `gh` cannot
+reach NuGet or GitHub. When you turn it on in your own repos, list the commands that must reach
+outside in `excludedCommands`, and remember it still lets commands READ anywhere unless you add
+`sandbox.filesystem.denyRead` entries. Today the guardrails are the permission prompts, the deny
+rules and the hooks: read each command before you approve it.
 
 **Least-privilege tokens in CI (Lab 5 demos this).** The agent-review workflow declares its
 own scoped `permissions` block, `contents: read`, `pull-requests: write`, `id-token: write`,

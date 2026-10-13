@@ -180,7 +180,7 @@ git worktree list
 Still during the mini-lab, start `claude` once in each worktree (terminals 1 and 2) and accept
 the folder trust dialog. A fresh worktree path is untrusted, so the project allowlist in
 `.claude/settings.json` is ignored until trust is accepted, and the first launch shows the
-dialog. On Windows the sandbox is inactive, so `autoAllowBashIfSandboxed` does nothing: expect
+dialog. The repo runs without the sandbox (Lab 4, Beat 3), so expect
 permission prompts for `docker compose up -d` and `dotnet test` in both terminals at the end
 of each run. Decide now: approve the build, deny the tests in terminal 2 (that is the scope
 fence talking point below, made live).
@@ -495,7 +495,7 @@ MIT, and every item in it is something you watched work today.
 
 1. **`CLAUDE.md` and `AGENTS.md` templates.** Thirty minutes on your real repository is the
    biggest single lever you have. Include the gotcha you tell every new hire.
-2. **`settings.json` and the two hooks**, with deny rules, and the sandbox and permission-mode
+2. **`settings.json` and the two hooks**, with deny rules, and the permission-mode
    example from Lab 4. Three tiers, not two: allow the read-only and reversible work, prompt
    on writes beyond the repository and on anything that leaves the machine, and **deny in a
    hook whatever must never happen regardless of who asks.** A prompt is probabilistic

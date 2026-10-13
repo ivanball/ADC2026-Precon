@@ -149,13 +149,15 @@ what you would tell a new hire, and the Never list is the half that pays.
 
 **What it is.** `.claude/settings.json` carries four things: the allow list (read-only and
 reversible work), the deny list (the three command classes that must never run, plus reads
-of `.env` and `.pem` files), the `defaultMode` permission mode, and the sandbox block. It
-also wires both hooks as `PreToolUse` commands on the `Bash|PowerShell` matcher, and every
+of `.env` and `.pem` files), the `defaultMode` permission mode, and the two hooks. It
+wires both hooks as `PreToolUse` commands on the `Bash|PowerShell` matcher, and every
 allow and deny rule appears for both shells, because on Windows the agent also has a native
 PowerShell tool that `Bash` rules do not see (see run sheet 05, Beat 1). The hooks are the
 deterministic layer under the probabilistic one: deny rules catch the common spellings, a hook
-catches the rewordings a pattern list misses. The sandbox applies on macOS, Linux and WSL2; on native Windows commands run
-unsandboxed, so the deny rules and hooks are the only layer there.
+catches the rewordings a pattern list misses. There is no `sandbox` block, matching Lab 4: on
+macOS the sandbox blocks the agent's `dotnet build`, `dotnet test`, NuGet restore and `gh`, and
+on native Windows it does nothing. To add it to your own repo, list every command that must
+reach outside in `excludedCommands`.
 
 **Taught in** Lab 4. **Came from** `lab4-end`; the settings file is the one the attendees end
 Lab 4 with, except that the kit quotes the placeholder in the two hook paths
@@ -189,11 +191,6 @@ Lab 4 with, except that the kit quotes the placeholder in the two hook paths
       "Read(./.env)",
       "Read(./**/*.pem)"
     ]
-  },
-  "sandbox": {
-    "enabled": true,
-    "autoAllowBashIfSandboxed": true,
-    "excludedCommands": ["docker compose:*"]
   },
   "hooks": {
     "PreToolUse": [

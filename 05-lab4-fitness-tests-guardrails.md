@@ -10,8 +10,8 @@ time and start loud. Attendees come back with a cold build; the very first instr
 "run the tests you had green before lunch" while you talk over the slide.
 
 **Teaching beats:** "a rule that is not executable is a suggestion"; the same gate stops a
-rushed human and a confident agent; tool-side guardrails (permissions, deny rules, hooks,
-sandboxing) are the same idea one level up; and the credentials you hand the agent in CI are
+rushed human and a confident agent; tool-side guardrails (permission modes, deny rules,
+hooks) are the same idea one level up; and the credentials you hand the agent in CI are
 the same idea one level up again.
 
 ## Minute-by-minute
@@ -23,7 +23,7 @@ the same idea one level up again.
 | 1:08 | Lab 4b solo (Step 3): THE FLIP: ask the agent to break a rule, watch the fitness tests refuse | 8 |
 | 1:16 | Debrief: the thesis lands | 4 |
 | 1:20 | Step 4, guardrails beats 1 and 2: deny rules in `.claude/settings.json`, then the two hooks | 4 |
-| 1:24 | Step 4, guardrails beat 3: sandbox mode and permission modes | 3 |
+| 1:24 | Step 4, guardrails beat 3: permission modes, and why the sandbox stays off | 3 |
 | 1:27 | Step 4, guardrails beat 4: least-privilege short-lived tokens for the agent in CI | 3 |
 | 1:30 | Hand off to Lab 5: Ship it | |
 
@@ -40,7 +40,7 @@ agent (highlighted in red in the web version); on the AI path the agent writes t
 | `docs/architecture-rules.md` | new (7 lines) | handout lab4, step 1 ("the rules, in English"); also reproduced in Lab 4a below |
 | `tests/Helpdesk.ArchitectureTests/LayerRulesTests.cs` | new (77 lines) | handout lab4, **"Step 2, manual path: the five tests"** (whole file, reprinted below under "Lab 4a Step 2, manual path"); rule 1 plus the `Offenders` helper is excerpted in the Lecture below |
 | `tests/Helpdesk.ArchitectureTests/PlaceholderTests.cs` | delete (12 lines) | no fence needed: the one-assert placeholder from the Lab 1 skeleton that kept the empty test project green. `LayerRulesTests` replaces it; handout lab4 Step 2 now says to delete it (the rehearsal agent did NOT delete it unprompted) |
-| `.claude/settings.json` | new (43 lines) | guardrails beat 1 (allow and deny lists) and beat 3 (`defaultMode`, the `sandbox` block); wires both hooks; also in handout lab4, "Guardrails" |
+| `.claude/settings.json` | new (38 lines) | guardrails beat 1 (allow and deny lists) and beat 3 (`defaultMode`; no `sandbox` block, by design); wires both hooks; also in handout lab4, "Guardrails" |
 | `.claude/hooks/block-dangerous.sh` | new (22 lines) | guardrails beat 2, first script; also in handout lab4 |
 | `.claude/hooks/confirm-merge.sh` | new (17 lines) | guardrails beat 2, second script; also in handout lab4 |
 | `.gitattributes` | new (1 line) | `*.sh text eol=lf`. Mention in one sentence: a hook script that lands with CRLF on a Windows checkout dies in the shebang, and a guardrail that silently does not run is worse than no guardrail |
@@ -392,11 +392,6 @@ written down, checked into the repo, shared by the whole team:
       "Read(./**/*.pem)"
     ]
   },
-  "sandbox": {
-    "enabled": true,
-    "autoAllowBashIfSandboxed": true,
-    "excludedCommands": ["docker compose:*"]
-  },
   "hooks": {
     "PreToolUse": [
       {
@@ -525,7 +520,7 @@ and the human runs the merge after reviewing the checks.
 The transferable rule, now in its full form: **anything you would say twice in code review
 belongs in CLAUDE.md; anything that must NEVER happen belongs in a hook.**
 
-#### Beat 3: sandbox mode and permission modes (3 min)
+#### Beat 3: permission modes, and why the sandbox stays off (3 min)
 
 Back to the top of the same file, the two blocks nobody reads.
 
@@ -546,23 +541,23 @@ six, name them because attendees will pick one this afternoon:
 - `bypassPermissions`: nothing asks. Legitimate in a throwaway container with no credentials
   in it, and a bad idea on the laptop where you are signed into production.
 
-The `sandbox` block is the newer and more interesting half. `enabled: true` runs Bash under
-OS-level filesystem and network isolation, so a command that goes wrong cannot WRITE outside
-the repo (and a temp directory) or reach a host you have not allowed. It can still READ
-anywhere on the machine, credential files included, unless you add
-`sandbox.filesystem.denyRead` or `sandbox.credentials` entries; say that part out loud, it is
-the one people get wrong. That is what pays for `autoAllowBashIfSandboxed: true`: the
-prompt gets skipped not because the command was judged safe, but because the blast radius is
-bounded no matter what the command turns out to be. `excludedCommands` is the escape hatch for
-the one thing that genuinely needs out, here `docker compose`, which has to reach the Docker
-daemon; excluded commands run unsandboxed and go back to prompting.
+Then the setting the file deliberately does NOT have: the `sandbox` block. Name it, because
+attendees will meet it in the docs. It runs Bash under OS-level filesystem and network
+isolation (Seatbelt on macOS, bubblewrap on Linux and WSL2), so a command that goes wrong
+cannot WRITE outside the repo or reach a host you have not allowed, and with
+`autoAllowBashIfSandboxed` those commands skip the prompt because the blast radius is bounded.
+It can still READ anywhere unless you add `sandbox.filesystem.denyRead` entries; say that part
+out loud, it is the one people get wrong.
 
-Say the Windows caveat out loud, because half the room is on Windows: on native Windows the
-sandbox is not active today. `claude` prints `Sandbox disabled: ... Commands will run WITHOUT
-sandboxing` at startup (verified in the 2026-09-28 rehearsal, where a `curl` to the internet
-and a write outside the repo both went through). The block is harmless to keep, but the bounded
-blast radius that pays for the auto-allow is not there. The handout tells them to check the
-startup banner; that is the beat: a guardrail you have not watched work is one you do not have.
+Why it is off here, in one breath: the room is mixed. On native Windows it does nothing
+(`claude` prints `Sandbox disabled: ... Commands will run WITHOUT sandboxing`, verified in the
+2026-09-28 rehearsal). On macOS it is enforced strictly enough to break the labs: the 2026-10-12
+Mac dry run saw the agent's sandboxed `dotnet build` and `dotnet test` hang about 5 minutes and
+then fail with `Build FAILED. 0 Warning(s) 0 Error(s)` (MSBuild's local pipe denied,
+`SocketException (13): Permission denied`), and sandboxed `gh` and NuGet restore could not reach
+the network. Turning it on in a real repo means listing every such command in
+`excludedCommands`; that is homework, not a lab step. Today the guardrails are the prompts,
+the deny rules and the hooks, the same on every laptop.
 
 Say the rule plainly, it is the one they should take home: **gate on reversibility and on
 whether the action leaves the machine, not on how weighty it feels.** A commit feels big and

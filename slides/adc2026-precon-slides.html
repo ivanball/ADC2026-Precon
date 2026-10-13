@@ -1213,7 +1213,7 @@ Assert.True(result.IsSuccessful, "Domain grew a dependency: " + Offenders(result
 </section>
 
 <section class="slide" data-session="Lab 4">
-  <h1>Sandbox mode and six permission modes</h1>
+  <h1>Six permission modes, and the sandbox we leave off</h1>
   <ul class="tight">
     <li><code>default</code> (Manual): reads run, every edit and command asks. Safest, slowest.</li>
     <li><code>acceptEdits</code>: edits and simple file commands apply, the rest asks. Our lab setting: an edit in a git tree is one command to undo.</li>
@@ -1222,11 +1222,11 @@ Assert.True(result.IsSuccessful, "Domain grew a dependency: " + Offenders(result
     <li><code>dontAsk</code>: only pre-approved tools run, everything else is denied. Built for CI and scripts.</li>
     <li><code>bypassPermissions</code>: nothing asks. A throwaway container, never the laptop signed into production.</li>
   </ul>
-  <div class="note"><code>sandbox.enabled</code> limits what shell commands can WRITE and which hosts they reach (macOS, Linux, WSL2; native Windows runs them unsandboxed; reads stay open unless you add deny rules), which is what pays for <code>autoAllowBashIfSandboxed</code>: the prompt is skipped because the blast radius is bounded, not because the command was judged safe. <strong>Gate on reversibility and on whether the action leaves the machine, not on how weighty it feels.</strong></div>
+  <div class="note"><code>sandbox.enabled</code> limits what shell commands can WRITE and which hosts they reach (macOS, Linux, WSL2; native Windows has none). This repo leaves it off: on macOS it blocks the agent's <code>dotnet build</code>, <code>dotnet test</code>, NuGet restore and <code>gh</code>. <strong>Gate on reversibility and on whether the action leaves the machine, not on how weighty it feels.</strong></div>
   <aside class="notes">
-    <div class="must"><p>Gate on reversibility and on whether the action leaves the machine, not on how weighty it feels.</p><p>On native Windows the sandbox is not active today. Check the claude startup banner before you trust it.</p><p>A commit feels big and is trivially undone; a merge feels routine and ships to customers. Gate the merge.</p></div>
+    <div class="must"><p>Gate on reversibility and on whether the action leaves the machine, not on how weighty it feels.</p><p>The sandbox is off in this repo: native Windows has none, and on macOS it breaks the agent's builds. Today the guardrails are prompts, deny rules and hooks.</p><p>A commit feels big and is trivially undone; a merge feels routine and ships to customers. Gate the merge.</p></div>
     <p class="ask">Which mode do you run at work? Hands for Manual, acceptEdits, auto, bypass. Anyone on bypass: what is signed in on that laptop?</p>
-    <ul><li>Fresh fact: fresh installs now START in auto mode (v2.1.283+). That is why this morning began with claude --permission-mode default. From now on the project settings.json sets acceptEdits, which terminal sessions honor (project settings cannot set auto or bypass).</li><li>auto is a judgment by a second model, not a boundary. The sandbox and hooks are boundaries. Use both.</li><li>The branch uses acceptEdits: an edit inside a git working tree is reversible with one command.</li><li>plan is where you send an agent into a codebase you do not want touched yet. bypassPermissions only in a throwaway container with no credentials.</li><li>autoAllowBashIfSandboxed: the prompt is skipped because the blast radius is bounded, not because the command was judged safe.</li><li>excludedCommands: docker compose needs the Docker daemon, so it runs unsandboxed and goes back to prompting.</li><li>Rehearsal 2026-09-28 on Windows: banner said 'Sandbox disabled'; a curl and an out-of-repo write both went through. A guardrail you have not watched work is one you lack.</li></ul>
+    <ul><li>Fresh fact: fresh installs now START in auto mode (v2.1.283+). That is why this morning began with claude --permission-mode default. From now on the project settings.json sets acceptEdits, which terminal sessions honor (project settings cannot set auto or bypass).</li><li>auto is a judgment by a second model, not a boundary. Hooks and deny rules are boundaries. Use both.</li><li>The branch uses acceptEdits: an edit inside a git working tree is reversible with one command.</li><li>plan is where you send an agent into a codebase you do not want touched yet. bypassPermissions only in a throwaway container with no credentials.</li><li>What the sandbox buys where it works: autoAllowBashIfSandboxed skips the prompt because the blast radius is bounded, not because the command was judged safe. Reads stay open unless you add denyRead entries.</li><li>Why it is off today. Windows rehearsal 2026-09-28: banner said 'Sandbox disabled'; a curl and an out-of-repo write both went through. Mac dry run 2026-10-12: the agent's sandboxed dotnet build and dotnet test hung about 5 minutes, then Build FAILED with 0 errors (MSBuild pipe denied); gh and NuGet restore could not reach the network.</li><li>To use it in a real repo: list every command that must reach outside (dotnet build, dotnet test, gh, docker compose) in excludedCommands.</li></ul>
     <p class="cue"><strong>Time:</strong> 1:24-1:27 (beat 3, 3 min). Keep even when running long: newest material in the block. &nbsp; <strong>Bridge:</strong> Last level up. In forty minutes the agent gets a CI account.</p>
   </aside>
 </section>
@@ -2085,7 +2085,7 @@ Top 10 sessions, as a share of the month                   32.2%</pre>
     <div>
       <ol>
         <li>Context files: <code>AGENTS.md</code> and <code>CLAUDE.md</code> templates</li>
-        <li>Settings and hooks: allow, deny, sandbox, the two hooks</li>
+        <li>Settings and hooks: allow, deny, permission mode, the two hooks</li>
         <li>Three skills: slice, spec-first change, CI diagnosis</li>
         <li>The fitness-test seed</li>
         <li>CI and release workflow templates</li>

@@ -20,7 +20,7 @@ production apps built on it" and nothing more specific.
 | `02-lab1-spec-driven-skeleton.md` | Lab 1: spec-driven walking skeleton (Plan) | 9:15-10:05 |
 | `03-lab2-domain-layer.md` | Lab 2: domain layer, Result, aggregates, test-first (Design + build) | 10:20-11:10 |
 | `04-lab3-cqrs-slices.md` | Lab 3: CQRS by hand, `/slice` skill, API test first, outbox mention (Build + test) | 11:10-12:05 |
-| `05-lab4-fitness-tests-guardrails.md` | Lab 4: fitness tests, THE FLIP, hooks, sandbox, tokens (Verify) | 12:50-1:30 |
+| `05-lab4-fitness-tests-guardrails.md` | Lab 4: fitness tests, THE FLIP, hooks, permission modes, tokens (Verify) | 12:50-1:30 |
 | `06-lab5-ship-it.md` | Lab 5: public repo, agent-authored CI, red PR, release image (Review + integrate + release) | 1:30-2:15 |
 | `07-lab6-run-it.md` | Lab 6: Aspire AppHost, dashboard, health gates, Aspire MCP loop, deploy demo (Deploy + operate) | 2:15-2:45 |
 | `08-lab7-mcp-server.md` | Lab 7: the module as an in-app MCP server, injection demo (Extend) | 3:00-3:55 |
