@@ -373,6 +373,13 @@ The container is already up if you started it in Lab 1 (the command is then a no
 restored project assets: on a fresh `lab2-end` clone that was never built it stops with
 `NETSDK1004` (assets file `project.assets.json` not found).
 
+(`database update` fails with "A connection was successfully established with the server, but
+then an error occurred during the pre-login handshake"? SQL Server is still starting: it needs
+up to about 20 seconds after `docker compose up -d`, longest on Apple Silicon, where the image
+runs under emulation. Wait a few seconds and rerun only the `database update` line. Do not
+rerun `migrations add`: the migration already exists, and it stops with "The name 'Initial' is
+used by an existing migration".)
+
 (No `dotnet ef`? `dotnet tool install --global dotnet-ef`. Still "command not found" on a Mac
 after installing it: zsh is missing the tools folder on its PATH, so run
 `echo 'export PATH="$PATH:$HOME/.dotnet/tools"' >> ~/.zprofile` and open a new terminal; on
@@ -383,7 +390,7 @@ than the runtime is harmless.)
 The compose file maps host port 14330 exactly so a locally installed SQL Server on 1433
 cannot shadow the container; check your `docker-compose.yml` says `"14330:1433"` and your
 connection string says `Server=localhost,14330`, then
-`docker compose up -d --force-recreate` and rerun both `dotnet ef` commands.)
+`docker compose up -d --force-recreate` and rerun the `database update` line.)
 
 Commit the pasted machinery and the migration now, so each slice below lands as its own small
 diff:

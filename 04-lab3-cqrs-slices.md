@@ -497,6 +497,12 @@ update` needs it. The build is for the catch-up attendee on a fresh `lab2-end` c
 ef` reads the restored project assets, and on a never-built clone it stops with `NETSDK1004`
 (assets file `project.assets.json` not found).
 
+At a table (the handout carries this line): `database update` failing with "...an error
+occurred during the pre-login handshake" means SQL Server is still starting, up to about 20 s
+after `docker compose up -d` and longest on Apple Silicon under emulation (the 2026-10-12 Mac
+dry run hit it on a cold container). Wait and rerun only the update; rerunning
+`migrations add` stops with "The name 'Initial' is used by an existing migration".
+
 At a table (the handout carries this line): no `dotnet ef`? `dotnet tool install --global
 dotnet-ef`. Still "command not found" on a Mac after the install: zsh lacks the tools folder
 on its PATH, so `echo 'export PATH="$PATH:$HOME/.dotnet/tools"' >> ~/.zprofile` and a new
@@ -1275,7 +1281,9 @@ reviewer catching it."
 
 ## If things go wrong
 
-- EF migration failures (SQL container down, connection string typos) are THE risk here.
+- EF migration failures (SQL container down or still starting, connection string typos) are
+  THE risk here. A "pre-login handshake" error right after `docker compose up -d` is a
+  container still starting: wait, rerun only the update.
   Fallback: `docker compose up -d` check first; worst case attendees check out `lab3-end` and
   fix their own copy over lunch.
 - "Login failed for user 'sa'" with the container up: something else answered the port. The
