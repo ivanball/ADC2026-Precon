@@ -498,9 +498,11 @@ over the break, or tonight. Either way, read it now.
    git remote add workshop https://github.com/ivanball/adc2026-helpdesk.git
    git fetch workshop
    git checkout -b lab6-fault workshop/lab6-fault
-   dotnet test tests/Helpdesk.ApiTests     # 2 red: the two close tests. The fault is real.
+   dotnet test tests/Helpdesk.ApiTests
    aspire run --apphost src/Helpdesk.AppHost
    ```
+
+   The `dotnet test` run shows 2 red, the two close tests: the fault is real.
 
 2. Create a ticket, close it, read it back:
 

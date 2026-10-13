@@ -321,12 +321,13 @@ Git Bash and PowerShell alike:
 
 ```bash
 git add -A
-git status --short   # only the three .claude/ files and .gitattributes
+git status --short
 git update-index --chmod=+x .claude/hooks/block-dangerous.sh .claude/hooks/confirm-merge.sh
 git commit -m "Agent guardrails"
 ```
 
-Read the `git status --short` output before you commit. If it lists anything under `src/`,
+Read the `git status --short` output before you commit: it should list only the three
+`.claude/` files and `.gitattributes`. If it lists anything under `src/`,
 THE FLIP is still in your working copy: run `git restore --staged src/ && git restore src/`,
 delete `src/Modules/Tickets/Helpdesk.Tickets.Domain/TicketQueries.cs`, check
 `dotnet test Helpdesk.slnx` is 11 green again, then commit. On Windows, `git add` may warn

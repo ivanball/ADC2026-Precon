@@ -1651,10 +1651,10 @@ app.MapMcp("/mcp");</pre>
   -H "Accept: application/json, text/event-stream" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 
-npx @modelcontextprotocol/inspector@latest     # Add Servers, add manually, streamable-http, Connected, Tools
+npx @modelcontextprotocol/inspector@latest
 claude mcp add --transport http helpdesk http://localhost:5000/mcp
 # VS Code: .vscode/mcp.json, "type": "http"</pre>
-  <div class="note">Read the descriptions in the Inspector pane rather than in the source: that pane is literally the model's view of your application. Anything unclear there is unclear to every agent that ever connects.</div>
+  <div class="note">In the Inspector: Add Servers, add manually, streamable-http, Connected, Tools. Read the descriptions in the Inspector pane rather than in the source: that pane is literally the model's view of your application. Anything unclear there is unclear to every agent that ever connects.</div>
   <aside class="notes">
     <div class="must"><p>Accept must name application/json and text/event-stream, both, in one header. Name only one and you get 406 (curl's default */* happens to work).</p><p>That Inspector pane is literally the model's view of your application.</p><p>Everything says port 5000. If it is busy, stop the old host; do not change the port.</p></div>
     <p class="ask">Inspector users: read create_ticket's description aloud to your neighbor. Would a stranger know what to send? Fix it if not.</p>

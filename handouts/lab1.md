@@ -93,8 +93,10 @@ services:
 Then start it (if this fails, do not panic: flag a helper at the break):
 
 ```bash
-docker compose up -d   # SQL Server 2022; nothing uses it until Lab 3, so a failure here does not block Lab 1
+docker compose up -d
 ```
+
+That is SQL Server 2022. Nothing uses it until Lab 3, so a failure here does not block Lab 1.
 
 Create `CLAUDE.md`:
 
@@ -253,8 +255,10 @@ after the build and tests pass.
 
 ## Step 3, manual path (no Claude Code)
 
+On the .NET 10 SDK, `dotnet new sln` writes `Helpdesk.slnx`, the XML format.
+
 ```bash
-dotnet new sln -n Helpdesk     # the .NET 10 SDK writes Helpdesk.slnx (the XML format)
+dotnet new sln -n Helpdesk
 
 dotnet new classlib -n Helpdesk.SharedKernel -o src/Helpdesk.SharedKernel
 dotnet new web      -n Helpdesk.Host         -o src/Helpdesk.Host
@@ -396,9 +400,12 @@ app.Run();
 ## Step 4: verify, then commit
 
 ```bash
-dotnet build Helpdesk.slnx     # green, zero warnings, or you are not done
-dotnet test Helpdesk.slnx      # placeholder tests pass
+dotnet build Helpdesk.slnx
+dotnet test Helpdesk.slnx
 git add -A && git commit -m "Walking skeleton"
 ```
+
+The build must be green with zero warnings, or you are not done, and the placeholder tests
+must pass.
 
 **The agent's claim is not the verification; the build is.**

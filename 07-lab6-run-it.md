@@ -591,10 +591,10 @@ public class HealthEndpointsTests(HelpdeskApiFactory factory)
 
 Attendees run them before they commit (handout lab6, end of Step 3; added after the 2026-10-11
 rehearsal, which had the commit with no test run before it). Put it on screen with the two
-warnings:
+warnings. First: stop the AppHost (Ctrl+C), because while it runs the API locks its bin folder
+(MSB3027).
 
 ```bash
-# Stop the AppHost first (Ctrl+C): while it runs, the API locks its bin folder (MSB3027)
 dotnet test Helpdesk.slnx
 ```
 
@@ -637,9 +637,11 @@ Live, in this order:
    ```sh
    git stash -u
    git checkout lab6-fault
-   dotnet test tests/Helpdesk.ApiTests     # 2 red: the two close tests. The fault is real.
+   dotnet test tests/Helpdesk.ApiTests
    aspire run --apphost src/Helpdesk.AppHost
    ```
+
+   The `dotnet test` run shows 2 red, the two close tests: the fault is real.
 
    Attendees following along committed their work at the end of Step 3, because it is their
    work, so handout step 4.1 only has them confirm `git status` is clean. Their own repository
@@ -653,9 +655,11 @@ Live, in this order:
    git remote add workshop https://github.com/ivanball/adc2026-helpdesk.git
    git fetch workshop
    git checkout -b lab6-fault workshop/lab6-fault
-   dotnet test tests/Helpdesk.ApiTests     # 2 red: the two close tests. The fault is real.
+   dotnet test tests/Helpdesk.ApiTests
    aspire run --apphost src/Helpdesk.AppHost
    ```
+
+   The `dotnet test` run shows 2 red, the two close tests: the fault is real.
 
 2. Create a ticket, close it, read it back:
 

@@ -45,7 +45,11 @@ because a wrong score becomes the record and everybody inherits it.
 
   ```sh
   git switch -c lab8-demo
-  # CloseTicket.cs:9: internal sealed class -> public sealed class
+  ```
+
+  Edit `CloseTicket.cs` line 9: `internal sealed class` becomes `public sealed class`. Then:
+
+  ```sh
   git commit -am "Plant a weakness: CloseTicketHandler public"
   ```
 

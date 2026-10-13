@@ -203,10 +203,11 @@ Dockerfile you are about to add can never land with CRLF on a Windows checkout:
 Dockerfile text eol=lf
 ```
 
-Generate the nine lock files, one per project, and commit everything:
+Generate the nine lock files, one per project, and commit everything (`git branch --show-current`
+must print `main`):
 
 ```sh
-git branch --show-current   # must print main
+git branch --show-current
 dotnet restore Helpdesk.slnx
 git add -A && git commit -m "CI, lock files, audit mode" && git push
 ```
@@ -265,10 +266,13 @@ gh pr create --base main --head lab5-violation --title "Call the handler straigh
 failure lives in its log, on GitHub. Watch it from the terminal, or open the link in a browser:
 
 ```sh
-gh pr checks lab5-violation --watch            # waits for the run; build-and-test ends as fail
-gh run list --branch lab5-violation --limit 3  # the run id is the number in the ID column
-gh run view <run id> --log-failed              # paste that number, without the angle brackets
+gh pr checks lab5-violation --watch
+gh run list --branch lab5-violation --limit 3
+gh run view <run id> --log-failed
 ```
+
+`gh pr checks --watch` waits for the run, and `build-and-test` ends as fail. The run id is the
+number in the ID column of `gh run list`; paste it into `gh run view` without the angle brackets.
 
 The link `gh pr checks` prints also holds the run id (the number after `/runs/`), but a narrow
 terminal cuts it short, so `gh run list` is the reliable place to read it. Or skip the id:
@@ -441,10 +445,10 @@ git checkout -b ship-image && git add -A && git commit -m "Dockerfile and releas
 gh pr create --base main --head ship-image --title "Dockerfile and release workflow" --body "Release on tag."
 ```
 
-Wait for `build-and-test` to go green, then squash it in:
+Wait for `build-and-test` to go green (`--watch` waits for CI, about a minute), then squash it in:
 
 ```sh
-gh pr checks ship-image --watch      # waits for CI; about a minute
+gh pr checks ship-image --watch
 gh pr merge --squash --delete-branch
 ```
 
@@ -462,9 +466,12 @@ The merge to `main` only runs CI. Pushing the TAG is what triggers the release:
 
 ```sh
 git checkout main && git pull && git tag v0.1.0 && git push origin v0.1.0
-gh run list --workflow release.yml --limit 1   # the Release run the tag started; id in the ID column
-gh run watch <run id> --exit-status            # waits until it finishes; a red run exits non-zero
+gh run list --workflow release.yml --limit 1
+gh run watch <run id> --exit-status
 ```
+
+`gh run list` shows the Release run the tag started, with its id in the ID column. `gh run watch`
+waits until it finishes; a red run exits non-zero.
 
 ## Step 6: pull the image and run it
 
@@ -528,13 +535,14 @@ on every pull request.
 ## Verification
 
 ```sh
-gh pr checks lab5-violation                   # per-check status on the violation PR
-gh run list --limit 5                         # the last five workflow runs
+gh pr checks lab5-violation
+gh run list --limit 5
 gh api repos/<owner>/helpdesk/branches/main/protection --jq '.required_status_checks.contexts'
-docker pull --platform linux/amd64 ghcr.io/<owner>/helpdesk:v0.1.0   # the image exists and you can pull it
+docker pull --platform linux/amd64 ghcr.io/<owner>/helpdesk:v0.1.0
 ```
 
-You are done when `gh pr checks` showed `build-and-test` FAILING on the violation and PASSING
+`gh pr checks` shows per-check status on the violation PR, and `gh run list` the last five
+workflow runs. You are done when `gh pr checks` showed `build-and-test` FAILING on the violation and PASSING
 after the fix, and the `docker pull` succeeds.
 
 ## Troubleshooting

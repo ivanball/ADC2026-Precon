@@ -453,11 +453,11 @@ git add -A && git commit -m "Ticket aggregate with close rule"
 
 - Show a good diff and, if you saw one while floating, an over-eager diff (extra helper class,
   modified test). Naming the failure modes now sets up the candor material in S9.
-- The zero-packages moment, on screen:
+- The zero-packages moment, on screen (it prints `0`):
   *Instructor only (not in the handout).*
 
 ```bash
-grep -c PackageReference src/Modules/Tickets/Helpdesk.Tickets.Domain/*.csproj   # 0
+grep -c PackageReference src/Modules/Tickets/Helpdesk.Tickets.Domain/*.csproj
 ```
 
   In PowerShell: `(Select-String PackageReference src/Modules/Tickets/Helpdesk.Tickets.Domain/*.csproj).Count   # 0`
