@@ -587,6 +587,12 @@ rehearsal it said it had no way to list tickets and asked for the ids, without g
 the pause happen; the room should see the agent being blocked by an absence rather than by a
 rule.
 
+It may not stall cleanly. In the 2026-10-12 Mac run the agent, which also has Bash, read the
+`sa` password from `docker-compose.yml`, asked to run `docker exec ... sqlcmd`, and kept
+offering to query the database. Deny it on screen and say what just happened: the MCP surface
+had no way through, so it went for the shell. That is the caveat at the end of this step,
+arriving early; use it.
+
 **Then hand it the poisoned id** (handout step 5, item 3). It just asked for ids, so answer
 with the one from request 2:
 
@@ -636,6 +642,12 @@ Then the honest caveat, because somebody will ask: this is not a general defence
 injection, and no arrangement of code is. It is a bound on the damage. A model that believes a
 hostile instruction will still try; the point is that trying reaches the same wall an authorised
 user reaches, and the wall was already tested.
+
+And the second caveat, which the demo may already have shown: the tool surface bounds the MCP
+client, not an agent that also has a shell. Claude Code in this terminal can read
+`docker-compose.yml` and reach the database directly; what stopped it was the permission prompt
+and Lab 4's guardrails, not the three methods. An agent that serves untrusted input in
+production gets the MCP server and nothing else.
 
 ## Step 6: the MCP tests (attendees, at 3:51, running under the debrief)
 

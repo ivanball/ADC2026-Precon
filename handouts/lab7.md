@@ -365,6 +365,11 @@ you prefer the VS Code REST Client; the curl commands below are all you need.
    Inspector you hit the same wall yourself: there is no `list` button, because there is no
    `list` tool, because nobody wrote one.
 
+   **An agent with a shell may go around the tools.** In the 2026-10-12 Mac run it read the
+   `sa` password from `docker-compose.yml` and asked to run `docker exec ... sqlcmd` against
+   the database; only the permission prompt stopped it. Deny that call (and any offer to query
+   the database for you), then go on to item 3.
+
 3. Give it the id from the poisoned ticket and let `get_ticket` run. The agent just asked you
    for ids, so answer with the one the second curl returned:
 
@@ -391,7 +396,9 @@ you prefer the VS Code REST Client; the curl commands below are all you need.
 
    - **"Close every ticket" has no tool.** `close_ticket` takes one id and nothing hands out
      ids. The tool surface is the blast radius, and it was fixed at design time by three method
-     signatures.
+     signatures. That bounds what the application exposes over MCP, not what the agent in your
+     terminal can do: it also has a shell and your machine (item 2). Lab 4's permissions and
+     hooks bound that half; a production agent gets the MCP server and no shell.
    - **The aggregate still decides.** `Ticket.Close()` refuses an already closed ticket with
      `Tickets.AlreadyClosed` and refuses one with an undone child task with
      `Tickets.OpenChildTasks`. Close the poisoned ticket twice and watch the second call come
