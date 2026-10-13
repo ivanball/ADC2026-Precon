@@ -41,7 +41,8 @@ because a wrong score becomes the record and everybody inherits it.
   `evals/rubric.md` and the agents from the repository. The published `workshop/lab8-demo`
   has the planted change but not `evals/` or `.claude/agents/` (and it was cut from an older
   `main`), so either run step 1 on it after checking it out, or cut it from a `main` that
-  already has them. In a practice repo at the end of Lab 8 step 1, that is:
+  already has them. In a practice repo at the end of Lab 8 step 1, that is
+  (*Instructor only: prep before the room arrives.*):
 
   ```sh
   git switch -c lab8-demo
@@ -57,7 +58,8 @@ because a wrong score becomes the record and everybody inherits it.
   must print `["build-and-test"]`. Attendees who caught up from a rescue clone will see exactly
   those flags; handout step 3 tells them that is the rubric working.
 
-  Edit `CloseTicket.cs` line 9: `internal sealed class` becomes `public sealed class`. Then:
+  Edit `CloseTicket.cs` line 9: `internal sealed class` becomes `public sealed class`. Then
+  (*Instructor only: prep.*):
 
   ```sh
   git commit -am "Plant a weakness: CloseTicketHandler public"
@@ -121,6 +123,14 @@ sibling of their repository, with the URL on the screen:
 
 ```bash
 git clone https://github.com/ivanball/agentic-dotnet-starter-kit.git ../agentic-dotnet-starter-kit
+```
+
+The handout shows the result:
+
+```text
+<parent folder>/
+  <your repository>/            where you run every command in this lab
+  agentic-dotnet-starter-kit/   the kit, only ever read from
 ```
 
 Then they copy the three files and list them:
@@ -398,14 +408,34 @@ Then the same handout section tells attendees that rule 4 depends on their machi
 a null score when the scorer cannot ask GitHub (no `gh`, not signed in, or the Bash call
 declined), a CONFIRMED 2 with "gh api shows ..." in a justification when `gh` is signed in,
 and a third, wrong outcome: a CONFIRMED 2 citing their own `CLAUDE.md`, which they are told to
-mark for step 4. Either way they settle it with the Lab 5 command, which should print `["build-and-test"]`:
-`gh api repos/<owner>/helpdesk/branches/main/protection --jq '.required_status_checks.contexts'`.
+mark for step 4. A fourth bullet covers attendees scoring a fresh workshop clone (404
+`Branch not protected`, rules 1-4 FLAG; correct for that clone). Either way they settle it
+with the Lab 5 command, which should print `["build-and-test"]`:
+
+```bash
+gh api repos/<owner>/helpdesk/branches/main/protection --jq '.required_status_checks.contexts'
+```
+
 The handout adds a caveat for rescue branches: that command answers for `main`, and a rescue
 branch (`lab6-end` or `lab7-end`) shares no commits with the attendee's `main`, so the
 protected check never ran on the code being scored. They weigh that for every rule whose 2
 rests on "the required check runs it" (rules 1, 3 and 4 at least); the verifier in step 4 tends
 to raise it too.
 (The handout's paragraph on the six fields matches the "While it runs" beat below.)
+
+The handout then lets attendees plant the same weakness on their own code, on a scratch branch
+cut from their `main`:
+
+```bash
+git switch -c lab8-demo
+```
+
+```bash
+git commit -am "Plant a weakness: CloseTicketHandler public"
+```
+
+(the edit between the two: `internal sealed class CloseTicketHandler` becomes `public`). They
+never push it and `git switch main` afterwards.
 
 What the agent should produce: five rows, a `path:line` on every row, no total. On `lab8-demo`:
 rule 3 `0` citing `CloseTicket.cs:9` CONFIRMED, rule 4 `null` FLAG, rule 2 `1` or `2`

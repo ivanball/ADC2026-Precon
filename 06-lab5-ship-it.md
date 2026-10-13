@@ -792,6 +792,11 @@ the foreground):
 
 ```sh
 curl -i localhost:8080/health
+```
+
+Then the contrast call:
+
+```sh
 curl -sS -i -X POST localhost:8080/tickets -H "content-type: application/json" -d '{"title":"Printer on fire"}'
 ```
 

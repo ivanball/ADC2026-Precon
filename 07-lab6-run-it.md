@@ -896,57 +896,107 @@ practice repo:
 
 2. Declare the target in `AppHost.cs`. Its own step on purpose: the package alone declares
    nothing, and in the 2026-10-11 rehearsal going straight from `aspire add` to `--list-steps`
-   skipped these edits and listed one empty step. The handout prints the whole file (the
-   Step 1 AppHost plus three lines marked `// NEW`), because two fragments were hard to place
-   in the same rehearsal. The three lines:
+   skipped these edits and listed one empty step. The whole file (the Step 1 AppHost plus three
+   lines marked `// NEW`), as the handout prints it, because two fragments were hard to place
+   in the same rehearsal:
+
+   **File: `src/Helpdesk.AppHost/AppHost.cs` (whole file after the edit)**
 
    ```csharp
    var builder = DistributedApplication.CreateBuilder(args);
 
    // The deployment target: aspire deploy provisions an Azure Container Apps environment.  // NEW
    builder.AddAzureContainerAppEnvironment("env");                                          // NEW
-   ```
 
-   ```csharp
+   // Aspire runs its own SQL Server container. It gets its own container name and whatever host
+   // port Aspire assigns, so the docker compose container on 14330 that labs 1 to 5 use keeps
+   // running beside it and neither one can take the other's port.
+   var sql = builder.AddSqlServer("sql")
+       .WithContainerName("helpdesk-aspire-sql")
+       .WithLifetime(ContainerLifetime.Persistent)   // survives a stop, so a restart is seconds
+       .WithDataVolume("helpdesk-aspire-sql-data");  // and the data survives with it
+
+   // The resource name is the connection string name that WithReference injects. Calling this
+   // database "Tickets" is what lands it on ConnectionStrings:Tickets, which is the key the
+   // Tickets module already reads. The physical database is still HelpdeskTickets.
+   var tickets = sql.AddDatabase("Tickets", "HelpdeskTickets");
+
    builder.AddProject<Projects.Helpdesk_Host>("api")
        .WithExternalHttpEndpoints()                                                         // NEW
        .WithReference(tickets)
+
+       // WaitFor gates startup on the SQL resource reporting healthy: that is liveness of a
+       // dependency, and it is the right thing to wait on. A service must never gate its own
+       // startup on its own readiness endpoint (/health), because /health only goes green after
+       // the schema is in place, and the schema only arrives after the service starts. Wait on
+       // what you depend on, report your own readiness, and never wait on yourself.
+       .WaitFor(tickets)
+
+       // Only the orchestrated run migrates on startup. Labs 1 to 5 keep using
+       // dotnet ef database update against the compose container, so the default stays off.
+       .WithEnvironment("Migrations__ApplyOnStartup", "true");
+
+   builder.Build().Run();
    ```
 
    Check: `git diff src/Helpdesk.AppHost/AppHost.cs` shows only additions (the three marked
-   lines and one blank line), nothing removed. AI-path AppHosts read differently from the handout's; they add the same three
-   lines in the same two places rather than pasting the whole file.
+   lines and one blank line), nothing removed. AI-path AppHosts read differently from the
+   handout's; they add the same three lines in the same two places rather than pasting the
+   whole file.
 
-3. Offline check, verified in the rehearsal: `aspire deploy --apphost src/Helpdesk.AppHost
-   --list-steps` now lists 12 steps (`build-api`, `validate-azure-login`, `provision-env-acr`,
+3. Offline check, verified in the rehearsal:
+
+   ```sh
+   aspire deploy --apphost src/Helpdesk.AppHost --list-steps
+   ```
+
+   It now lists 12 steps (`build-api`, `validate-azure-login`, `provision-env-acr`,
    `provision-env`, `provision-azure-bicep-resources`, `print-dashboard-url-env`, then
    `deploy`). One step only (`1. deploy`, "No dependencies") means step 2 is missing; do not
    deploy until you see the 12. Worth showing live: the graph you wrote IS the pipeline.
 
-4. Deploy, interactively (it prompts for subscription, location, resource group):
-   `aspire deploy --apphost src/Helpdesk.AppHost`. **Type a new resource group name at the
-   prompt; do not accept the suggestion.** The prompt lists the groups that already exist,
-   and the instructor's subscription also hosts production workloads: in the 2026-10-11
-   rehearsal the only suggestion was the production group, it was accepted, and the demo landed
-   beside production (additive only, nothing existing was changed, but the one-command
-   teardown was then off the table). Use a dedicated `helpdesk-demo-rg`. The deploy saves its
-   answers as deployment state, so a re-run after a wrong pick needs `--clear-cache` to ask
-   again.
+4. Deploy, interactively (it prompts for subscription, location, resource group; `az login`
+   first):
+
+   ```sh
+   aspire deploy --apphost src/Helpdesk.AppHost
+   ```
+
+   **Type a new resource group name at the prompt; do not accept the suggestion.** The prompt
+   lists the groups that already exist, and the instructor's subscription also hosts
+   production workloads: in the 2026-10-11 rehearsal the only suggestion was the production
+   group, it was accepted, and the demo landed beside production (additive only, nothing
+   existing was changed, but the one-command teardown was then off the table). Use a dedicated
+   `helpdesk-demo-rg`. The deploy saves its answers as deployment state, so a re-run after a
+   wrong pick needs `--clear-cache` to ask again.
 
    Measured in the rehearsal: 28 steps, 16m 9s, of which `provision-env` (the Container Apps
    environment) was 14m 35s with no output. That rules out starting a live run inside the
    3-minute Step 5 slot; a live variant has to be kicked off before the lab and only shown
    finishing.
 
-5. Verify: `curl -i https://<api-url>/health` answers `Healthy` (the API reached SQL and the
-   migrations ran in the cloud), then create, close and read back a ticket. Verified live in
-   the rehearsal at the default container sizes: `/health` and `/alive` both `Healthy`, create
-   returned the new id, close `204`, read back `"status":"Closed"`, second close `400`. SQL Server ran fine as
-   a container app with no size override.
+5. Verify, with the `api` URL the deploy printed:
 
-6. Tear down the same day: `az group delete -n helpdesk-demo-rg --yes --no-wait`, then
-   `git switch main`. Only ever against the dedicated group: a group delete on a shared group
-   takes everything in it, production included.
+   ```sh
+   curl -i https://<api-url>/health
+   curl -s -X POST https://<api-url>/tickets -H "content-type: application/json" -d '{"title":"Printer on fire"}'
+   ```
+
+   `/health` answers `Healthy` (the API reached SQL and the migrations ran in the cloud), then
+   close and read back the ticket. Verified live in the rehearsal at the default container
+   sizes: `/health` and `/alive` both `Healthy`, create returned the new id, close `204`, read
+   back `"status":"Closed"`, second close `400`. SQL Server ran fine as a container app with
+   no size override.
+
+6. Tear down the same day:
+
+   ```sh
+   az group delete -n helpdesk-demo-rg --yes --no-wait
+   git switch main
+   ```
+
+   Only ever against the dedicated group: a group delete on a shared group takes everything in
+   it, production included.
 
 Attendees verify afterwards, over the break or tonight (handout lab6, "Verify"). Point them at
 it in one sentence: with the AppHost stopped, because a running AppHost locks the API's `bin`
@@ -994,13 +1044,19 @@ stops reading about the helpdesk and starts using it."
   (anyone who rehearsed Lab 6 at home, then rebuilt or recloned the AppHost): the new AppHost
   generated a new `sa` password into its user secrets, but SQL Server only applies
   `MSSQL_SA_PASSWORD` when it first creates `master`, so the old volume still holds the old
-  one. Fix: Ctrl+C the AppHost (the persistent container keeps running), then
-  `docker inspect helpdesk-aspire-sql --format "{{range .Mounts}}{{.Name}}{{end}}"` to get the
-  volume name (`helpdesk-aspire-sql-data` with the handout code;
-  `helpdesk.apphost-<hash>-sql-data` if the AI path wrote an unnamed `.WithDataVolume()`), then
-  `docker rm -f helpdesk-aspire-sql` and `docker volume rm <that name>`, then start the AppHost
-  again. Only rehearsal tickets are lost; `Migrations__ApplyOnStartup` rebuilds the schema.
-  The full block is in the handout's Troubleshooting.
+  one. Fix: Ctrl+C the AppHost (the persistent container keeps running), then the handout's
+  Troubleshooting block. Its first line prints the volume name (`helpdesk-aspire-sql-data` with
+  the handout code; `helpdesk.apphost-<hash>-sql-data` if the AI path wrote an unnamed
+  `.WithDataVolume()`, so swap that name into the last line):
+
+  ```sh
+  docker inspect helpdesk-aspire-sql --format "{{range .Mounts}}{{.Name}}{{end}}"
+  docker rm -f helpdesk-aspire-sql
+  docker volume rm helpdesk-aspire-sql-data
+  ```
+
+  Then start the AppHost again. Only rehearsal tickets are lost; `Migrations__ApplyOnStartup`
+  rebuilds the schema.
 - **An attendee mapped host port 14330 in their AppHost.** By design nothing here binds a host
   port, so there is no clash. If somebody added one to "make it reachable": the compose
   container owns 14330, whichever container starts second fails or silently shadows the other,
