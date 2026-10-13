@@ -27,6 +27,22 @@ Replace `<owner>` with your GitHub account name in lower case, without the angle
 here and in every later command (for example `gh repo create octocat/helpdesk ...`). Left in,
 the shell reads `<owner>` as a file redirect and fails before `gh` even runs.
 
+Got your code by cloning the workshop repo (a snapshot branch)? Then `git remote` already lists
+`origin`, and `gh repo create` stops with `Unable to add remote "origin"` and pushes nothing.
+Run these three lines first. They rename the workshop remote to `workshop` (the name Lab 6
+uses), make a clean local `main` from where you are, and drop its link to the workshop repo:
+
+```sh
+git remote rename origin workshop
+git checkout -B main
+git branch --unset-upstream
+```
+
+Then run the two lines below as printed (`git branch -M main` is then a no-op). Already hit the
+error? The empty repo exists, so a second `gh repo create` says "Name already exists": run the
+three lines, then `git remote add origin https://github.com/<owner>/helpdesk.git` and
+`git push -u origin main` instead.
+
 ```sh
 git branch -M main
 gh repo create <owner>/helpdesk --public --source=. --remote=origin --push

@@ -127,6 +127,22 @@ reads `<owner>` as a file redirect and fails before `gh` runs ("The system canno
 specified" in cmd.exe). Say it out loud as well, and that any repo name other than `helpdesk`
 must then be swapped into every later `<owner>/helpdesk` too.
 
+Attendees who rescued by CLONING the workshop repo already have an `origin`: `gh repo create`
+then prints `X Unable to add remote "origin"` and pushes nothing (Mac dry run, 2026-10-12; any
+OS). `git branch -M main` over the clone's `main` also leaves `main` tracking the workshop repo,
+so step 3's bare `git push` would aim there. The handout gives them this first (tested: clean
+config, `main...origin/main` after the create):
+
+```sh
+git remote rename origin workshop
+git checkout -B main
+git branch --unset-upstream
+```
+
+If they already hit the error, the empty repo exists and a rerun says "Name already exists":
+the three lines, then `git remote add origin https://github.com/<owner>/helpdesk.git` and
+`git push -u origin main`.
+
 ```sh
 git branch -M main
 gh repo create <owner>/helpdesk --public --source=. --remote=origin --push
