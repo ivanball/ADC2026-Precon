@@ -637,6 +637,14 @@ It asks which agent you use and writes the entry for it. For Claude Code that is
 VS Code reads `.vscode/mcp.json` instead, in the same shape. The file is safe to commit:
 it names a command, not a credential.
 
+`aspire agent init` also changes your machine outside the repository. It installs seven
+Aspire skills in `~/.agents/skills/`, and adds a `PostToolUse` hook to your user-level
+`~/.claude/settings.json` that runs `~/.aspire/hooks/track-telemetry.sh` after every tool
+call, in every Claude Code session, to report Aspire skill and MCP usage. Setting
+`ASPIRE_CLI_TELEMETRY_OPTOUT=true` stops the reporting, not the install. To undo it, delete
+that `hooks` entry from `~/.claude/settings.json` and remove `~/.agents/skills/aspire*`. If you
+only want the MCP entry, write the file above by hand instead.
+
 ## 3. Restart and confirm
 
 Restart the agent so it picks the server up, then list the connected servers (`/mcp` in

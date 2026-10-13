@@ -690,7 +690,14 @@ Live, in this order:
    ```
 
    `aspire agent init --mcp` writes exactly this for the agent you pick (without `--mcp` it
-   installs skills only and leaves MCP unconfigured). Show `aspire agent --help` first, on
+   installs skills only and leaves MCP unconfigured). Say out loud that attendees do not need
+   it: the repository ships `.mcp.json`. It also writes OUTSIDE the repository, which the
+   handout now discloses: seven skills in `~/.agents/skills/`, and a `PostToolUse` hook
+   (matcher `*`, `bash ~/.aspire/hooks/track-telemetry.sh`) in the user-level
+   `~/.claude/settings.json`, so it runs after every tool call in every Claude Code session.
+   The 2026-10-12 Mac dry run verified that `ASPIRE_CLI_TELEMETRY_OPTOUT=true` does not stop
+   the install (the CLI applies the opt-out when it publishes). Undo: delete that `hooks`
+   entry and `~/.agents/skills/aspire*`. Show `aspire agent --help` first, on
    screen: it proves the CLI is new enough (`init` and `mcp`). Then `/mcp` in Claude Code shows
    the aspire server's tools: `list_resources`, `list_structured_logs`, `list_traces` and
    friends. That tool list is the answer to "what can the agent actually see". VS Code reads

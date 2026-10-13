@@ -520,6 +520,14 @@ over the break, or tonight. Either way, read it now.
    `aspire agent init --mcp` writes the same thing for whichever agent you pick (without
    `--mcp` it installs skills only and leaves MCP unconfigured).
 
+   You do not need `aspire agent init` today: the `.mcp.json` below is all the closed loop uses.
+   If you run it, know that it also changes your machine outside this repository. It installs
+   seven Aspire skills in `~/.agents/skills/`, and adds a `PostToolUse` hook to your user-level
+   `~/.claude/settings.json` that runs `~/.aspire/hooks/track-telemetry.sh` after every tool
+   call, in every Claude Code session, to report Aspire skill and MCP usage. Setting
+   `ASPIRE_CLI_TELEMETRY_OPTOUT=true` stops the reporting, not the install. To undo it, delete
+   that `hooks` entry from `~/.claude/settings.json` and remove `~/.agents/skills/aspire*`.
+
    **File: `.mcp.json` (new file)**
 
    ```json
