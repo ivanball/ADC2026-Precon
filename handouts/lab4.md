@@ -180,12 +180,14 @@ committed. Run both lines (they work in Git Bash, PowerShell and cmd alike):
 
 ```bash
 git checkout -- .
-git clean -f src/Modules/Tickets/Helpdesk.Tickets.Domain/TicketQueries.cs
+git clean -f src/
 ```
 
-The first line restores tracked files only (the Domain `.csproj`); `TicketQueries.cs` is a new,
-untracked file, so `git status` keeps listing it until the second line deletes it. `git status`
-then reports a clean tree, and `dotnet test Helpdesk.slnx` is 11 green again.
+The first line restores tracked files only (the Domain `.csproj`); the class the agent added is a
+new, untracked file (`TicketQueries.cs` on the manual path; the agent may pick another name), so
+`git status` keeps listing it until the second line deletes it. The second line removes every
+untracked file under `src/` (build output is ignored, so it stays), whatever the file is called.
+`git status` then reports a clean tree, and `dotnet test Helpdesk.slnx` is 11 green again.
 
 ## Step 4: Guardrails (create the files)
 
@@ -332,9 +334,9 @@ git commit -m "Agent guardrails"
 
 Read the `git status --short` output before you commit: it should list only the three
 `.claude/` files and `.gitattributes`. If it lists anything under `src/`,
-THE FLIP is still in your working copy: run `git restore --staged src/ && git restore src/`,
-delete `src/Modules/Tickets/Helpdesk.Tickets.Domain/TicketQueries.cs`, check
-`dotnet test Helpdesk.slnx` is 11 green again, then commit. On Windows, `git add` may warn
+THE FLIP is still in your working copy: run `git restore --staged src/ && git restore src/ && git clean -f src/`
+(the last part deletes the new Domain file, whatever the agent named it), check
+`git status --short` again and `dotnet test Helpdesk.slnx` is 11 green again, then commit. On Windows, `git add` may warn
 that CRLF will be replaced by LF in the two scripts: that is `.gitattributes` working. The
 repository stores LF, and the CRLF copy on your disk still runs under Git Bash.
 

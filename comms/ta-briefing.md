@@ -55,8 +55,8 @@ are copy-adapt from CreateTicket: say exactly that.
   Mac it can stay "not found" after the install because zsh lacks `~/.dotnet/tools` on PATH:
   `echo 'export PATH="$PATH:$HOME/.dotnet/tools"' >> ~/.zprofile`, new terminal.
 - **A file survives the Lab 4 FLIP revert**: `git checkout -- .` restores tracked files but
-  leaves the new, untracked `TicketQueries.cs`. The handout's revert block has the
-  `git clean -f <that path>` line; point at it.
+  leaves the new, untracked class file (`TicketQueries.cs`, or whatever name the agent chose).
+  The handout's revert block has the `git clean -f src/` line; point at it.
 - **`src refspec lab5-violation does not match any`** (Lab 5 push): they edited and committed
   on `main` without creating the branch. `git switch -c lab5-violation`, then
   `git branch -f main origin/main`, then push the branch. The handout has the same recovery.

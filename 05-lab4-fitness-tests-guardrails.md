@@ -316,12 +316,14 @@ get committed. Put both lines on screen:
 
 ```bash
 git checkout -- .
-git clean -f src/Modules/Tickets/Helpdesk.Tickets.Domain/TicketQueries.cs
+git clean -f src/
 ```
 
-Call out the second line: `git checkout -- .` only restores tracked files, so the new
-`TicketQueries.cs` survives it and `git status` still lists it as untracked (caught in the
-2026-10-11 rehearsal). Clean tree, then 11 green, before Step 4.
+Call out the second line: `git checkout -- .` only restores tracked files, so the new class file
+survives it and `git status` still lists it as untracked (caught in the 2026-10-11 rehearsal).
+It cleans all of `src/`, not one path, because on the AI path the agent names the file itself
+(`OpenTicketsQuery.cs` in the 2026-10-12 Mac run, where a hard-coded `TicketQueries.cs` path
+removed nothing and Step 4's `git add -A` then staged the leftover). Clean tree, then 11 green, before Step 4.
 
 ## Debrief: land the thesis (4 min)
 
@@ -501,9 +503,9 @@ git commit -m "Agent guardrails"
 
 Read the `git status --short` output before you commit: it should list only the three
 `.claude/` files and `.gitattributes`. If it lists anything under `src/`,
-THE FLIP is still in your working copy: run `git restore --staged src/ && git restore src/`,
-delete `src/Modules/Tickets/Helpdesk.Tickets.Domain/TicketQueries.cs`, check
-`dotnet test Helpdesk.slnx` is 11 green again, then commit. On Windows, `git add` may warn
+THE FLIP is still in your working copy: run `git restore --staged src/ && git restore src/ && git clean -f src/`
+(the last part deletes the new Domain file, whatever the agent named it), check
+`git status --short` again and `dotnet test Helpdesk.slnx` is 11 green again, then commit. On Windows, `git add` may warn
 that CRLF will be replaced by LF in the two scripts: that is `.gitattributes` working. The
 repository stores LF, and the CRLF copy on your disk still runs under Git Bash.
 
